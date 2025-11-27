@@ -1,0 +1,63 @@
+version: 1
+project: "DevStories"
+
+# ID generation mode
+id_mode: manual
+
+# ID prefixes
+id_prefix:
+  epic: "EPIC"
+  story: "DS"
+
+# Board columns (status workflow)
+statuses:
+  - id: todo
+    label: "To Do"
+    color: "#3B82F6"
+  - id: in_progress
+    label: "In Progress"
+    color: "#F59E0B"
+  - id: review
+    label: "Review"
+    color: "#8B5CF6"
+  - id: done
+    label: "Done"
+    color: "#10B981"
+
+# Sprint configuration
+sprints:
+  current: "phase-1"
+
+# Size options
+sizes: ["XS", "S", "M", "L", "XL"]
+
+# Story templates per type
+templates:
+  feature: |
+    ## Description
+    [Description]
+
+    ## Acceptance Criteria
+    - [ ]
+
+    ## Technical Notes
+
+  bug: |
+    ## Bug Description
+
+    ## Steps to Reproduce
+    1.
+
+    ## Expected vs Actual
+
+  task: |
+    ## Task Description
+
+    ## Checklist
+    - [ ]
+
+  chore: |
+    ## Description
+
+    ## Checklist
+    - [ ]

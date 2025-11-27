@@ -1,0 +1,23 @@
+=== Session: 2025-11-27 00:00 (Initial) ===
+Story: N/A (Project setup)
+Status: complete
+
+Project state at harness setup:
+- 7/23 stories complete (30%)
+- Phase 1 (Foundation): 5/5 done
+- Phase 2 (Tree View): 2/4 done (DS-008, DS-009 remaining)
+- Phase 3-5: Not started
+
+Done stories:
+- DS-001: Project Scaffolding
+- DS-002: Markdown Parser
+- DS-003: File Watcher
+- DS-004: In-Memory Store
+- DS-005: Auto-Timestamps on Save
+- DS-006: TreeDataProvider
+- DS-007: Epic/Story Hierarchy
+
+Next story: DS-008 (Status + Type Icons)
+
+---
+

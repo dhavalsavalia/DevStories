@@ -1,0 +1,19 @@
+export type StoryType = 'feature' | 'bug' | 'task' | 'chore';
+export type StoryStatus = string; // Defined in config, but string for now
+export type StorySize = 'XS' | 'S' | 'M' | 'L' | 'XL';
+
+export interface Story {
+  id: string;
+  title: string;
+  type: StoryType;
+  epic: string;
+  status: StoryStatus;
+  sprint?: string;
+  size: StorySize;
+  assignee?: string;
+  dependencies?: string[];
+  created: Date;
+  updated?: Date;
+  content: string; // The markdown body
+  filePath?: string; // Path to the file
+}

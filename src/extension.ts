@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { AutoTimestamp } from './core/autoTimestamp';
 import { Store } from './core/store';
 import { Watcher } from './core/watcher';
+import { StatusBarController } from './view/statusBar';
 import { StoriesProvider } from './view/storiesProvider';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -10,7 +11,8 @@ export function activate(context: vscode.ExtensionContext) {
 	// Initialize Core Components
 	const watcher = new Watcher();
 	const store = new Store(watcher);
-	const storiesProvider = new StoriesProvider(store);
+	const storiesProvider = new StoriesProvider(store, context.extensionPath);
+	const statusBarController = new StatusBarController(store);
 	const autoTimestamp = new AutoTimestamp();
 
 	// Register Tree Data Provider
@@ -24,7 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.showInformationMessage('DevStories: Init command triggered');
 	});
 
-	context.subscriptions.push(watcher, autoTimestamp, disposable);
+	context.subscriptions.push(watcher, autoTimestamp, statusBarController, disposable);
 }
 
 export function deactivate() {}

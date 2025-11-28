@@ -14,9 +14,18 @@
       "Bash(npm run test:integration:*)",
       "Bash(git init:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Skill(frontend-design:frontend-design)",
+      "Bash(mkdir:*)",
+      "Bash(npm run compile:*)",
+      "Bash(npm run compile-tests:*)"
     ],
     "deny": [],
-    "ask": []
+    "ask": [],
+    "additionalDirectories": [
+      "/Users/dhavalsavalia/projects/devstories",
+      "/Users/dhavalsavalia/projects/devstories_test"
+    ],
+    "defaultMode": "bypassPermissions"
   }
 }

@@ -19,5 +19,65 @@ Done stories:
 
 Next story: DS-008 (Status + Type Icons)
 
+=== Session: 2025-11-28 18:40 ===
+Story: DS-008 (Status + Type Icons)
+Status: done
+
+Work done:
+- Created SVG icons for story types (feature, bug, task, chore) + epic + fallback
+- Light/dark theme variants for all icons
+- Updated StoriesProvider to display icons based on type
+- Added status indicators (○ todo, ◐ in_progress, ◑ review, ● done)
+- Rich markdown tooltips with story details
+- Added 4 new integration tests for icon functionality
+- Updated CLAUDE.md with TDD workflow and frontend-design skill note
+
+Files changed:
+- assets/icons/*.svg (10 new icon files)
+- src/view/storiesProvider.ts (icon + status logic)
+- src/extension.ts (pass extensionPath)
+- src/test/suite/storiesProvider.test.ts (4 new tests)
+- CLAUDE.md (TDD workflow, frontend-design skill)
+
+Tests: 15/16 passing (1 pre-existing flaky watcher test)
+
+Next story: DS-009 (Progress Bar in Status Bar)
+
+Also this session:
+- Created manual test workspace at /Users/dhavalsavalia/projects/devstories_test
+- 2 epics, 5 stories with all types (feature/bug/task/chore) and all statuses
+- Updated CLAUDE.md with test workspace path and launch command
+
+---
+
+=== Session: 2025-11-28 09:00 ===
+Story: DS-009 (Progress Bar in Status Bar)
+Status: done
+
+Work done:
+- Created src/view/statusBar.ts with StatusBarController
+- Progress bar display: "$(checklist) ██░░░░ 1/5" format
+- Counts done vs total stories (with optional sprint filter)
+- Auto-updates when store changes (onDidUpdate event)
+- Added 5 new integration tests for status bar
+- Integrated into extension.ts
+
+Bug fixes this session:
+- Fixed autoTimestamp newline insertion bug (was appending to previous line)
+- Fixed test workspace dummy data (corrupted from bug)
+- Made autoTimestamp test more robust (verifies line integrity)
+
+Files changed:
+- src/view/statusBar.ts (new)
+- src/test/suite/statusBar.test.ts (new)
+- src/extension.ts (added StatusBarController)
+- src/core/autoTimestamp.ts (fixed newline insertion)
+- src/test/suite/autoTimestamp.test.ts (more robust assertions)
+- devstories_test/.devstories/* (fixed corrupted data)
+
+Tests: 21 passing
+
+Next story: DS-010 (Init Command) - Phase 3 begins
+
 ---
 

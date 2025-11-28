@@ -59,8 +59,9 @@ export class AutoTimestamp {
       }
     } else {
       // Insert new field before the closing ---
+      // Need to insert newline + field since we're inserting at the end of previous line
       const pos = doc.positionAt(endOfFrontmatter);
-      edits.push(vscode.TextEdit.insert(pos, `updated: ${today}\n`));
+      edits.push(vscode.TextEdit.insert(pos, `\nupdated: ${today}`));
     }
 
     if (edits.length > 0) {

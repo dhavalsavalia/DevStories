@@ -7,24 +7,32 @@ import { Watcher } from '../../core/watcher';
 import { StoriesProvider } from '../../view/storiesProvider';
 
 suite('StoriesProvider Test Suite', () => {
-	const workspaceRoot = vscode.workspace.workspaceFolders![0].uri.fsPath;
-	const storiesDir = path.join(workspaceRoot, '.devstories', 'stories');
-	const epicsDir = path.join(workspaceRoot, '.devstories', 'epics');
-	
-	const epicFile = path.join(epicsDir, 'EPIC-VIEW.md');
-	const storyFile = path.join(storiesDir, 'STORY-VIEW.md');
+  const workspaceRoot = vscode.workspace.workspaceFolders![0].uri.fsPath;
+  const storiesDir = path.join(workspaceRoot, '.devstories', 'stories');
+  const epicsDir = path.join(workspaceRoot, '.devstories', 'epics');
 
-	let watcher: Watcher;
-	let store: Store;
-    let provider: StoriesProvider;
+  const epicFile = path.join(epicsDir, 'EPIC-VIEW.md');
+  const storyFile = path.join(storiesDir, 'STORY-VIEW.md');
+  const bugFile = path.join(storiesDir, 'STORY-BUG.md');
 
-	setup(async () => {
-		// Ensure directories exist
-		if (!fs.existsSync(storiesDir)) fs.mkdirSync(storiesDir, { recursive: true });
-		if (!fs.existsSync(epicsDir)) fs.mkdirSync(epicsDir, { recursive: true });
+  let watcher: Watcher;
+  let store: Store;
+  let provider: StoriesProvider;
 
-		// Create sample files
-		fs.writeFileSync(epicFile, `---
+  // Mock extension path for icon tests
+  const mockExtensionPath = path.join(workspaceRoot, '..'); // Parent of test-workspace
+
+  setup(async () => {
+    // Ensure directories exist
+    if (!fs.existsSync(storiesDir)) {
+      fs.mkdirSync(storiesDir, { recursive: true });
+    }
+    if (!fs.existsSync(epicsDir)) {
+      fs.mkdirSync(epicsDir, { recursive: true });
+    }
+
+    // Create sample epic
+    fs.writeFileSync(epicFile, `---
 id: EPIC-VIEW
 title: View Epic
 status: todo
@@ -32,7 +40,8 @@ created: 2025-01-01
 ---
 # View Epic`);
 
-		fs.writeFileSync(storyFile, `---
+    // Create feature story
+    fs.writeFileSync(storyFile, `---
 id: STORY-VIEW
 title: View Story
 type: feature
@@ -43,64 +52,169 @@ created: 2025-01-01
 ---
 # View Story`);
 
-		watcher = new Watcher();
-		store = new Store(watcher);
-        provider = new StoriesProvider(store);
-        await store.load();
-	});
+    // Create bug story (for icon type testing)
+    fs.writeFileSync(bugFile, `---
+id: STORY-BUG
+title: Bug Story
+type: bug
+epic: EPIC-VIEW
+status: in_progress
+size: M
+created: 2025-01-01
+---
+# Bug Story`);
 
-	teardown(() => {
-		watcher.dispose();
-		if (fs.existsSync(epicFile)) fs.unlinkSync(epicFile);
-		if (fs.existsSync(storyFile)) fs.unlinkSync(storyFile);
-	});
+    watcher = new Watcher();
+    store = new Store(watcher);
+    provider = new StoriesProvider(store, mockExtensionPath);
+    await store.load();
+  });
 
-	test('should return epics as root children', async () => {
-		const children = await provider.getChildren();
-        const epic = children.find(c => c.id === 'EPIC-VIEW');
-		assert.ok(epic, 'Epic should be found in root children');
-	});
+  teardown(() => {
+    watcher.dispose();
+    if (fs.existsSync(epicFile)) {
+      fs.unlinkSync(epicFile);
+    }
+    if (fs.existsSync(storyFile)) {
+      fs.unlinkSync(storyFile);
+    }
+    if (fs.existsSync(bugFile)) {
+      fs.unlinkSync(bugFile);
+    }
+  });
 
-    test('should return stories as children of epic', async () => {
-        const epics = await provider.getChildren();
-        const epic = epics.find(c => c.id === 'EPIC-VIEW');
-        assert.ok(epic, 'Epic should be found');
+  test('should return epics as root children', async () => {
+    const children = await provider.getChildren();
+    const epic = children.find(c => c.id === 'EPIC-VIEW');
+    assert.ok(epic, 'Epic should be found in root children');
+  });
 
-        if (epic) {
-            const stories = await provider.getChildren(epic);
-            const story = stories.find(s => s.id === 'STORY-VIEW');
-            assert.ok(story, 'Story should be found in epic children');
-        }
-    });
+  test('should return stories as children of epic', async () => {
+    const epics = await provider.getChildren();
+    const epic = epics.find(c => c.id === 'EPIC-VIEW');
+    assert.ok(epic, 'Epic should be found');
 
-    test('should return correct tree item for epic', async () => {
-        const epics = await provider.getChildren();
-        const epic = epics.find(c => c.id === 'EPIC-VIEW');
-        
-        if (epic) {
-            const treeItem = provider.getTreeItem(epic);
-            assert.strictEqual(treeItem.label, 'EPIC-VIEW: View Epic');
-            assert.strictEqual(treeItem.collapsibleState, vscode.TreeItemCollapsibleState.Collapsed);
-            assert.strictEqual(treeItem.contextValue, 'epic');
-        }
-    });
+    if (epic) {
+      const stories = await provider.getChildren(epic);
+      const story = stories.find(s => s.id === 'STORY-VIEW');
+      assert.ok(story, 'Story should be found in epic children');
+    }
+  });
 
-    test('should return correct tree item for story', async () => {
-        const epics = await provider.getChildren();
-        const epic = epics.find(c => c.id === 'EPIC-VIEW');
-        
-        if (epic) {
-            const stories = await provider.getChildren(epic);
-            const story = stories.find(s => s.id === 'STORY-VIEW');
-            
-            if (story) {
-                const treeItem = provider.getTreeItem(story);
-                assert.strictEqual(treeItem.label, 'STORY-VIEW: View Story');
-                assert.strictEqual(treeItem.collapsibleState, vscode.TreeItemCollapsibleState.None);
-                assert.strictEqual(treeItem.contextValue, 'story');
-                assert.ok(treeItem.command, 'Story should have a command');
-                assert.strictEqual(treeItem.command?.command, 'vscode.open');
-            }
-        }
-    });
+  test('should return correct tree item for epic', async () => {
+    const epics = await provider.getChildren();
+    const epic = epics.find(c => c.id === 'EPIC-VIEW');
+
+    if (epic) {
+      const treeItem = provider.getTreeItem(epic);
+      assert.strictEqual(treeItem.label, 'EPIC-VIEW: View Epic');
+      assert.strictEqual(treeItem.collapsibleState, vscode.TreeItemCollapsibleState.Collapsed);
+      assert.strictEqual(treeItem.contextValue, 'epic');
+    }
+  });
+
+  test('should return correct tree item for story', async () => {
+    const epics = await provider.getChildren();
+    const epic = epics.find(c => c.id === 'EPIC-VIEW');
+
+    if (epic) {
+      const stories = await provider.getChildren(epic);
+      const story = stories.find(s => s.id === 'STORY-VIEW');
+
+      if (story) {
+        const treeItem = provider.getTreeItem(story);
+        assert.strictEqual(treeItem.label, 'STORY-VIEW: View Story');
+        assert.strictEqual(treeItem.collapsibleState, vscode.TreeItemCollapsibleState.None);
+        assert.strictEqual(treeItem.contextValue, 'story');
+        assert.ok(treeItem.command, 'Story should have a command');
+        assert.strictEqual(treeItem.command?.command, 'vscode.open');
+      }
+    }
+  });
+
+  // DS-008: Icon Tests
+  test('should display icon for epic', async () => {
+    const epics = await provider.getChildren();
+    const epic = epics.find(c => c.id === 'EPIC-VIEW');
+
+    if (epic) {
+      const treeItem = provider.getTreeItem(epic);
+      assert.ok(treeItem.iconPath, 'Epic should have an iconPath');
+
+      // Check it's a light/dark icon object
+      const iconPath = treeItem.iconPath as { light: vscode.Uri; dark: vscode.Uri };
+      assert.ok(iconPath.light, 'Should have light icon');
+      assert.ok(iconPath.dark, 'Should have dark icon');
+      assert.ok(iconPath.light.fsPath.includes('epic-light.svg'), 'Light icon should be epic');
+      assert.ok(iconPath.dark.fsPath.includes('epic-dark.svg'), 'Dark icon should be epic');
+    }
+  });
+
+  test('should display correct icon based on story type', async () => {
+    const epics = await provider.getChildren();
+    const epic = epics.find(c => c.id === 'EPIC-VIEW');
+
+    if (epic) {
+      const stories = await provider.getChildren(epic);
+
+      // Check feature story icon
+      const featureStory = stories.find(s => s.id === 'STORY-VIEW');
+      if (featureStory) {
+        const featureItem = provider.getTreeItem(featureStory);
+        const featureIcon = featureItem.iconPath as { light: vscode.Uri; dark: vscode.Uri };
+        assert.ok(featureIcon.light.fsPath.includes('feature-light.svg'), 'Feature should have feature icon');
+      }
+
+      // Check bug story icon
+      const bugStory = stories.find(s => s.id === 'STORY-BUG');
+      if (bugStory) {
+        const bugItem = provider.getTreeItem(bugStory);
+        const bugIcon = bugItem.iconPath as { light: vscode.Uri; dark: vscode.Uri };
+        assert.ok(bugIcon.light.fsPath.includes('bug-light.svg'), 'Bug should have bug icon');
+      }
+    }
+  });
+
+  test('should display status indicator in description', async () => {
+    const epics = await provider.getChildren();
+    const epic = epics.find(c => c.id === 'EPIC-VIEW');
+
+    if (epic) {
+      // Epic with todo status
+      const epicItem = provider.getTreeItem(epic);
+      assert.ok(epicItem.description?.toString().includes('○'), 'Todo status should show empty circle');
+      assert.ok(epicItem.description?.toString().includes('todo'), 'Description should include status text');
+
+      const stories = await provider.getChildren(epic);
+
+      // Bug story with in_progress status
+      const bugStory = stories.find(s => s.id === 'STORY-BUG');
+      if (bugStory) {
+        const bugItem = provider.getTreeItem(bugStory);
+        assert.ok(bugItem.description?.toString().includes('◐'), 'In progress should show half circle');
+        assert.ok(bugItem.description?.toString().includes('in_progress'), 'Description should include status text');
+      }
+    }
+  });
+
+  test('should show tooltip with story details', async () => {
+    const epics = await provider.getChildren();
+    const epic = epics.find(c => c.id === 'EPIC-VIEW');
+
+    if (epic) {
+      const stories = await provider.getChildren(epic);
+      const story = stories.find(s => s.id === 'STORY-VIEW');
+
+      if (story) {
+        const treeItem = provider.getTreeItem(story);
+        assert.ok(treeItem.tooltip, 'Story should have tooltip');
+
+        const tooltipValue = (treeItem.tooltip as vscode.MarkdownString).value;
+        assert.ok(tooltipValue.includes('STORY-VIEW'), 'Tooltip should include story ID');
+        assert.ok(tooltipValue.includes('feature'), 'Tooltip should include type');
+        assert.ok(tooltipValue.includes('todo'), 'Tooltip should include status');
+        assert.ok(tooltipValue.includes('S'), 'Tooltip should include size');
+      }
+    }
+  });
 });

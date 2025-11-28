@@ -240,14 +240,35 @@ DevStories will manage its own development. After Phase 1 is complete:
 
 For long-running development across multiple sessions:
 
-1. **Start**: Run `./init.sh` to verify environment (compiles, tests, launches dev host)
-2. **Context**: Read `claude-progress.txt` to understand last session's state
+1. **Start**: Run `pwd` to verify working directory and `date` for current timestamp, then `./init.sh` to verify environment
+2. **Context**: Read `claude-progress.txt` to understand last session's state and timestamp
 3. **Focus**: Pick ONE story from backlog, update progress file with "in_progress"
 4. **Implement**: Write tests first, then code (TDD)
 5. **Verify**: Run tests, manually verify in Extension Development Host
 6. **End**: Update `claude-progress.txt` with work done and next steps
-7. **Commit**: Descriptive commit message referencing story ID
+7. **Commit**: Create feature branch (e.g., `feature/DS-008-status-icons`), commit there, never directly on main
+
+**Important**:
+- Always run `pwd` at session start to confirm location
+- Always update `claude-progress.txt` as you work - don't forget!
+- Never commit directly to main branch - use feature branches
 
 **Key files**:
 - `init.sh` - Environment setup and test runner
 - `claude-progress.txt` - Session-by-session work log
+
+**Testing workflow (TDD)**:
+1. Write failing test first (RED)
+2. Implement minimal code to pass (GREEN)
+3. Refactor if needed
+4. Verify in Extension Development Host:
+   ```bash
+   code --extensionDevelopmentPath="$(pwd)" /Users/dhavalsavalia/projects/devstories_test --new-window
+   ```
+
+**Manual test workspace**: `/Users/dhavalsavalia/projects/devstories_test`
+- Contains dummy data with all story types (feature, bug, task, chore)
+- Contains all statuses (todo, in_progress, review, done)
+- 2 epics, 5 stories for visual verification
+
+**UI/Design work**: Use the `frontend-design` skill for creating sharp, modern, developer-friendly UI components (icons, webviews, etc.)

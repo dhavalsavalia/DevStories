@@ -404,3 +404,41 @@ Next story: DS-018 (Hover Preview)
 
 ---
 
+=== Session: 2025-11-28 22:04 ===
+Story: DS-018 (Hover Preview + Backlinks)
+Status: done
+
+Work done:
+- Created src/providers/storyHoverProviderUtils.ts with pure utility functions:
+  - getStatusIndicator(): Return status symbols (○◐◑●◇)
+  - getTypeIcon(): Return type emoji (✨🐛📋🔧📁)
+  - formatHoverCard(): Format markdown hover card with all fields
+  - findLinkAtPosition(): Find [[ID]] link at cursor position
+  - EpicProgress interface for epic story counts
+- Created src/providers/storyHoverProvider.ts implementing HoverProvider:
+  - provideHover(): Returns formatted hover card for [[ID]] links
+  - Only processes files in .devstories directory
+  - Shows "Not found" message for broken links
+  - Epic hovers include progress (e.g., "3/5 stories done")
+- Registered provider in extension.ts for markdown files
+- 30 unit tests + 9 integration tests
+
+All MVP acceptance criteria met:
+- ✅ Implement HoverProvider interface
+- ✅ Hover over [[ID]] shows markdown card with title, status, type, size, epic
+- ✅ Returns "Not found" message if ID not found
+- ✅ Hover card is readable and well-formatted
+
+Files changed:
+- src/providers/storyHoverProviderUtils.ts (new)
+- src/providers/storyHoverProvider.ts (new)
+- src/extension.ts (register HoverProvider)
+- src/test/unit/storyHoverProvider.test.ts (new, 30 tests)
+- src/test/suite/storyHoverProvider.test.ts (new, 9 tests)
+
+Tests: 204 unit + 84 integration = 288 total passing
+
+Next story: DS-019 (Webview Scaffolding) - Phase 5 begins
+
+---
+

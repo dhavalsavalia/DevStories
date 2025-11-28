@@ -8,6 +8,7 @@ import { executeSaveAsTemplate } from './commands/saveAsTemplate';
 import { AutoTimestamp } from './core/autoTimestamp';
 import { Store } from './core/store';
 import { Watcher } from './core/watcher';
+import { StoryHoverProvider } from './providers/storyHoverProvider';
 import { StoryLinkProvider } from './providers/storyLinkProvider';
 import { StatusBarController } from './view/statusBar';
 import { StoriesProvider } from './view/storiesProvider';
@@ -30,6 +31,13 @@ export function activate(context: vscode.ExtensionContext) {
 	const linkProviderDisposable = vscode.languages.registerDocumentLinkProvider(
 		{ language: 'markdown', scheme: 'file' },
 		storyLinkProvider
+	);
+
+	// Register Hover Provider for [[ID]] preview
+	const storyHoverProvider = new StoryHoverProvider(store);
+	const hoverProviderDisposable = vscode.languages.registerHoverProvider(
+		{ language: 'markdown', scheme: 'file' },
+		storyHoverProvider
 	);
 
 	// Load initial data
@@ -72,7 +80,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	context.subscriptions.push(watcher, autoTimestamp, statusBarController, linkProviderDisposable, initCommand, createEpicCommand, createStoryCommand, quickCaptureCommand, saveAsTemplateCommand, changeStatusCommand);
+	context.subscriptions.push(watcher, autoTimestamp, statusBarController, linkProviderDisposable, hoverProviderDisposable, initCommand, createEpicCommand, createStoryCommand, quickCaptureCommand, saveAsTemplateCommand, changeStatusCommand);
 }
 
 export function deactivate() {}

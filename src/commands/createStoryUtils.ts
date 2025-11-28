@@ -193,7 +193,7 @@ export function generateStoryMarkdown(
   const today = new Date().toISOString().split('T')[0];
   const escapedTitle = data.title.replace(/"/g, '\\"');
   const deps = data.dependencies && data.dependencies.length > 0
-    ? `\n  - ${data.dependencies.join('\n  - ')}`
+    ? `\n  - ${data.dependencies.map(d => `[[${d}]]`).join('\n  - ')}`
     : '';
 
   // Resolve library reference if template is like "@library/api-endpoint"

@@ -66,7 +66,7 @@ templates:
 		assert.ok(markdown.includes('## User Story'), 'Should include feature template');
 	});
 
-	test('generateStoryMarkdown should include dependencies', async () => {
+	test('generateStoryMarkdown should include dependencies in [[ID]] format', async () => {
 		const { generateStoryMarkdown, DEFAULT_TEMPLATES } = await import('../../commands/createStoryUtils');
 
 		const markdown = generateStoryMarkdown(
@@ -83,8 +83,8 @@ templates:
 		);
 
 		assert.ok(markdown.includes('dependencies:'), 'Should have dependencies section');
-		assert.ok(markdown.includes('- STORY-001'), 'Should include first dependency');
-		assert.ok(markdown.includes('- STORY-002'), 'Should include second dependency');
+		assert.ok(markdown.includes('- [[STORY-001]]'), 'Should include first dependency wrapped in [[]]');
+		assert.ok(markdown.includes('- [[STORY-002]]'), 'Should include second dependency wrapped in [[]]');
 	});
 
 	test('getSuggestedSize should return correct suggestions', async () => {

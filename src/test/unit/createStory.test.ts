@@ -157,7 +157,7 @@ templates:
       expect(md).toContain('title: "Fix \\"broken\\" thing"');
     });
 
-    it('should include dependencies when provided', () => {
+    it('should include dependencies wrapped in [[ID]] format', () => {
       const data = {
         id: 'STORY-003',
         title: 'Dependent story',
@@ -170,8 +170,8 @@ templates:
       const md = generateStoryMarkdown(data, DEFAULT_TEMPLATES.task);
 
       expect(md).toContain('dependencies:');
-      expect(md).toContain('- STORY-001');
-      expect(md).toContain('- STORY-002');
+      expect(md).toContain('- [[STORY-001]]');
+      expect(md).toContain('- [[STORY-002]]');
     });
 
     it('should substitute {{TITLE}} variable in template', () => {

@@ -1,0 +1,110 @@
+/**
+ * Change Status command - allows changing status via context menu
+ */
+
+import * as vscode from 'vscode';
+import * as path from 'path';
+import { Store } from '../core/store';
+import { Story } from '../types/story';
+import { Epic } from '../types/epic';
+import {
+  parseStatusesFromConfig,
+  updateStoryStatus,
+  updateEpicStatus,
+} from './changeStatusUtils';
+
+/**
+ * Read config.yaml from workspace
+ */
+async function readConfigYaml(): Promise<string | undefined> {
+  const workspaceFolders = vscode.workspace.workspaceFolders;
+  if (!workspaceFolders || workspaceFolders.length === 0) {
+    return undefined;
+  }
+
+  const configPath = path.join(
+    workspaceFolders[0].uri.fsPath,
+    '.devstories',
+    'config.yaml'
+  );
+
+  try {
+    const configUri = vscode.Uri.file(configPath);
+    const bytes = await vscode.workspace.fs.readFile(configUri);
+    return new TextDecoder().decode(bytes);
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Execute the changeStatus command
+ * Shows a QuickPick with available statuses
+ */
+export async function executeChangeStatus(
+  store: Store,
+  item: Story | Epic
+): Promise<boolean> {
+  // Read config to get available statuses
+  const configContent = await readConfigYaml();
+  const statuses = parseStatusesFromConfig(configContent ?? '');
+
+  // Determine current status
+  const currentStatus = item.status;
+
+  // Build QuickPick items with checkmark for current
+  const items: vscode.QuickPickItem[] = statuses.map((status) => ({
+    label: status === currentStatus ? `$(check) ${status}` : status,
+    description: status === currentStatus ? '(current)' : undefined,
+    picked: status === currentStatus,
+  }));
+
+  const selected = await vscode.window.showQuickPick(items, {
+    placeHolder: `Change status from "${currentStatus}" to...`,
+    title: `Change Status: ${item.id}`,
+  });
+
+  if (!selected) {
+    return false; // User cancelled
+  }
+
+  // Extract status (remove checkmark prefix if present)
+  const newStatus = selected.label.replace(/^\$\(check\) /, '');
+
+  if (newStatus === currentStatus) {
+    return false; // No change
+  }
+
+  // Update the file
+  if (!item.filePath) {
+    vscode.window.showErrorMessage('Cannot update: file path unknown');
+    return false;
+  }
+
+  try {
+    const fileUri = vscode.Uri.file(item.filePath);
+    const bytes = await vscode.workspace.fs.readFile(fileUri);
+    const content = new TextDecoder().decode(bytes);
+
+    // Determine if story or epic
+    const isStory = 'type' in item;
+    const updatedContent = isStory
+      ? updateStoryStatus(content, newStatus)
+      : updateEpicStatus(content, newStatus);
+
+    // Write back
+    await vscode.workspace.fs.writeFile(
+      fileUri,
+      new TextEncoder().encode(updatedContent)
+    );
+
+    vscode.window.showInformationMessage(
+      `Updated ${item.id} status to "${newStatus}"`
+    );
+
+    return true;
+  } catch (err) {
+    vscode.window.showErrorMessage(`Failed to update status: ${err}`);
+    return false;
+  }
+}

@@ -21,7 +21,10 @@
       "Bash(npm run compile-tests:*)",
       "Bash(node -e:*)",
       "Bash(/Users/dhavalsavalia/projects/devstories/scripts/ds-status.sh:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(git stash:*)",
+      "Bash(./scripts/ds-status.sh:*)"
     ],
     "deny": [],
     "ask": [],

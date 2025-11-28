@@ -12,6 +12,7 @@ import {
   DevStoriesConfig,
   DEFAULT_TEMPLATES,
 } from './createStoryUtils';
+import { BUNDLED_TEMPLATES } from './templateUtils';
 
 // Re-export for convenience
 export {
@@ -83,6 +84,10 @@ interface TypeQuickPickItem extends vscode.QuickPickItem {
 
 interface SizeQuickPickItem extends vscode.QuickPickItem {
   value: StorySize;
+}
+
+interface TemplateQuickPickItem extends vscode.QuickPickItem {
+  templateRef?: string; // @library/name or undefined for default
 }
 
 /**
@@ -185,6 +190,36 @@ export async function executeCreateStory(store: Store): Promise<boolean> {
     return false;
   }
 
+  // Template picker - offer to use library template or default
+  const templateOptions: TemplateQuickPickItem[] = [
+    { label: '$(file-text) Default', description: `Use default ${selectedType.value} template` },
+  ];
+
+  // Add relevant library templates based on type
+  if (selectedType.value === 'feature') {
+    templateOptions.push(
+      { label: '$(cloud) API Endpoint', description: 'REST API implementation checklist', templateRef: '@library/api-endpoint' },
+      { label: '$(symbol-class) React Component', description: 'Component with props, tests, storybook', templateRef: '@library/react-component' },
+      { label: '$(database) DB Migration', description: 'Migration steps, rollback plan', templateRef: '@library/db-migration' },
+    );
+  } else if (selectedType.value === 'bug') {
+    templateOptions.push(
+      { label: '$(search) Bug Investigation', description: 'Deep investigation template', templateRef: '@library/bug-investigation' },
+    );
+  }
+
+  let selectedTemplateRef: string | undefined;
+  if (templateOptions.length > 1) {
+    const selectedTemplate = await vscode.window.showQuickPick(templateOptions, {
+      placeHolder: 'Select template (or use default)',
+    });
+
+    if (!selectedTemplate) {
+      return false;
+    }
+    selectedTemplateRef = selectedTemplate.templateRef;
+  }
+
   // Size picker with suggestion
   const suggestedSize = getSuggestedSize(selectedType.value);
   const sizeOptions: SizeQuickPickItem[] = config.sizes.map(s => ({
@@ -248,8 +283,10 @@ export async function executeCreateStory(store: Store): Promise<boolean> {
   const nextNum = findNextStoryId(existingIds, config.storyPrefix);
   const storyId = `${config.storyPrefix}-${String(nextNum).padStart(3, '0')}`;
 
-  // Get template
-  const template = config.templates[selectedType.value] || DEFAULT_TEMPLATES[selectedType.value];
+  // Get template - use library reference if selected, otherwise default
+  const template = selectedTemplateRef
+    ?? config.templates[selectedType.value]
+    ?? DEFAULT_TEMPLATES[selectedType.value];
 
   // Generate markdown
   const markdown = generateStoryMarkdown(

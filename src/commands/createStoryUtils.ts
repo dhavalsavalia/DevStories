@@ -4,6 +4,7 @@
  */
 
 import { StoryType, StorySize } from '../types/story';
+import { substituteTemplateVariables, resolveTemplateReference } from './templateUtils';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const matter = require('gray-matter');
@@ -147,15 +148,37 @@ export function calculateTitleSimilarity(title1: string, title2: string): number
   return overlap / union.size;
 }
 
+export interface GenerateOptions {
+  project?: string;
+  author?: string;
+}
+
 /**
  * Generate story markdown content from StoryData
+ * Applies variable substitution to template: {{DATE}}, {{TITLE}}, {{ID}}, {{PROJECT}}, {{AUTHOR}}
  */
-export function generateStoryMarkdown(data: StoryData, template: string): string {
+export function generateStoryMarkdown(
+  data: StoryData,
+  template: string,
+  options?: GenerateOptions
+): string {
   const today = new Date().toISOString().split('T')[0];
   const escapedTitle = data.title.replace(/"/g, '\\"');
   const deps = data.dependencies && data.dependencies.length > 0
     ? `\n  - ${data.dependencies.join('\n  - ')}`
     : '';
+
+  // Resolve library reference if template is like "@library/api-endpoint"
+  const resolvedTemplate = resolveTemplateReference(template) ?? template;
+
+  // Substitute template variables
+  const processedTemplate = substituteTemplateVariables(resolvedTemplate, {
+    date: today,
+    title: data.title,
+    id: data.id,
+    project: options?.project,
+    author: options?.author,
+  });
 
   return `---
 id: ${data.id}
@@ -173,7 +196,7 @@ updated: ${today}
 
 # ${data.title}
 
-${template}`;
+${processedTemplate}`;
 }
 
 /**

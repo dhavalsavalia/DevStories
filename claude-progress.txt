@@ -236,3 +236,132 @@ Next story: DS-014 (Story Templates)
 
 ---
 
+=== Session: 2025-11-28 10:35 ===
+Story: DS-014 (Template System + Library)
+Status: done
+
+Work done:
+- Created src/commands/templateUtils.ts with pure utility functions:
+  - substituteTemplateVariables(): Substitute {{DATE}}, {{TITLE}}, {{ID}}, {{PROJECT}}, {{AUTHOR}}
+  - BUNDLED_TEMPLATES: Pre-built templates (api-endpoint, react-component, db-migration, bug-investigation)
+  - resolveTemplateReference(): Resolve @library/name to bundled template content
+- Updated createStoryUtils.ts:
+  - generateStoryMarkdown() now applies variable substitution to templates
+  - Added GenerateOptions interface for project/author context
+  - Resolves @library references automatically
+- Updated createStory.ts with template picker:
+  - After type selection, shows template picker (when relevant templates exist)
+  - Features: Default, API Endpoint, React Component, DB Migration
+  - Bugs: Default, Bug Investigation
+- Created src/commands/saveAsTemplate.ts + saveAsTemplateUtils.ts:
+  - "DevStories: Save as Template" command
+  - extractTemplateContent(): Extract markdown body (removes frontmatter and title)
+  - generateTemplateFileName(): Convert name to kebab-case .md file
+  - Saves to .devstories/templates/
+  - Context menu on tree view (story items) and editor (story files)
+- Registered command in extension.ts and package.json
+- Added menus to package.json for context menu integration
+
+All acceptance criteria met:
+- MVP: ✅ Reads templates from config, ✅ Applies template by type, ✅ Variable substitution, ✅ Falls back to built-in, ✅ Multi-line YAML templates
+- Enhanced: ✅ Bundled template library (4 templates), ✅ Template picker in createStory, ✅ Save as Template command
+
+Files changed:
+- src/commands/templateUtils.ts (new)
+- src/commands/createStoryUtils.ts (variable substitution, library resolution)
+- src/commands/createStory.ts (template picker)
+- src/commands/saveAsTemplate.ts (new)
+- src/commands/saveAsTemplateUtils.ts (new)
+- src/extension.ts (register saveAsTemplate command)
+- package.json (command + menus)
+- src/test/unit/template.test.ts (new, 18 tests)
+- src/test/unit/createStory.test.ts (+6 tests for variable substitution)
+- src/test/unit/saveAsTemplate.test.ts (new, 10 tests)
+- src/test/suite/saveAsTemplate.test.ts (new, 5 tests)
+
+Tests: 113 unit + 53 integration = 166 total passing
+
+Next story: DS-015 (Change Status Command)
+
+---
+
+=== Session: 2025-11-28 21:40 ===
+Story: DS-015 (Smart Status Transitions)
+Status: done
+
+Work done:
+- Created src/commands/changeStatusUtils.ts with pure utility functions:
+  - parseStatusesFromConfig(): Parse statuses array from config.yaml
+  - getNextWorkflowStatus(): Get next status in cycle for workflow advance
+  - updateStoryStatus(): Update status field in story frontmatter
+  - updateEpicStatus(): Update status field in epic frontmatter
+- Created src/commands/changeStatus.ts with executeChangeStatus() function:
+  - Reads available statuses from config.yaml (with defaults)
+  - Shows QuickPick with all statuses, current marked with checkmark
+  - Updates file frontmatter using gray-matter
+  - Auto-updates `updated` timestamp
+  - Shows success notification
+  - Tree view auto-refreshes via Store's file watcher
+- Context menu on both stories AND epics in tree view
+- Registered command in extension.ts and package.json
+
+All MVP acceptance criteria met:
+- ✅ Context menu on tree item: "Change Status"
+- ✅ Submenu lists all statuses from config.yaml
+- ✅ Current status shown with checkmark
+- ✅ Selecting status updates frontmatter `status` field
+- ✅ Auto-updates `updated` timestamp
+- ✅ Preserves all other file content
+- ✅ Tree view refreshes immediately (via watcher)
+
+Files changed:
+- src/commands/changeStatusUtils.ts (new)
+- src/commands/changeStatus.ts (new)
+- src/extension.ts (register changeStatus command)
+- package.json (command + context menus for story and epic)
+- src/test/unit/changeStatus.test.ts (new, 19 tests)
+- src/test/suite/changeStatus.test.ts (new, 6 tests)
+
+Tests: 132 unit + 59 integration = 191 total passing
+
+Next story: DS-016 (Link Detection Regex) - Phase 4 begins
+
+---
+
+=== Session: 2025-11-28 21:47 ===
+Story: DS-016 (Link Detection + Validation)
+Status: done
+
+Work done:
+- Created src/utils/linkResolver.ts with pure utility functions:
+  - LINK_PATTERN: Regex to match [[ID]] syntax (supports EPIC-INBOX special case)
+  - extractLinks(): Extract all [[ID]] links from text
+  - isStoryId(): Check if ID is a story (not EPIC prefix)
+  - isEpicId(): Check if ID is an epic (EPIC prefix)
+  - getIdType(): Return 'epic' or 'story' based on ID
+  - resolveLinkPath(): Resolve ID to absolute file path
+  - validateLinks(): Compare links against known IDs, return broken ones
+- Created src/test/unit/linkResolver.test.ts (23 tests)
+- Created src/test/suite/linkResolver.test.ts (8 tests)
+
+All MVP acceptance criteria met:
+- ✅ Regex correctly identifies [[ID]] pattern
+- ✅ resolveLinkPath() returns absolute file path
+- ✅ validateLinks() handles non-existent IDs
+- ✅ Supports both Story and Epic IDs
+- ✅ Works with custom ID prefixes (any PREFIX-NUMBER format)
+
+Enhanced criteria:
+- ✅ Broken link detection via validateLinks()
+
+Files changed:
+- src/utils/linkResolver.ts (new)
+- src/test/unit/linkResolver.test.ts (new, 23 tests)
+- src/test/suite/linkResolver.test.ts (new, 8 tests)
+
+Tests: 155 unit + 67 integration = 222 total passing
+
+Next story: DS-017 (Clickable Links + Navigation)
+
+---
+

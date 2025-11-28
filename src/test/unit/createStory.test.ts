@@ -171,6 +171,81 @@ templates:
       expect(md).toContain('- STORY-001');
       expect(md).toContain('- STORY-002');
     });
+
+    it('should substitute {{TITLE}} variable in template', () => {
+      const data = {
+        id: 'STORY-001',
+        title: 'Add dark mode',
+        type: 'feature' as const,
+        epic: 'EPIC-001',
+        sprint: 'sprint-1',
+        size: 'M' as const,
+      };
+      const template = '## Feature: {{TITLE}}\n\nImplement {{TITLE}} functionality';
+      const md = generateStoryMarkdown(data, template);
+
+      expect(md).toContain('## Feature: Add dark mode');
+      expect(md).toContain('Implement Add dark mode functionality');
+    });
+
+    it('should substitute {{ID}} variable in template', () => {
+      const data = {
+        id: 'DS-042',
+        title: 'Test story',
+        type: 'task' as const,
+        epic: 'EPIC-001',
+        sprint: 'sprint-1',
+        size: 'S' as const,
+      };
+      const template = 'Reference: {{ID}}';
+      const md = generateStoryMarkdown(data, template);
+
+      expect(md).toContain('Reference: DS-042');
+    });
+
+    it('should resolve @library reference', () => {
+      const data = {
+        id: 'STORY-001',
+        title: 'Add API endpoint',
+        type: 'feature' as const,
+        epic: 'EPIC-001',
+        sprint: 'sprint-1',
+        size: 'L' as const,
+      };
+      const md = generateStoryMarkdown(data, '@library/api-endpoint');
+
+      expect(md).toContain('## Endpoint');
+      expect(md).toContain('Implementation Checklist');
+    });
+
+    it('should pass through unknown @library reference as-is', () => {
+      const data = {
+        id: 'STORY-001',
+        title: 'Test',
+        type: 'task' as const,
+        epic: 'EPIC-001',
+        sprint: 'sprint-1',
+        size: 'M' as const,
+      };
+      const md = generateStoryMarkdown(data, '@library/nonexistent');
+
+      expect(md).toContain('@library/nonexistent');
+    });
+
+    it('should substitute {{PROJECT}} when options provided', () => {
+      const data = {
+        id: 'STORY-001',
+        title: 'Test',
+        type: 'task' as const,
+        epic: 'EPIC-001',
+        sprint: 'sprint-1',
+        size: 'M' as const,
+      };
+      const template = 'Project: {{PROJECT}}';
+      const md = generateStoryMarkdown(data, template, { project: 'DevStories' });
+
+      expect(md).toContain('Project: DevStories');
+    });
   });
 
   describe('generateStoryLink', () => {

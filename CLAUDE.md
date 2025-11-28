@@ -251,7 +251,7 @@ For long-running development across multiple sessions:
 **Important**:
 - Always run `pwd` at session start to confirm location
 - Always update `claude-progress.txt` as you work - don't forget!
-- Never commit directly to main branch - use feature branches
+- Never commit directly to main branch - use feature branches (MUST FOLLOW)
 - Always use `--no-gpg-sign` flag when committing
 
 **Key files**:

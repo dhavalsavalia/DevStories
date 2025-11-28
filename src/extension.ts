@@ -1,8 +1,10 @@
 import * as vscode from 'vscode';
+import { executeChangeStatus } from './commands/changeStatus';
 import { executeCreateEpic } from './commands/createEpic';
 import { executeCreateStory } from './commands/createStory';
 import { executeInit } from './commands/init';
 import { executeQuickCapture } from './commands/quickCapture';
+import { executeSaveAsTemplate } from './commands/saveAsTemplate';
 import { AutoTimestamp } from './core/autoTimestamp';
 import { Store } from './core/store';
 import { Watcher } from './core/watcher';
@@ -46,7 +48,23 @@ export function activate(context: vscode.ExtensionContext) {
 		await executeQuickCapture(store);
 	});
 
-	context.subscriptions.push(watcher, autoTimestamp, statusBarController, initCommand, createEpicCommand, createStoryCommand, quickCaptureCommand);
+	const saveAsTemplateCommand = vscode.commands.registerCommand('devstories.saveAsTemplate', async (story) => {
+		await executeSaveAsTemplate(story);
+	});
+
+	const changeStatusCommand = vscode.commands.registerCommand('devstories.changeStatus', async (item) => {
+		if (item) {
+			// Called from context menu with tree item
+			const story = store.getStory(item.id);
+			const epic = store.getEpic(item.id);
+			const target = story || epic;
+			if (target) {
+				await executeChangeStatus(store, target);
+			}
+		}
+	});
+
+	context.subscriptions.push(watcher, autoTimestamp, statusBarController, initCommand, createEpicCommand, createStoryCommand, quickCaptureCommand, saveAsTemplateCommand, changeStatusCommand);
 }
 
 export function deactivate() {}

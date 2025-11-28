@@ -32,6 +32,7 @@ Interactive commands for creating and managing stories with smart defaults, quic
 - [[DS-013]] - Quick Capture + Inbox
 - [[DS-014]] - Template System + Library
 - [[DS-015]] - Smart Status Transitions
+- [[DS-024]] - Load Custom Templates into Picker
 
 ## Notes
 - All stories split into MVP vs Enhanced acceptance criteria

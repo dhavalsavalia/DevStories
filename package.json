@@ -49,8 +49,42 @@
       {
         "command": "devstories.quickCapture",
         "title": "DevStories: Quick Capture"
+      },
+      {
+        "command": "devstories.saveAsTemplate",
+        "title": "DevStories: Save as Template"
+      },
+      {
+        "command": "devstories.changeStatus",
+        "title": "DevStories: Change Status"
       }
     ],
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "devstories.changeStatus",
+          "when": "view == devstories.views.explorer && viewItem == story",
+          "group": "devstories@1"
+        },
+        {
+          "command": "devstories.changeStatus",
+          "when": "view == devstories.views.explorer && viewItem == epic",
+          "group": "devstories@1"
+        },
+        {
+          "command": "devstories.saveAsTemplate",
+          "when": "view == devstories.views.explorer && viewItem == story",
+          "group": "devstories@2"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "devstories.saveAsTemplate",
+          "when": "resourcePath =~ /\\.devstories\\/stories\\//",
+          "group": "devstories@1"
+        }
+      ]
+    },
     "keybindings": [
       {
         "command": "devstories.quickCapture",

@@ -86,6 +86,8 @@ describe('storyHoverProviderUtils', () => {
       expect(result).toContain('**Type:** Feature');
       expect(result).toContain('**Size:** M');
       expect(result).toContain('**Epic:** EPIC-001');
+      // Each line should end with two spaces for markdown line breaks
+      expect(result).toMatch(/\*\*Status:\*\* .+  \n/);
     });
 
     it('should format epic hover card', () => {

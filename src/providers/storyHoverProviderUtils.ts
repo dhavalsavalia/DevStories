@@ -83,31 +83,31 @@ export function formatHoverCard(
   lines.push('');
 
   // Status
-  lines.push(`**Status:** ${getStatusIndicator(item.status)} ${item.status}`);
+  lines.push(`**Status:** ${getStatusIndicator(item.status)} ${item.status}  `);
 
   // Type (stories only)
   if (isStory) {
-    lines.push(`**Type:** ${capitalize(story.type)}`);
+    lines.push(`**Type:** ${capitalize(story.type)}  `);
   }
 
   // Size (stories only)
   if (isStory) {
-    lines.push(`**Size:** ${story.size}`);
+    lines.push(`**Size:** ${story.size}  `);
   }
 
   // Epic (stories only)
   if (isStory && story.epic) {
-    lines.push(`**Epic:** ${story.epic}`);
+    lines.push(`**Epic:** ${story.epic}  `);
   }
 
   // Sprint (both)
   if (item.sprint) {
-    lines.push(`**Sprint:** ${item.sprint}`);
+    lines.push(`**Sprint:** ${item.sprint}  `);
   }
 
   // Progress (epics only)
   if (!isStory && progress) {
-    lines.push(`**Progress:** ${progress.done}/${progress.total} stories done`);
+    lines.push(`**Progress:** ${progress.done}/${progress.total} stories done  `);
   }
 
   return lines.join('\n');

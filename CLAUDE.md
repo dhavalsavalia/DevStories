@@ -245,7 +245,11 @@ For long-running development across multiple sessions:
 3. **Focus**: Pick ONE story from backlog, update progress file with "in_progress"
 4. **Implement**: Write tests first, then code (TDD)
 5. **Verify**: Run tests, manually verify in Extension Development Host
-6. **End**: Update `claude-progress.txt` with work done and next steps, update story status and any implementation notes, udpate epic with status.
+6. **End**: Update `claude-progress.txt` with work done and next steps. **IMPORTANT**: Update the story file completely:
+   - Mark acceptance criteria checkboxes as done
+   - Add ## Implementation Notes section with files created, decisions made
+   - Add ## Deferred Decisions section for anything postponed with rationale
+   - Update epic status if all stories in epic are done
 7. **Commit**: Create feature branch (e.g., `feature/DS-008-status-icons`), commit there, never directly on main
 
 **Important**:

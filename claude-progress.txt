@@ -488,3 +488,73 @@ Next story: DS-019 (Webview Scaffolding) - Phase 5 begins
 
 ---
 
+=== Session: 2025-11-28 12:16 ===
+Story: DS-019 (Webview Foundation + Theme)
+Status: done
+
+Work done:
+- Created src/types/webviewMessages.ts with type-safe message definitions
+  - ExtensionMessage, WebviewMessage discriminated unions
+  - WebviewStory/WebviewEpic (exclude filePath/content for security)
+  - InitPayload, StatusConfig, ThemeKind types
+- Created src/view/boardViewUtils.ts with pure utility functions:
+  - parseStatuses(): Parse config.yaml for status columns
+  - serializeStoryForWebview/serializeEpicForWebview(): Safe serialization
+  - generateNonce(): 32-char alphanumeric for CSP
+  - getThemeKindFromNumber(): Map VS Code theme to light/dark/high-contrast
+  - formatDate(): ISO date formatting
+- Created src/view/boardView.ts - BoardViewProvider:
+  - WebviewViewProvider implementation
+  - Bidirectional postMessage communication
+  - VS Code theme integration via CSS variables
+  - State persistence with webview.setState()/getState()
+  - Store subscription for reactive updates
+  - openStory message handler
+- Created webview/board.css - VS Code themed styles:
+  - Loading spinner, error state
+  - Placeholder for DS-020 kanban
+  - Scrollbar styling
+- Created webview/board.js - Webview-side JavaScript:
+  - Message handlers (init, storyUpdated, storyDeleted, themeChanged)
+  - State management and persistence
+  - window.boardApi for future features (DS-020+)
+- Updated esbuild.js to copy webview assets to dist/webview/
+- Updated package.json with board view registration
+- Registered BoardViewProvider in extension.ts
+- 25 unit tests + 8 integration tests
+
+All MVP acceptance criteria met:
+- ✅ WebviewViewProvider registered for board view
+- ✅ Webview loads HTML from bundled files
+- ✅ Extension sends initial data via postMessage
+- ✅ Webview can send messages back to extension
+- ✅ Basic error handling for communication failures
+
+Enhanced features:
+- ✅ VS Code theme integration (CSS variables)
+- ✅ Dark/light mode auto-matching
+- ✅ Webview state persistence
+- ✅ Loading state with spinner
+- ⏸️ Connection status indicator (deferred - adds complexity for minimal benefit)
+
+Files changed:
+- src/types/webviewMessages.ts (new)
+- src/view/boardViewUtils.ts (new)
+- src/view/boardView.ts (new)
+- webview/board.css (new)
+- webview/board.js (new)
+- esbuild.js (webview asset copying)
+- package.json (board view registration)
+- src/extension.ts (provider registration)
+- src/test/unit/boardView.test.ts (new, 25 tests)
+- src/test/suite/boardView.test.ts (new, 8 tests)
+
+Tests: 235 unit + 94 integration = 329 total passing
+
+Project Status: 21/25 stories done (84%)
+- Phase 5 (Board View): 1/5 done
+
+Next story: DS-020 (Kanban Board UI)
+
+---
+

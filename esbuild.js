@@ -1,7 +1,36 @@
 const esbuild = require("esbuild");
+const fs = require("fs");
+const path = require("path");
 
 const production = process.argv.includes('--production');
 const watch = process.argv.includes('--watch');
+
+/**
+ * Copy webview assets to dist/webview/
+ */
+function copyWebviewAssets() {
+  const srcDir = path.join(__dirname, 'webview');
+  const destDir = path.join(__dirname, 'dist', 'webview');
+
+  if (!fs.existsSync(srcDir)) {
+    console.log('[webview] No webview directory found, skipping...');
+    return;
+  }
+
+  if (!fs.existsSync(destDir)) {
+    fs.mkdirSync(destDir, { recursive: true });
+  }
+
+  const files = fs.readdirSync(srcDir);
+  files.forEach(file => {
+    const srcPath = path.join(srcDir, file);
+    const destPath = path.join(destDir, file);
+    if (fs.statSync(srcPath).isFile()) {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  });
+  console.log('[webview] Assets copied to dist/webview/');
+}
 
 /**
  * @type {import('esbuild').Plugin}
@@ -44,8 +73,17 @@ async function main() {
 
   if (watch) {
     await ctx.watch();
+    copyWebviewAssets();
+    // Watch webview directory for changes
+    const webviewDir = path.join(__dirname, 'webview');
+    if (fs.existsSync(webviewDir)) {
+      fs.watch(webviewDir, () => {
+        copyWebviewAssets();
+      });
+    }
   } else {
     await ctx.rebuild();
+    copyWebviewAssets();
     await ctx.dispose();
   }
 }

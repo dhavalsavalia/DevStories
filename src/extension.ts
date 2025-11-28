@@ -10,6 +10,7 @@ import { Store } from './core/store';
 import { Watcher } from './core/watcher';
 import { StoryHoverProvider } from './providers/storyHoverProvider';
 import { StoryLinkProvider } from './providers/storyLinkProvider';
+import { BoardViewProvider } from './view/boardView';
 import { StatusBarController } from './view/statusBar';
 import { StoriesProvider } from './view/storiesProvider';
 
@@ -25,6 +26,13 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Register Tree Data Provider
 	vscode.window.registerTreeDataProvider('devstories.views.explorer', storiesProvider);
+
+	// Register Board View Provider (Webview)
+	const boardViewProvider = new BoardViewProvider(context.extensionUri, store);
+	const boardViewDisposable = vscode.window.registerWebviewViewProvider(
+		BoardViewProvider.viewId,
+		boardViewProvider
+	);
 
 	// Register Document Link Provider for [[ID]] links
 	const storyLinkProvider = new StoryLinkProvider(store);
@@ -80,7 +88,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	context.subscriptions.push(watcher, autoTimestamp, statusBarController, linkProviderDisposable, hoverProviderDisposable, initCommand, createEpicCommand, createStoryCommand, quickCaptureCommand, saveAsTemplateCommand, changeStatusCommand);
+	context.subscriptions.push(watcher, autoTimestamp, statusBarController, boardViewDisposable, linkProviderDisposable, hoverProviderDisposable, initCommand, createEpicCommand, createStoryCommand, quickCaptureCommand, saveAsTemplateCommand, changeStatusCommand);
 }
 
 export function deactivate() {}

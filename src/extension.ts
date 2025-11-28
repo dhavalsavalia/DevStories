@@ -1,5 +1,8 @@
 import * as vscode from 'vscode';
+import { executeCreateEpic } from './commands/createEpic';
+import { executeCreateStory } from './commands/createStory';
 import { executeInit } from './commands/init';
+import { executeQuickCapture } from './commands/quickCapture';
 import { AutoTimestamp } from './core/autoTimestamp';
 import { Store } from './core/store';
 import { Watcher } from './core/watcher';
@@ -31,7 +34,19 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	context.subscriptions.push(watcher, autoTimestamp, statusBarController, initCommand);
+	const createEpicCommand = vscode.commands.registerCommand('devstories.createEpic', async () => {
+		await executeCreateEpic(store);
+	});
+
+	const createStoryCommand = vscode.commands.registerCommand('devstories.createStory', async () => {
+		await executeCreateStory(store);
+	});
+
+	const quickCaptureCommand = vscode.commands.registerCommand('devstories.quickCapture', async () => {
+		await executeQuickCapture(store);
+	});
+
+	context.subscriptions.push(watcher, autoTimestamp, statusBarController, initCommand, createEpicCommand, createStoryCommand, quickCaptureCommand);
 }
 
 export function deactivate() {}

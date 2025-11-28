@@ -10,9 +10,13 @@ import {
   serializeEpicForWebview,
   generateNonce,
   formatDate,
+  getTypeIcon,
+  groupStoriesByStatus,
+  getStoriesForColumn,
 } from '../../view/boardViewUtils';
 import { Story } from '../../types/story';
 import { Epic } from '../../types/epic';
+import { WebviewStory, StatusConfig } from '../../types/webviewMessages';
 
 describe('boardViewUtils', () => {
   describe('parseStatuses', () => {
@@ -222,6 +226,101 @@ statuses:
       const date = new Date('2025-01-01T00:00:00Z');
       const result = formatDate(date);
       expect(result).toBe('2025-01-01');
+    });
+  });
+
+  describe('getTypeIcon', () => {
+    it('should return sparkles for feature', () => {
+      expect(getTypeIcon('feature')).toBe('✨');
+    });
+
+    it('should return bug for bug', () => {
+      expect(getTypeIcon('bug')).toBe('🐛');
+    });
+
+    it('should return wrench for task', () => {
+      expect(getTypeIcon('task')).toBe('🔧');
+    });
+
+    it('should return broom for chore', () => {
+      expect(getTypeIcon('chore')).toBe('🧹');
+    });
+
+    it('should return document for unknown type', () => {
+      expect(getTypeIcon('unknown')).toBe('📄');
+    });
+  });
+
+  describe('groupStoriesByStatus', () => {
+    const statuses: StatusConfig[] = [
+      { id: 'todo', label: 'To Do' },
+      { id: 'in_progress', label: 'In Progress' },
+      { id: 'done', label: 'Done' },
+    ];
+
+    const stories: WebviewStory[] = [
+      { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', created: '2025-01-01' },
+      { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', created: '2025-01-02' },
+      { id: 'S-003', title: 'Story 3', type: 'task', epic: 'E-2', status: 'in_progress', size: 'L', created: '2025-01-03' },
+      { id: 'S-004', title: 'Story 4', type: 'chore', epic: 'E-2', status: 'done', size: 'XS', created: '2025-01-04' },
+    ];
+
+    it('should group stories by status id', () => {
+      const result = groupStoriesByStatus(stories, statuses);
+      expect(Object.keys(result)).toHaveLength(3);
+      expect(result.todo).toHaveLength(2);
+      expect(result.in_progress).toHaveLength(1);
+      expect(result.done).toHaveLength(1);
+    });
+
+    it('should create empty arrays for statuses with no stories', () => {
+      const emptyStories: WebviewStory[] = [];
+      const result = groupStoriesByStatus(emptyStories, statuses);
+      expect(result.todo).toEqual([]);
+      expect(result.in_progress).toEqual([]);
+      expect(result.done).toEqual([]);
+    });
+
+    it('should ignore stories with unknown status', () => {
+      const storiesWithUnknown: WebviewStory[] = [
+        { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'unknown_status', size: 'M', created: '2025-01-01' },
+        { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', created: '2025-01-02' },
+      ];
+      const result = groupStoriesByStatus(storiesWithUnknown, statuses);
+      expect(result.todo).toHaveLength(1);
+      expect(result.unknown_status).toBeUndefined();
+    });
+
+    it('should handle empty statuses array', () => {
+      const result = groupStoriesByStatus(stories, []);
+      expect(Object.keys(result)).toHaveLength(0);
+    });
+  });
+
+  describe('getStoriesForColumn', () => {
+    const statuses: StatusConfig[] = [
+      { id: 'todo', label: 'To Do' },
+      { id: 'in_progress', label: 'In Progress' },
+      { id: 'done', label: 'Done' },
+    ];
+
+    const stories: WebviewStory[] = [
+      { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', created: '2025-01-01' },
+      { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', created: '2025-01-02' },
+      { id: 'S-003', title: 'Story 3', type: 'task', epic: 'E-2', status: 'in_progress', size: 'L', created: '2025-01-03' },
+      { id: 'S-004', title: 'Story 4', type: 'chore', epic: 'E-2', status: 'done', size: 'XS', created: '2025-01-04' },
+    ];
+
+    it('should return stories for specified status', () => {
+      const grouped = groupStoriesByStatus(stories, statuses);
+      expect(getStoriesForColumn(grouped, 'todo')).toHaveLength(2);
+      expect(getStoriesForColumn(grouped, 'in_progress')).toHaveLength(1);
+      expect(getStoriesForColumn(grouped, 'done')).toHaveLength(1);
+    });
+
+    it('should return empty array for non-existent status', () => {
+      const grouped = groupStoriesByStatus(stories, statuses);
+      expect(getStoriesForColumn(grouped, 'nonexistent')).toEqual([]);
     });
   });
 });

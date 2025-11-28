@@ -1,6 +1,7 @@
 /**
  * Board View Webview Script
  * Handles communication with extension and state management
+ * DS-020: Kanban board rendering
  */
 
 (function () {
@@ -8,15 +9,25 @@
   // eslint-disable-next-line no-undef
   const vscode = acquireVsCodeApi();
 
-  // State management
-  let state = vscode.getState() || {
+  // Type icons for story types
+  const TYPE_ICONS = {
+    feature: '✨',
+    bug: '🐛',
+    task: '🔧',
+    chore: '🧹',
+  };
+
+  // State management - merge with defaults to handle missing properties from older versions
+  const defaultState = {
     stories: [],
     epics: [],
     statuses: [],
     theme: 'dark',
     currentSprint: null,
     scrollPosition: 0,
+    columnScrollPositions: {},
   };
+  let state = { ...defaultState, ...(vscode.getState() || {}) };
 
   // DOM elements
   const loadingEl = document.getElementById('loading');
@@ -103,16 +114,24 @@
    * Save state for persistence across reloads
    */
   function saveState() {
-    // Persist scroll position
+    // Persist board scroll position
     if (boardEl) {
-      state.scrollPosition = boardEl.scrollTop;
+      state.scrollPosition = boardEl.scrollLeft;
     }
+    // Persist column scroll positions
+    const columns = document.querySelectorAll('.column-body');
+    columns.forEach((col) => {
+      const statusId = col.getAttribute('data-status');
+      if (statusId) {
+        state.columnScrollPositions[statusId] = col.scrollTop;
+      }
+    });
     vscode.setState(state);
   }
 
   /**
-   * Render the board view
-   * DS-019: Placeholder - full kanban implementation in DS-020
+   * Render the kanban board
+   * DS-020: Full kanban implementation
    */
   function renderBoard() {
     if (!loadingEl || !boardEl) return;
@@ -120,44 +139,123 @@
     loadingEl.style.display = 'none';
     boardEl.style.display = 'block';
 
-    const storyCount = state.stories.length;
-    const epicCount = state.epics.length;
-    const statusCount = state.statuses.length;
+    // Group stories by status
+    const storiesByStatus = groupStoriesByStatus(state.stories, state.statuses);
 
-    // Group stories by status for count display
-    const statusCounts = {};
-    state.statuses.forEach((s) => {
-      statusCounts[s.id] = 0;
+    // Build columns HTML
+    const columnsHtml = state.statuses
+      .map((status) => renderColumn(status, storiesByStatus[status.id] || []))
+      .join('');
+
+    boardEl.innerHTML = `<div class="board-container">${columnsHtml}</div>`;
+
+    // Attach click handlers for cards
+    boardEl.querySelectorAll('.card').forEach((card) => {
+      card.addEventListener('click', () => {
+        const storyId = card.getAttribute('data-id');
+        if (storyId) {
+          window.boardApi.openStory(storyId);
+        }
+      });
     });
-    state.stories.forEach((story) => {
-      if (statusCounts[story.status] !== undefined) {
-        statusCounts[story.status]++;
+
+    // Restore scroll positions
+    if (state.scrollPosition) {
+      boardEl.querySelector('.board-container').scrollLeft = state.scrollPosition;
+    }
+    if (state.columnScrollPositions) {
+      document.querySelectorAll('.column-body').forEach((col) => {
+        const statusId = col.getAttribute('data-status');
+        if (statusId && state.columnScrollPositions[statusId]) {
+          col.scrollTop = state.columnScrollPositions[statusId];
+        }
+      });
+    }
+  }
+
+  /**
+   * Group stories by status ID
+   */
+  function groupStoriesByStatus(stories, statuses) {
+    const grouped = {};
+    statuses.forEach((s) => {
+      grouped[s.id] = [];
+    });
+    stories.forEach((story) => {
+      if (grouped[story.status]) {
+        grouped[story.status].push(story);
       }
     });
+    return grouped;
+  }
 
-    const statusSummary = state.statuses
-      .map((s) => `${s.label}: ${statusCounts[s.id] || 0}`)
-      .join(' | ');
+  /**
+   * Render a single column
+   */
+  function renderColumn(status, stories) {
+    const count = stories.length;
+    const cardsHtml =
+      stories.length > 0
+        ? stories.map((story) => renderCard(story)).join('')
+        : '<div class="column-empty">No stories</div>';
 
-    boardEl.innerHTML = `
-      <div class="board-placeholder">
-        <h2>Board View</h2>
-        <div class="stats">
-          ${storyCount} stories across ${epicCount} epics
+    return `
+      <div class="column" data-status="${escapeHtml(status.id)}">
+        <div class="column-header">
+          <div class="column-title">${escapeHtml(status.label)}</div>
+          <span class="column-count">${count}</span>
         </div>
-        <div class="stats">
-          ${statusCount} columns: ${statusSummary}
-        </div>
-        <div class="info">
-          Kanban board coming in DS-020
+        <div class="column-body" data-status="${escapeHtml(status.id)}">
+          ${cardsHtml}
         </div>
       </div>
     `;
+  }
 
-    // Restore scroll position
-    if (state.scrollPosition) {
-      boardEl.scrollTop = state.scrollPosition;
-    }
+  /**
+   * Render a single card
+   */
+  function renderCard(story) {
+    const typeIcon = TYPE_ICONS[story.type] || '📄';
+    const epicName = getEpicName(story.epic);
+    const depsCount = story.dependencies ? story.dependencies.length : 0;
+    const depsHtml =
+      depsCount > 0 ? `<span class="deps-count">🔗 ${depsCount}</span>` : '';
+
+    return `
+      <div class="card" data-id="${escapeHtml(story.id)}" data-type="${escapeHtml(story.type)}">
+        <div class="card-header">
+          <span class="card-id">
+            <span class="type-icon">${typeIcon}</span>
+            ${escapeHtml(story.id)}
+          </span>
+          <span class="size-badge">${escapeHtml(story.size)}</span>
+        </div>
+        <div class="card-title">${escapeHtml(story.title)}</div>
+        <div class="card-footer">
+          <span class="epic-name">${escapeHtml(epicName)}</span>
+          ${depsHtml}
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Get epic name by ID
+   */
+  function getEpicName(epicId) {
+    const epic = state.epics.find((e) => e.id === epicId);
+    return epic ? epic.title : epicId;
+  }
+
+  /**
+   * Escape HTML to prevent XSS
+   */
+  function escapeHtml(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
   }
 
   /**

@@ -128,3 +128,59 @@ export function getThemeKindFromNumber(kind: number): ThemeKind {
       return 'dark';
   }
 }
+
+// === DS-020: Kanban Board Utilities ===
+
+/**
+ * Type icons for story types (used in cards)
+ */
+const TYPE_ICONS: Record<string, string> = {
+  feature: '✨',
+  bug: '🐛',
+  task: '🔧',
+  chore: '🧹',
+};
+
+/**
+ * Get emoji icon for story type
+ */
+export function getTypeIcon(type: string): string {
+  return TYPE_ICONS[type] || '📄';
+}
+
+/**
+ * Group stories by status ID for column rendering
+ */
+export type StoriesByStatus = Record<string, WebviewStory[]>;
+
+export function groupStoriesByStatus(
+  stories: WebviewStory[],
+  statuses: StatusConfig[]
+): StoriesByStatus {
+  const grouped: StoriesByStatus = {};
+
+  // Initialize empty arrays for each status
+  for (const status of statuses) {
+    grouped[status.id] = [];
+  }
+
+  // Group stories into their status buckets
+  for (const story of stories) {
+    if (grouped[story.status]) {
+      grouped[story.status].push(story);
+    }
+    // Stories with unknown status are ignored (not rendered)
+  }
+
+  return grouped;
+}
+
+/**
+ * Get stories for a specific column (status)
+ */
+export function getStoriesForColumn(
+  grouped: StoriesByStatus,
+  statusId: string
+): WebviewStory[] {
+  return grouped[statusId] || [];
+}

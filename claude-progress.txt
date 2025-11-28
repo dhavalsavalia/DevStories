@@ -558,3 +558,46 @@ Next story: DS-020 (Kanban Board UI)
 
 ---
 
+=== Session: 2025-11-28 12:28 ===
+Story: DS-020 (Kanban Board UI)
+Status: done
+
+Work done:
+- Created kanban utility functions in `src/view/boardViewUtils.ts`:
+  - `getTypeIcon()`: Returns emoji for story type (feature/bug/task/chore)
+  - `groupStoriesByStatus()`: Groups stories by status for column rendering
+  - `getStoriesForColumn()`: Gets stories for a specific column
+- Updated `webview/board.css` with full kanban styles:
+  - Board container with horizontal scroll
+  - Fixed-width columns (260px) with vertical scroll
+  - Card layout with header, title, footer
+  - Type-specific left border colors
+  - Empty column state
+- Replaced placeholder `renderBoard()` in `webview/board.js` with full implementation:
+  - `groupStoriesByStatus()`: Client-side grouping
+  - `renderColumn()`: Renders column with header and cards
+  - `renderCard()`: Renders card with type icon, ID, size, title, epic, deps
+  - `getEpicName()`: Resolves epic ID to title
+  - `escapeHtml()`: XSS prevention
+  - Scroll position persistence (board + columns)
+- Added 11 new unit tests for kanban utilities (36 total in boardView.test.ts)
+
+MVP Acceptance Criteria:
+- ✅ Board renders columns from config.yaml statuses
+- ✅ Stories render as cards in correct columns based on status
+- ✅ Cards display: ID, Title, Type icon, Size badge
+- ✅ Columns show count of stories
+- ✅ Horizontal scroll for many columns, vertical scroll within columns
+- ✅ Empty column state: "No stories" placeholder
+- ✅ Color coding: Subtle color hints based on type (left border)
+
+Enhanced features deferred:
+- WIP limits, Swimlanes, Compact/expanded view, Story count by type, Card hover
+
+Tests: 246 unit + 94 integration = 340 total passing
+
+Project Status: 22/25 stories done (88%)
+- Phase 5 (Board View): 2/5 done
+
+Next story: DS-021 (Drag-and-Drop)
+

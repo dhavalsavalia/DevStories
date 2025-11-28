@@ -113,3 +113,126 @@ Next story: DS-011 (Create Epic Command)
 
 ---
 
+=== Session: 2025-11-28 09:50 ===
+Story: DS-011 (Create Epic Command + Auto-Link)
+Status: done
+
+Work done:
+- Created src/commands/createEpicUtils.ts with pure utility functions:
+  - parseConfigYaml(): Parse config.yaml for epic prefix, sprint, statuses
+  - findNextEpicId(): Find highest existing ID and return next sequential number
+  - generateEpicMarkdown(): Generate epic markdown with frontmatter and template
+- Created src/commands/createEpic.ts with executeCreateEpic() function:
+  - Reads config.yaml from workspace
+  - Title prompt with duplicate detection (warns if similar epic exists)
+  - Goal prompt (optional, pre-fills description)
+  - Sprint picker (existing sprints + "Create new sprint" option)
+  - Auto-generates sequential epic ID (e.g., EPIC-003)
+  - Creates epic file in epics/ folder
+  - Opens newly created file in editor
+  - Tree view auto-refreshes via Store events
+
+All acceptance criteria met:
+- MVP: ✅ Command registered, ✅ Title prompt, ✅ ID generation, ✅ File creation, ✅ Opens in editor, ✅ Tree refreshes
+- Enhanced: ✅ Goal prompt, ✅ Sprint picker, ✅ Stories section placeholder, ✅ Duplicate check
+
+Files changed:
+- src/commands/createEpicUtils.ts (new)
+- src/commands/createEpic.ts (new)
+- src/test/unit/createEpic.test.ts (new, 14 tests)
+- src/test/suite/createEpic.test.ts (new, 5 tests)
+- src/extension.ts (register command)
+- package.json (add command to contributes)
+
+Tests: 30 unit + 31 integration = 61 total passing
+
+Next story: DS-012 (Create Story Command)
+
+---
+
+=== Session: 2025-11-28 10:00 ===
+Story: DS-012 (Smart Story Creation)
+Status: done
+
+Work done:
+- Created src/commands/createStoryUtils.ts with pure utility functions:
+  - parseConfigYaml(): Extended to include sizes and templates
+  - findNextStoryId(): Find highest existing story ID and return next sequential
+  - getSuggestedSize(): Suggest size based on story type (bug→S, feature→M, etc.)
+  - calculateTitleSimilarity(): Jaccard word overlap for duplicate detection
+  - generateStoryMarkdown(): Generate story markdown with frontmatter and type template
+  - generateStoryLink(): Generate `[[STORY-ID]] title` format for epic linking
+  - appendStoryToEpic(): Insert story link into epic's ## Stories section
+  - DEFAULT_TEMPLATES: Built-in templates for feature/bug/task/chore
+
+- Created src/commands/createStory.ts with executeCreateStory() function:
+  - Epic picker: Shows all existing epics with ID, title, sprint
+  - Title prompt with duplicate detection (>80% similarity warning)
+  - Type picker with icons: $(lightbulb) Feature, $(bug) Bug, $(tasklist) Task, $(tools) Chore
+  - Size picker with suggestion (suggested size moved to top)
+  - Sprint inheritance: Uses epic's sprint or config.currentSprint or "backlog"
+  - Optional dependency picker: Multi-select from non-done stories
+  - Auto-generates sequential story ID
+  - Creates story file with type-specific template
+  - Auto-links story to parent epic (appends to ## Stories section)
+  - Opens newly created file in editor
+  - Tree view auto-refreshes via Store events
+
+All acceptance criteria met:
+- MVP: ✅ Command registered, ✅ Title prompt, ✅ Epic picker, ✅ Type picker, ✅ Size picker, ✅ ID generation, ✅ File creation, ✅ Template applied, ✅ Opens in editor, ✅ Tree refreshes
+- Enhanced: ✅ Auto-link to epic, ✅ Dependency picker, ✅ Size hint, ✅ Duplicate detection, ✅ Sprint inheritance
+
+Files changed:
+- src/commands/createStoryUtils.ts (new)
+- src/commands/createStory.ts (new)
+- src/test/unit/createStory.test.ts (new, 22 tests)
+- src/test/suite/createStory.test.ts (new, 7 tests)
+- src/extension.ts (register command)
+- package.json (add command to contributes)
+
+Tests: 52 unit + 38 integration = 90 total passing
+
+Next story: DS-013 (Quick Capture Command)
+
+---
+
+=== Session: 2025-11-28 10:07 ===
+Story: DS-013 (Quick Capture + Inbox)
+Status: done
+
+Work done:
+- Created src/commands/quickCaptureUtils.ts with pure utility functions:
+  - parseQuickInput(): Parse type prefix (bug:/feat:/chore:/task:) and pipe syntax for notes
+  - truncateForTitle(): Truncate long text at word boundaries with ellipsis
+  - cleanSelectionText(): Clean selected text (remove TODO:/FIXME:/comment prefixes)
+  - INBOX_EPIC_ID: Constant for inbox epic ID
+- Created src/commands/quickCapture.ts with executeQuickCapture() function:
+  - Single input box for quick capture (no epic/type/size pickers)
+  - Type shorthand: "bug: Login fails" → type=bug, "feat: Dark mode" → type=feature
+  - Pipe syntax: "Fix login | details here" → title + notes pre-filled in template
+  - From selection: Pre-fills input with cleaned selected text (truncated at 100 chars)
+  - Auto-creates EPIC-INBOX if doesn't exist, routes all quick captures there
+  - Uses current sprint or "backlog" as default
+  - Does NOT open file after creation (stays in context)
+  - Shows brief notification: "Created DS-XXX: {title}"
+  - Tree view auto-refreshes via Store events
+- Keybinding: Cmd+Shift+S (when editorTextFocus)
+
+All acceptance criteria met:
+- MVP: ✅ Command registered, ✅ Keybinding, ✅ Single input box, ✅ Defaults (task/M/current sprint), ✅ No file open, ✅ Notification, ✅ Tree updates
+- Enhanced: ✅ Inbox epic auto-create, ✅ Pipe syntax for notes, ✅ From selection, ✅ Type shorthand
+
+Files changed:
+- src/commands/quickCaptureUtils.ts (new)
+- src/commands/quickCapture.ts (new)
+- src/test/unit/quickCapture.test.ts (new, 28 tests)
+- src/test/suite/quickCapture.test.ts (new, 10 tests)
+- src/extension.ts (register command)
+- package.json (add command + keybinding)
+
+Tests: 80 unit + 48 integration = 128 total passing
+
+Next story: DS-014 (Story Templates)
+
+---
+

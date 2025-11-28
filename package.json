@@ -37,6 +37,26 @@
       {
         "command": "devstories.init",
         "title": "DevStories: Initialize Project"
+      },
+      {
+        "command": "devstories.createEpic",
+        "title": "DevStories: Create Epic"
+      },
+      {
+        "command": "devstories.createStory",
+        "title": "DevStories: Create Story"
+      },
+      {
+        "command": "devstories.quickCapture",
+        "title": "DevStories: Quick Capture"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "devstories.quickCapture",
+        "key": "cmd+shift+s",
+        "mac": "cmd+shift+s",
+        "when": "editorTextFocus"
       }
     ],
     "configuration": {

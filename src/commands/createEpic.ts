@@ -1,0 +1,182 @@
+import * as vscode from 'vscode';
+import { Store } from '../core/store';
+import {
+  parseConfigYaml,
+  findNextEpicId,
+  generateEpicMarkdown,
+  DevStoriesConfig,
+} from './createEpicUtils';
+
+// Re-export for convenience
+export { parseConfigYaml, findNextEpicId, generateEpicMarkdown } from './createEpicUtils';
+
+/**
+ * Read and parse config.yaml from workspace
+ */
+async function readConfig(workspaceUri: vscode.Uri): Promise<DevStoriesConfig | undefined> {
+  const configUri = vscode.Uri.joinPath(workspaceUri, '.devstories', 'config.yaml');
+  try {
+    const content = await vscode.workspace.fs.readFile(configUri);
+    return parseConfigYaml(Buffer.from(content).toString('utf8'));
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Get existing sprints from config and current epics
+ */
+function getExistingSprints(config: DevStoriesConfig, store: Store): string[] {
+  const sprints = new Set<string>();
+
+  // Add current sprint from config
+  if (config.currentSprint) {
+    sprints.add(config.currentSprint);
+  }
+
+  // Add sprints from existing epics
+  for (const epic of store.getEpics()) {
+    if (epic.sprint) {
+      sprints.add(epic.sprint);
+    }
+  }
+
+  return Array.from(sprints).sort();
+}
+
+/**
+ * Check for duplicate epic titles
+ */
+function findSimilarEpic(title: string, store: Store): string | undefined {
+  const normalizedTitle = title.toLowerCase().trim();
+  for (const epic of store.getEpics()) {
+    if (epic.title.toLowerCase().trim() === normalizedTitle) {
+      return epic.id;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Execute the createEpic command
+ */
+export async function executeCreateEpic(store: Store): Promise<boolean> {
+  // Check for workspace
+  const workspaceFolders = vscode.workspace.workspaceFolders;
+  if (!workspaceFolders || workspaceFolders.length === 0) {
+    vscode.window.showErrorMessage('DevStories: No workspace folder open');
+    return false;
+  }
+
+  const workspaceUri = workspaceFolders[0].uri;
+
+  // Read config
+  const config = await readConfig(workspaceUri);
+  if (!config) {
+    const action = await vscode.window.showErrorMessage(
+      'DevStories: No config.yaml found. Initialize DevStories first.',
+      'Initialize'
+    );
+    if (action === 'Initialize') {
+      vscode.commands.executeCommand('devstories.init');
+    }
+    return false;
+  }
+
+  // Prompt for title
+  const title = await vscode.window.showInputBox({
+    prompt: 'Epic title',
+    placeHolder: 'e.g., User Authentication System',
+    validateInput: (value) => {
+      if (!value || value.trim() === '') {
+        return 'Epic title is required';
+      }
+      return undefined;
+    },
+  });
+
+  if (!title) {
+    return false; // User cancelled
+  }
+
+  // Check for duplicate
+  const similarEpic = findSimilarEpic(title, store);
+  if (similarEpic) {
+    const proceed = await vscode.window.showWarningMessage(
+      `Epic with similar title already exists: ${similarEpic}. Create anyway?`,
+      'Yes',
+      'No'
+    );
+    if (proceed !== 'Yes') {
+      return false;
+    }
+  }
+
+  // Prompt for goal (optional)
+  const goal = await vscode.window.showInputBox({
+    prompt: 'What\'s the main goal? (optional)',
+    placeHolder: 'e.g., Allow users to securely sign in and manage their accounts',
+  });
+
+  // Sprint picker
+  const existingSprints = getExistingSprints(config, store);
+  const sprintOptions: vscode.QuickPickItem[] = existingSprints.map(s => ({ label: s }));
+  sprintOptions.push({ label: '+ Create new sprint', description: 'Enter a new sprint name' });
+
+  const sprintChoice = await vscode.window.showQuickPick(sprintOptions, {
+    placeHolder: 'Select sprint',
+  });
+
+  if (!sprintChoice) {
+    return false; // User cancelled
+  }
+
+  let sprint = sprintChoice.label;
+  if (sprint === '+ Create new sprint') {
+    const newSprint = await vscode.window.showInputBox({
+      prompt: 'New sprint name',
+      placeHolder: 'e.g., sprint-2, q1-2025',
+      validateInput: (value) => {
+        if (!value || value.trim() === '') {
+          return 'Sprint name is required';
+        }
+        return undefined;
+      },
+    });
+    if (!newSprint) {
+      return false;
+    }
+    sprint = newSprint;
+  }
+
+  // Generate ID
+  const existingIds = store.getEpics().map(e => e.id);
+  const nextNum = findNextEpicId(existingIds, config.epicPrefix);
+  const epicId = `${config.epicPrefix}-${String(nextNum).padStart(3, '0')}`;
+
+  // Generate markdown
+  const markdown = generateEpicMarkdown({
+    id: epicId,
+    title,
+    sprint,
+    goal: goal || undefined,
+  });
+
+  // Write file
+  const epicUri = vscode.Uri.joinPath(
+    workspaceUri,
+    '.devstories',
+    'epics',
+    `${epicId}.md`
+  );
+
+  await vscode.workspace.fs.writeFile(epicUri, Buffer.from(markdown));
+
+  // Open the file
+  const doc = await vscode.workspace.openTextDocument(epicUri);
+  await vscode.window.showTextDocument(doc);
+
+  vscode.window.showInformationMessage(`Created epic: ${epicId}`);
+
+  return true;
+}

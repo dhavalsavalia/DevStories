@@ -245,7 +245,7 @@ For long-running development across multiple sessions:
 3. **Focus**: Pick ONE story from backlog, update progress file with "in_progress"
 4. **Implement**: Write tests first, then code (TDD)
 5. **Verify**: Run tests, manually verify in Extension Development Host
-6. **End**: Update `claude-progress.txt` with work done and next steps
+6. **End**: Update `claude-progress.txt` with work done and next steps, update story status and any implementation notes, udpate epic with status.
 7. **Commit**: Create feature branch (e.g., `feature/DS-008-status-icons`), commit there, never directly on main
 
 **Important**:
@@ -257,6 +257,16 @@ For long-running development across multiple sessions:
 **Key files**:
 - `init.sh` - Environment setup and test runner
 - `claude-progress.txt` - Session-by-session work log
+- `scripts/ds-status.sh` - Story/epic status helper
+
+**Status commands** (use these instead of manual grep loops):
+```bash
+./scripts/ds-status.sh           # Summary of all epics and stories
+./scripts/ds-status.sh stories   # Detailed story list with titles
+./scripts/ds-status.sh epics     # Epic list with story counts
+./scripts/ds-status.sh todo      # List only todo stories
+./scripts/ds-status.sh next      # Show next story to work on
+```
 
 **Testing workflow (TDD)**:
 1. Write failing test first (RED)

@@ -2,7 +2,7 @@
   "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
-      "Bash(for f in /Users/dhavalsavalia/projects/devstories/.devstories/stories/DS-00*.md)",
+      "Bash(for:*)",
       "Bash(do grep -A1 \"^id:\" \"$f\")",
       "Bash(done)",
       "WebFetch(domain:www.anthropic.com)",
@@ -18,14 +18,17 @@
       "Skill(frontend-design:frontend-design)",
       "Bash(mkdir:*)",
       "Bash(npm run compile:*)",
-      "Bash(npm run compile-tests:*)"
+      "Bash(npm run compile-tests:*)",
+      "Bash(node -e:*)",
+      "Bash(/Users/dhavalsavalia/projects/devstories/scripts/ds-status.sh:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": [],
+    "defaultMode": "acceptEdits",
     "additionalDirectories": [
       "/Users/dhavalsavalia/projects/devstories",
       "/Users/dhavalsavalia/projects/devstories_test"
-    ],
-    "defaultMode": "acceptEdits"
+    ]
   }
 }

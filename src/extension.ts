@@ -8,6 +8,7 @@ import { executeSaveAsTemplate } from './commands/saveAsTemplate';
 import { AutoTimestamp } from './core/autoTimestamp';
 import { Store } from './core/store';
 import { Watcher } from './core/watcher';
+import { StoryLinkProvider } from './providers/storyLinkProvider';
 import { StatusBarController } from './view/statusBar';
 import { StoriesProvider } from './view/storiesProvider';
 
@@ -23,6 +24,13 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Register Tree Data Provider
 	vscode.window.registerTreeDataProvider('devstories.views.explorer', storiesProvider);
+
+	// Register Document Link Provider for [[ID]] links
+	const storyLinkProvider = new StoryLinkProvider(store);
+	const linkProviderDisposable = vscode.languages.registerDocumentLinkProvider(
+		{ language: 'markdown', scheme: 'file' },
+		storyLinkProvider
+	);
 
 	// Load initial data
 	store.load();
@@ -64,7 +72,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	context.subscriptions.push(watcher, autoTimestamp, statusBarController, initCommand, createEpicCommand, createStoryCommand, quickCaptureCommand, saveAsTemplateCommand, changeStatusCommand);
+	context.subscriptions.push(watcher, autoTimestamp, statusBarController, linkProviderDisposable, initCommand, createEpicCommand, createStoryCommand, quickCaptureCommand, saveAsTemplateCommand, changeStatusCommand);
 }
 
 export function deactivate() {}

@@ -365,3 +365,42 @@ Next story: DS-017 (Clickable Links + Navigation)
 
 ---
 
+=== Session: 2025-11-28 21:55 ===
+Story: DS-017 (Clickable Links + Navigation)
+Status: done
+
+Work done:
+- Created src/providers/storyLinkProviderUtils.ts with pure utility functions:
+  - LinkMatch interface: Position info for matches
+  - ResolvedLink interface: Position + target path
+  - findLinksInDocument(): Find all [[ID]] links with positions
+  - createDocumentLink(): Create resolved link or null for broken
+- Created src/providers/storyLinkProvider.ts implementing DocumentLinkProvider:
+  - provideDocumentLinks(): Returns clickable links for all [[ID]] patterns
+  - Only processes files in .devstories directory
+  - Uses Store to get known IDs for validation
+  - Broken links gracefully skipped (no link created)
+- Registered provider in extension.ts for markdown files
+- 19 unit tests + 8 integration tests
+
+All MVP acceptance criteria met:
+- ✅ Implement DocumentLinkProvider interface
+- ✅ provideDocumentLinks returns ranges for all [[ID]] occurrences
+- ✅ Links have correct target URI pointing to resolved file
+- ✅ Ctrl+Click (Cmd+Click on Mac) opens the target file
+- ✅ Works in both Story and Epic markdown files
+- ✅ Broken links don't crash (graceful handling)
+
+Files changed:
+- src/providers/storyLinkProviderUtils.ts (new)
+- src/providers/storyLinkProvider.ts (new)
+- src/extension.ts (register DocumentLinkProvider)
+- src/test/unit/storyLinkProvider.test.ts (new, 19 tests)
+- src/test/suite/storyLinkProvider.test.ts (new, 8 tests)
+
+Tests: 174 unit + 75 integration = 249 total passing
+
+Next story: DS-018 (Hover Preview)
+
+---
+

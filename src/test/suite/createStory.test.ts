@@ -118,4 +118,39 @@ title: "Test Epic"
 		assert.ok(result.includes('- [[STORY-001]] New feature'), 'Should include story link');
 		assert.ok(result.includes('## Notes'), 'Should preserve existing sections');
 	});
+
+	test('parseCustomTemplate should work in VS Code context', async () => {
+		const { parseCustomTemplate } = await import('../../commands/createStoryUtils');
+
+		const template = parseCustomTemplate('my-template.md', `---
+title: "My Template"
+description: "A test template"
+types:
+  - feature
+---
+
+## Template Body
+`);
+
+		assert.strictEqual(template.name, 'my-template');
+		assert.strictEqual(template.displayName, 'My Template');
+		assert.strictEqual(template.description, 'A test template');
+		assert.deepStrictEqual(template.types, ['feature']);
+		assert.ok(template.content.includes('## Template Body'));
+	});
+
+	test('parseCustomTemplate should handle no frontmatter', async () => {
+		const { parseCustomTemplate } = await import('../../commands/createStoryUtils');
+
+		const template = parseCustomTemplate('simple.md', `## Just Content
+
+No metadata here.
+`);
+
+		assert.strictEqual(template.name, 'simple');
+		assert.strictEqual(template.displayName, 'simple');
+		assert.strictEqual(template.description, undefined);
+		assert.strictEqual(template.types, undefined);
+		assert.ok(template.content.includes('## Just Content'));
+	});
 });

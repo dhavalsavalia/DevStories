@@ -9,6 +9,34 @@ import { substituteTemplateVariables, resolveTemplateReference } from './templat
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const matter = require('gray-matter');
 
+/**
+ * Custom template parsed from .devstories/templates/ folder
+ */
+export interface CustomTemplate {
+  name: string;           // Filename without .md (e.g., "api-endpoint")
+  displayName: string;    // From frontmatter title or fallback to name
+  description?: string;   // From frontmatter description
+  types?: StoryType[];    // Filter by story type (if specified)
+  content: string;        // Template body (without frontmatter)
+}
+
+/**
+ * Parse a custom template file content into CustomTemplate object
+ * Extracts frontmatter metadata (title, description, types) and body content
+ */
+export function parseCustomTemplate(filename: string, content: string): CustomTemplate {
+  const name = filename.replace(/\.md$/, '');
+  const parsed = matter(content);
+
+  return {
+    name,
+    displayName: parsed.data?.title ?? name,
+    description: parsed.data?.description,
+    types: parsed.data?.types,
+    content: parsed.content.trim(),
+  };
+}
+
 export interface DevStoriesConfig {
   epicPrefix: string;
   storyPrefix: string;

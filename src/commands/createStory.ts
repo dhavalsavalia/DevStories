@@ -11,6 +11,8 @@ import {
   appendStoryToEpic,
   DevStoriesConfig,
   DEFAULT_TEMPLATES,
+  parseCustomTemplate,
+  CustomTemplate,
 } from './createStoryUtils';
 import { BUNDLED_TEMPLATES } from './templateUtils';
 
@@ -36,6 +38,29 @@ async function readConfig(workspaceUri: vscode.Uri): Promise<DevStoriesConfig | 
   } catch {
     return undefined;
   }
+}
+
+/**
+ * Load custom templates from .devstories/templates/ folder
+ */
+async function loadCustomTemplates(workspaceUri: vscode.Uri): Promise<CustomTemplate[]> {
+  const templatesUri = vscode.Uri.joinPath(workspaceUri, '.devstories', 'templates');
+  const templates: CustomTemplate[] = [];
+
+  try {
+    const entries = await vscode.workspace.fs.readDirectory(templatesUri);
+    for (const [filename, fileType] of entries) {
+      if (fileType === vscode.FileType.File && filename.endsWith('.md')) {
+        const fileUri = vscode.Uri.joinPath(templatesUri, filename);
+        const content = Buffer.from(await vscode.workspace.fs.readFile(fileUri)).toString('utf8');
+        templates.push(parseCustomTemplate(filename, content));
+      }
+    }
+  } catch {
+    // Templates folder doesn't exist or not readable - return empty
+  }
+
+  return templates;
 }
 
 /**
@@ -88,6 +113,7 @@ interface SizeQuickPickItem extends vscode.QuickPickItem {
 
 interface TemplateQuickPickItem extends vscode.QuickPickItem {
   templateRef?: string; // @library/name or undefined for default
+  customContent?: string; // Direct content for custom templates
 }
 
 /**
@@ -190,12 +216,12 @@ export async function executeCreateStory(store: Store): Promise<boolean> {
     return false;
   }
 
-  // Template picker - offer to use library template or default
+  // Template picker - offer to use library template, custom template, or default
   const templateOptions: TemplateQuickPickItem[] = [
     { label: '$(file-text) Default', description: `Use default ${selectedType.value} template` },
   ];
 
-  // Add relevant library templates based on type
+  // Add relevant bundled library templates based on type
   if (selectedType.value === 'feature') {
     templateOptions.push(
       { label: '$(cloud) API Endpoint', description: 'REST API implementation checklist', templateRef: '@library/api-endpoint' },
@@ -208,7 +234,31 @@ export async function executeCreateStory(store: Store): Promise<boolean> {
     );
   }
 
+  // Load and add custom templates from .devstories/templates/
+  const customTemplates = await loadCustomTemplates(workspaceUri);
+  const relevantCustom = customTemplates.filter(t => {
+    // Show template if no types specified (universal) or if types include selected type
+    return !t.types || t.types.includes(selectedType.value);
+  });
+
+  if (relevantCustom.length > 0) {
+    // Add separator for custom templates
+    templateOptions.push({
+      label: '$(folder) Custom Templates',
+      kind: vscode.QuickPickItemKind.Separator,
+    } as TemplateQuickPickItem);
+
+    for (const t of relevantCustom) {
+      templateOptions.push({
+        label: `$(file) ${t.displayName}`,
+        description: t.description,
+        customContent: t.content,
+      });
+    }
+  }
+
   let selectedTemplateRef: string | undefined;
+  let selectedCustomContent: string | undefined;
   if (templateOptions.length > 1) {
     const selectedTemplate = await vscode.window.showQuickPick(templateOptions, {
       placeHolder: 'Select template (or use default)',
@@ -218,6 +268,7 @@ export async function executeCreateStory(store: Store): Promise<boolean> {
       return false;
     }
     selectedTemplateRef = selectedTemplate.templateRef;
+    selectedCustomContent = selectedTemplate.customContent;
   }
 
   // Size picker with suggestion
@@ -283,8 +334,9 @@ export async function executeCreateStory(store: Store): Promise<boolean> {
   const nextNum = findNextStoryId(existingIds, config.storyPrefix);
   const storyId = `${config.storyPrefix}-${String(nextNum).padStart(3, '0')}`;
 
-  // Get template - use library reference if selected, otherwise default
-  const template = selectedTemplateRef
+  // Get template - custom content > library reference > config template > default
+  const template = selectedCustomContent
+    ?? selectedTemplateRef
     ?? config.templates[selectedType.value]
     ?? DEFAULT_TEMPLATES[selectedType.value];
 

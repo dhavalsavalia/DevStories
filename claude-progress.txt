@@ -442,3 +442,49 @@ Next story: DS-019 (Webview Scaffolding) - Phase 5 begins
 
 ---
 
+=== Session: 2025-11-28 22:20 ===
+Story: DS-024 (Load Custom Templates into Picker)
+Status: done
+
+Work done:
+- Added `CustomTemplate` interface to createStoryUtils.ts
+- Added `parseCustomTemplate()` function to parse template files with optional frontmatter
+- Added `loadCustomTemplates()` to scan .devstories/templates/ folder
+- Updated template picker in createStory.ts to include custom templates:
+  - Custom templates appear under "Custom Templates" separator
+  - Filters by story type if `types` frontmatter specified
+  - Uses frontmatter title as display name, falls back to filename
+  - Shows description from frontmatter
+- Updated EPIC-004 to done (all Phase 4 stories complete)
+- Updated EPIC-003 to done (all Phase 3 stories complete including DS-024)
+
+All MVP + Enhanced acceptance criteria met:
+- ✅ Scan `.devstories/templates/` folder when createStory runs
+- ✅ Show custom templates in picker alongside bundled ones
+- ✅ Custom templates grouped under "Custom" section in picker
+- ✅ Template filename (minus .md) used as display name
+- ✅ Template metadata from YAML frontmatter (optional title, description)
+- ✅ Filter templates by story type (if specified in frontmatter)
+
+Files changed:
+- src/commands/createStoryUtils.ts (CustomTemplate interface, parseCustomTemplate)
+- src/commands/createStory.ts (loadCustomTemplates, updated picker)
+- src/test/unit/createStory.test.ts (+6 tests)
+- src/test/suite/createStory.test.ts (+2 tests)
+- .devstories/epics/EPIC-003.md (status: done)
+- .devstories/epics/EPIC-004.md (status: done)
+- .devstories/stories/DS-024.md (status: done)
+
+Tests: 210 unit + 86 integration = 296 total passing
+
+Project Status: 19/24 stories done (79%)
+- Phase 1 (Foundation): ✅ 5/5 done
+- Phase 2 (Tree View): ✅ 4/4 done
+- Phase 3 (Commands): ✅ 7/7 done
+- Phase 4 (Links): ✅ 3/3 done
+- Phase 5 (Board View): 0/5 todo
+
+Next story: DS-019 (Webview Scaffolding) - Phase 5 begins
+
+---
+

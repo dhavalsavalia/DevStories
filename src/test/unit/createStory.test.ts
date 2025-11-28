@@ -8,6 +8,8 @@ import {
   generateStoryLink,
   appendStoryToEpic,
   DEFAULT_TEMPLATES,
+  parseCustomTemplate,
+  CustomTemplate,
 } from '../../commands/createStoryUtils';
 
 describe('createStory Utils', () => {
@@ -311,6 +313,93 @@ id: EPIC-001
       expect(result).toContain('## Stories');
       expect(result).toContain('- [[STORY-001]] First story');
       expect(result).toContain('## Notes');
+    });
+  });
+
+  describe('parseCustomTemplate', () => {
+    it('should parse template with frontmatter metadata', () => {
+      const filename = 'api-endpoint.md';
+      const content = `---
+title: "API Endpoint"
+description: "Template for REST API endpoints"
+types:
+  - feature
+  - task
+---
+
+## Endpoint Details
+
+- Method: GET/POST/PUT/DELETE
+- Path: /api/...
+`;
+      const template = parseCustomTemplate(filename, content);
+
+      expect(template.name).toBe('api-endpoint');
+      expect(template.displayName).toBe('API Endpoint');
+      expect(template.description).toBe('Template for REST API endpoints');
+      expect(template.types).toEqual(['feature', 'task']);
+      expect(template.content).toContain('## Endpoint Details');
+      expect(template.content).not.toContain('title:');
+    });
+
+    it('should use filename as display name when no frontmatter title', () => {
+      const filename = 'my-custom-template.md';
+      const content = `## Simple Template
+
+Just content, no frontmatter.
+`;
+      const template = parseCustomTemplate(filename, content);
+
+      expect(template.name).toBe('my-custom-template');
+      expect(template.displayName).toBe('my-custom-template');
+      expect(template.description).toBeUndefined();
+      expect(template.types).toBeUndefined();
+      expect(template.content).toContain('## Simple Template');
+    });
+
+    it('should handle kebab-case to display name conversion', () => {
+      const filename = 'react-component-with-hooks.md';
+      const content = `Template content`;
+      const template = parseCustomTemplate(filename, content);
+
+      expect(template.name).toBe('react-component-with-hooks');
+      expect(template.displayName).toBe('react-component-with-hooks');
+    });
+
+    it('should strip .md extension from name', () => {
+      const filename = 'test-template.md';
+      const content = `Content`;
+      const template = parseCustomTemplate(filename, content);
+
+      expect(template.name).toBe('test-template');
+    });
+
+    it('should handle template with only frontmatter title', () => {
+      const filename = 'quick.md';
+      const content = `---
+title: "Quick Start Guide"
+---
+
+Steps here.
+`;
+      const template = parseCustomTemplate(filename, content);
+
+      expect(template.displayName).toBe('Quick Start Guide');
+      expect(template.content).toContain('Steps here.');
+    });
+
+    it('should filter template by type when types specified', () => {
+      const filename = 'bug-only.md';
+      const content = `---
+types:
+  - bug
+---
+
+Bug-specific template.
+`;
+      const template = parseCustomTemplate(filename, content);
+
+      expect(template.types).toEqual(['bug']);
     });
   });
 });

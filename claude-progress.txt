@@ -81,3 +81,35 @@ Next story: DS-010 (Init Command) - Phase 3 begins
 
 ---
 
+=== Session: 2025-11-28 09:30 ===
+Story: DS-010 (Init Command + Smart Defaults)
+Status: done
+
+Work done:
+- Created src/commands/init.ts with executeInit() function
+- Created src/commands/initUtils.ts with pure utility functions (unit-testable)
+- Project detection from package.json, Cargo.toml, pyproject.toml, go.mod
+- Config wizard: project name prompt (pre-filled from detection), ID prefix picker, sprint name
+- Sample content option: creates EPIC-001.md and {PREFIX}-001.md as examples
+- Git integration: offers to stage .devstories/ via VS Code Git extension API
+- Overwrite confirmation if .devstories/ already exists
+- Success notification with "Open Config" and "Create Epic" buttons
+- 10 unit tests (vitest) + 5 integration tests
+
+All acceptance criteria met:
+- MVP: ✅ All 5 items
+- Enhanced: ✅ Project detection, ✅ Config wizard, ✅ Sample content, ✅ Git staging
+
+Files changed:
+- src/commands/init.ts (new)
+- src/commands/initUtils.ts (new)
+- src/extension.ts (register command)
+- src/test/unit/init.test.ts (new, 10 tests)
+- src/test/suite/init.test.ts (new, 5 tests)
+
+Tests: 42 passing (16 unit + 26 integration)
+
+Next story: DS-011 (Create Epic Command)
+
+---
+

@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { executeInit } from './commands/init';
 import { AutoTimestamp } from './core/autoTimestamp';
 import { Store } from './core/store';
 import { Watcher } from './core/watcher';
@@ -22,11 +23,15 @@ export function activate(context: vscode.ExtensionContext) {
 	store.load();
 
 	// Register Commands
-	let disposable = vscode.commands.registerCommand('devstories.init', () => {
-		vscode.window.showInformationMessage('DevStories: Init command triggered');
+	const initCommand = vscode.commands.registerCommand('devstories.init', async () => {
+		const success = await executeInit();
+		if (success) {
+			// Reload store to pick up new files
+			await store.load();
+		}
 	});
 
-	context.subscriptions.push(watcher, autoTimestamp, statusBarController, disposable);
+	context.subscriptions.push(watcher, autoTimestamp, statusBarController, initCommand);
 }
 
 export function deactivate() {}

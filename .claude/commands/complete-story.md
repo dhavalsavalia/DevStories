@@ -67,6 +67,7 @@ Report:
 - Merge commit hash
 - Branch deleted
 - Current main status
+- Next actions/tasks to work on
 
 ## Critical Rules
 

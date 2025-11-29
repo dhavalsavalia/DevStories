@@ -39,20 +39,18 @@ Do NOT skip writing tests. TDD is mandatory.
 ## Phase 5: Documentation (MUST COMPLETE)
 
 1. Update story file `.devstories/stories/$ARGUMENTS.md`:
-   - Mark ALL acceptance criteria checkboxes as `[x]`
+
+   - Mark completed acceptance criteria checkboxes as `[x]`
    - Add `## Implementation Notes` section with:
-     - Files changed
      - Key decisions made
    - Add `## Deferred Decisions` section if anything was postponed
    - Update `updated:` date in frontmatter
-   - Change `status: todo` to `status: done`
-
 2. Update `claude-progress.txt`:
+
    - Session summary with work done
    - Files changed
    - Test counts
    - Next steps (if any)
-
 3. Check if all stories in the epic are done → update epic status to `done`
 
 ## Phase 6: Commit

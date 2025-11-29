@@ -25,7 +25,8 @@
       "Bash(git merge:*)",
       "Bash(git stash:*)",
       "Bash(./scripts/ds-status.sh:*)",
-      "Bash(git branch:*)"
+      "Bash(git branch:*)",
+      "Bash(git pull:*)"
     ],
     "deny": [],
     "ask": [],

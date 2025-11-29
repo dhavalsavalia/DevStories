@@ -172,6 +172,29 @@ updated: 2025-01-15
       // Title should be preserved
       expect(result).toContain('title:');
     });
+
+    it('should preserve priority field when updating status', () => {
+      const storyWithPriority = `---
+id: DS-004
+title: "Priority Story"
+type: feature
+epic: EPIC-001
+status: todo
+sprint: sprint-1
+size: M
+priority: 100
+assignee: ""
+dependencies:
+created: 2025-01-15
+updated: 2025-01-15
+---
+
+# Priority Story
+`;
+      const result = updateStoryStatus(storyWithPriority, 'in_progress');
+      expect(result).toContain('status: in_progress');
+      expect(result).toContain('priority: 100');
+    });
   });
 
   describe('updateEpicStatus', () => {

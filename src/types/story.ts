@@ -10,6 +10,7 @@ export interface Story {
   status: StoryStatus;
   sprint?: string;
   size: StorySize;
+  priority: number; // Default 500, lower = higher priority
   assignee?: string;
   dependencies?: string[];
   created: Date;

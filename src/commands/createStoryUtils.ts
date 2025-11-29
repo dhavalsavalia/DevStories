@@ -53,6 +53,7 @@ export interface StoryData {
   epic: string;
   sprint: string;
   size: StorySize;
+  priority?: number;
   dependencies?: string[];
 }
 
@@ -208,6 +209,8 @@ export function generateStoryMarkdown(
     author: options?.author,
   });
 
+  const priority = data.priority ?? 500;
+
   return `---
 id: ${data.id}
 title: "${escapedTitle}"
@@ -216,6 +219,7 @@ epic: ${data.epic}
 status: todo
 sprint: ${data.sprint}
 size: ${data.size}
+priority: ${priority}
 assignee: ""
 dependencies:${deps}
 created: ${today}

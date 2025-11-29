@@ -485,3 +485,44 @@ Files changed (32 total):
 - CLAUDE.md (updated pitfalls, no auto-launch)
 
 Tests: 391 unit + 128 integration = 519 total passing
+
+=== Session: 2025-11-29 18:12 ===
+Story: DS-080 (Story priority field)
+Status: done
+
+Added priority field to stories for ordering within sprints.
+
+Key changes:
+1. Added `priority: number` to Story interface (non-optional, defaults to 500)
+2. Updated parser.ts to read priority from frontmatter with ?? 500 default
+3. gray-matter stringify automatically preserves priority on write
+4. Added tests for priority parsing (0, 100, default 500)
+5. Added test for priority preservation during status updates
+6. Updated 5 test files with priority field in mock Story objects
+
+Files changed:
+- src/types/story.ts (added priority field)
+- src/core/parser.ts (parse priority with default)
+- src/test/unit/parser.test.ts (+3 tests)
+- src/test/unit/changeStatus.test.ts (+1 test)
+- src/test/unit/boardView.test.ts (added priority to mocks)
+- src/test/unit/statusBar.test.ts (added priority to mocks)
+- src/test/unit/storyHoverProvider.test.ts (added priority to mocks)
+- src/test/suite/boardView.test.ts (added priority to mocks)
+- src/test/suite/storyHoverProvider.test.ts (added priority to mocks)
+
+Tests: 395 unit + 128 integration = 523 total passing (+4 new)
+
+(continued) - Full priority integration:
+
+Additional changes:
+1. Updated devstories_test workspace - added priority to 4 stories (50, 100, 200, 800)
+2. createStoryUtils.ts - new stories include priority: 500 in markdown
+3. WebviewStory type - added priority: number
+4. serializeStoryForWebview - includes priority in webview data
+5. storyHoverProviderUtils - shows priority in hover card when non-default
+6. initUtils.ts - sample story includes priority: 500
+7. Fixed ~30 WebviewStory mocks in boardView tests with priority: 500
+8. Added 2 tests for hover card priority display
+
+Tests: 397 unit + 128 integration = 525 total passing (+2 more)

@@ -24,6 +24,7 @@ export class Parser {
       status: data.status as StoryStatus,
       sprint: data.sprint,
       size: data.size as StorySize,
+      priority: data.priority ?? 500,
       assignee: data.assignee,
       dependencies: data.dependencies || [],
       created: new Date(data.created),

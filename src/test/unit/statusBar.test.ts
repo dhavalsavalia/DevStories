@@ -22,6 +22,7 @@ function createStory(overrides: Partial<Story> = {}): Story {
     status: 'todo',
     sprint: 'sprint-1',
     size: 'M',
+    priority: 500,
     assignee: '',
     dependencies: [],
     created: new Date('2025-01-01'),

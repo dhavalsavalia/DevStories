@@ -1,0 +1,208 @@
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  padding: 0 24px 32px;
+  font-family: var(--vscode-font-family, 'Segoe UI', system-ui, -apple-system, sans-serif);
+  background-color: var(--vscode-editor-background);
+  color: var(--vscode-foreground);
+}
+
+body[data-theme='light'] {
+  --card-bg: color-mix(in srgb, var(--vscode-editor-background) 85%, white);
+  --card-border: color-mix(in srgb, var(--vscode-editorForeground) 12%, transparent);
+}
+
+body[data-theme='dark'] {
+  --card-bg: color-mix(in srgb, var(--vscode-editor-background) 90%, black);
+  --card-border: color-mix(in srgb, var(--vscode-editorForeground) 20%, transparent);
+}
+
+.welcome-root {
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.welcome-hero {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  padding: 32px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--vscode-focusBorder) 60%, transparent), transparent 65%);
+  border: 1px solid var(--card-border);
+}
+
+.welcome-hero__text h1 {
+  margin: 8px 0 12px;
+  font-size: 2.4rem;
+}
+
+.welcome-hero__text .subhead {
+  color: var(--vscode-descriptionForeground);
+  max-width: 520px;
+  line-height: 1.5;
+}
+
+.welcome-hero__art img {
+  width: 320px;
+  max-width: 45vw;
+}
+
+.eyebrow {
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  color: var(--vscode-descriptionForeground);
+  margin: 0;
+}
+
+.welcome-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin: 32px 0;
+}
+
+.meta-card {
+  padding: 24px;
+  border-radius: 14px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.meta-card h2 {
+  margin: 4px 0;
+}
+
+.release-notes {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.release-notes li {
+  padding-left: 20px;
+  position: relative;
+  color: var(--vscode-descriptionForeground);
+}
+
+.release-notes li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--vscode-focusBorder);
+}
+
+.button-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+button.primary,
+button.ghost {
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  border: none;
+}
+
+button.primary {
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+}
+
+button.primary:hover {
+  background-color: var(--vscode-button-hoverBackground);
+}
+
+button.ghost {
+  background: transparent;
+  border: 1px solid var(--card-border);
+  color: var(--vscode-descriptionForeground);
+}
+
+.welcome-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.action-card {
+  padding: 20px;
+  border-radius: 14px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 180px;
+}
+
+.action-card__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  background-color: color-mix(in srgb, var(--vscode-focusBorder) 20%, transparent);
+}
+
+.action-card__title {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.action-card__description {
+  margin: 0;
+  color: var(--vscode-descriptionForeground);
+  line-height: 1.4;
+}
+
+.action-card button {
+  align-self: flex-start;
+  margin-top: auto;
+  border-radius: 6px;
+  padding: 8px 14px;
+  border: none;
+  cursor: pointer;
+  background-color: var(--vscode-button-secondaryBackground, var(--vscode-button-background));
+  color: var(--vscode-button-secondaryForeground, var(--vscode-button-foreground));
+}
+
+.action-card button:hover {
+  filter: brightness(1.08);
+}
+
+@media (max-width: 880px) {
+  .welcome-hero {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .welcome-hero__art img {
+    width: min(360px, 70vw);
+  }
+
+  .button-row {
+    flex-direction: column;
+  }
+}

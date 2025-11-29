@@ -386,3 +386,26 @@ Files changed:
 - src/test/suite/startRitual.test.ts (new - 1 integration test)
 
 Tests: 376 unit + 128 integration = 504 total passing (+44 new)
+
+---
+
+=== Session: 2025-11-29 13:15 ===
+Story: DS-047 (First-run welcome hub + quick actions)
+Status: done
+
+Shipped the new welcome experience that guides first-time users.
+
+Key changes:
+1. Added `WelcomeExperience` to persist dismissal per workspace and gate auto-open logic.
+2. Implemented `WelcomeViewProvider`, HTML template, and quick action helpers with offline assets.
+3. Registered `devstories.openWelcome` command plus activation wiring so the hub opens once automatically.
+4. Added Vitest coverage for persistence, action wiring, template rendering, and asset helpers; ensured build copies new assets.
+
+Files changed:
+- src/core/welcomeExperience.ts (new persistence helper + tests)
+- src/view/welcomeView*.ts (provider, template, utils, actions) and src/types/welcomeMessages.ts
+- webview/welcome.{css,js} + welcome-hero.svg (offline UI assets)
+- src/extension.ts, package.json (command registration + activation wiring)
+
+Tests: 382 unit + 128 integration = 510 total passing (+8 unit)
+

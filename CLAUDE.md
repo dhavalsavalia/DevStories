@@ -209,6 +209,7 @@ Extension activates when:
 3. **Link resolution**: `[[STORY-ID]]` must resolve even if story is in different directory
 4. **Frontmatter preservation**: Writer must preserve markdown content when updating YAML
 5. **Event loops**: Avoid infinite loops where file save triggers watcher triggers save
+6. **Epics don't have sprints**: Only stories have sprint associations. Epics are thematic containers that span multiple sprints. Epic "timing" is derived from their stories' sprints.
 
 ## Development Workflow
 
@@ -277,13 +278,11 @@ For long-running development across multiple sessions:
 1. Write failing test first (RED)
 2. Implement minimal code to pass (GREEN)
 3. Refactor if needed
-4. Verify in Extension Development Host:
-   ```bash
-   code --extensionDevelopmentPath="$(pwd)" /Users/dhavalsavalia/projects/devstories_test --new-window
-   ```
+4. User will manually verify in Extension Development Host (do NOT launch it automatically)
 
 **Manual test workspace**: `/Users/dhavalsavalia/projects/devstories_test`
-- 2 epics, 5 stories with all types and statuses for visual verification
+- 4 epics, 12 stories with varied sprints/statuses for visual verification
+- User keeps this open and reloads as needed - do NOT launch it via code command
 
 **Webview testing**: When implementing webview features, add manual test checklist to story acceptance criteria (e.g., "type in search box", "drag card between columns"). DOM/focus bugs are hard to catch with unit tests.
 

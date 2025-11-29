@@ -49,7 +49,6 @@ export class Parser {
       id: data.id,
       title: data.title,
       status: data.status as EpicStatus,
-      sprint: data.sprint,
       created: new Date(data.created),
       updated: data.updated ? new Date(data.updated) : undefined,
       content: parsed.content,

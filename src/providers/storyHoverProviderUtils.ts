@@ -100,9 +100,9 @@ export function formatHoverCard(
     lines.push(`**Epic:** ${story.epic}  `);
   }
 
-  // Sprint (both)
-  if (item.sprint) {
-    lines.push(`**Sprint:** ${item.sprint}  `);
+  // Sprint (stories only - epics don't have sprints)
+  if (isStory && (item as Story).sprint) {
+    lines.push(`**Sprint:** ${(item as Story).sprint}  `);
   }
 
   // Progress (epics only)

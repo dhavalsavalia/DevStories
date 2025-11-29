@@ -94,14 +94,13 @@ export function detectProjectName(files: Map<string, string>): string | undefine
 /**
  * Generates sample epic content
  */
-export function generateSampleEpic(sprint: string, storyPrefix: string): string {
+export function generateSampleEpic(storyPrefix: string): string {
   const today = new Date().toISOString().split('T')[0];
 
   return `---
 id: EPIC-001
 title: Sample Epic (Delete Me)
 status: todo
-sprint: ${sprint}
 created: ${today}
 ---
 

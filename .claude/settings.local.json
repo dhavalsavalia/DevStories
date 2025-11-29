@@ -27,7 +27,17 @@
       "Bash(./scripts/ds-status.sh:*)",
       "Bash(git branch:*)",
       "Bash(git pull:*)",
-      "Bash(./scripts/archive-progress.sh:*)"
+      "Bash(./scripts/archive-progress.sh:*)",
+      "WebSearch",
+      "Bash(xargs -I {} bash -c 'echo \"\"\"\"=== $(basename {}) ===\"\"\"\" && head -20 {}')",
+      "Bash(do basename \"$file\")",
+      "Bash(npm test:*)",
+      "Bash(while read file)",
+      "Bash(do testfile=\"$file%.ts.test.ts\")",
+      "Bash(if [ ! -f \"$testfile\" ])",
+      "Bash(then echo \"$file\")",
+      "Bash(fi)",
+      "WebFetch(domain:code.visualstudio.com)"
     ],
     "deny": [],
     "ask": [],

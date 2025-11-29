@@ -162,7 +162,7 @@ export async function executeInit(options: InitOptions = {}): Promise<boolean> {
 
   // Create sample content if requested
   if (createSamples) {
-    const sampleEpic = generateSampleEpic(sprint, storyPrefix);
+    const sampleEpic = generateSampleEpic(storyPrefix);
     const sampleStory = generateSampleStory(sprint, storyPrefix);
 
     const epicUri = vscode.Uri.joinPath(epicsUri, 'EPIC-001.md');

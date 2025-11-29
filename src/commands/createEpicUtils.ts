@@ -16,7 +16,6 @@ export interface DevStoriesConfig {
 export interface EpicData {
   id: string;
   title: string;
-  sprint: string;
   goal?: string;
 }
 
@@ -68,7 +67,6 @@ export function generateEpicMarkdown(data: EpicData): string {
 id: ${data.id}
 title: "${escapedTitle}"
 status: todo
-sprint: ${data.sprint}
 created: ${today}
 ---
 

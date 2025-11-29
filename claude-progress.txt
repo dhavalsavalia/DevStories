@@ -433,3 +433,55 @@ Files changed:
 - esbuild.js (copy tutorial assets)
 
 Tests: 386 unit + 128 integration = 514 total passing (+4 unit)
+
+=== Session: 2025-11-29 17:45 ===
+Story: DS-079 (Sprint sequence configuration)
+Status: done
+
+Added sprint sequence configuration to enable ordered sprints.
+
+Key changes:
+1. Added `sprintSequence: string[]` to ConfigData interface
+2. Updated parseConfigYamlContent() to parse `sprints.sequence` array
+3. Added `getSprintIndex()` helper - returns index or Infinity for unknown sprints
+4. Updated mergeConfigWithDefaults() to include sprintSequence
+5. Added 8 new tests for sprint sequence parsing and index lookup
+
+Files changed:
+- src/core/configServiceUtils.ts (interface, parsing, getSprintIndex)
+- src/test/unit/configService.test.ts (+8 tests)
+- .devstories/config.yaml (added sequence array)
+- .devstories/epics/EPIC-017.md (new epic)
+- .devstories/stories/DS-079.md through DS-083.md (new stories)
+
+Tests: 394 unit + 128 integration = 522 total passing (+8 new)
+
+=== Session: 2025-11-29 18:05 ===
+Story: DS-079 (continued) - Epic sprint cleanup
+
+Fixed domain model: Removed sprint field from Epic type.
+Epics are thematic containers spanning multiple sprints.
+Only stories have sprint associations.
+
+Key changes:
+- Removed sprint from Epic interface (src/types/epic.ts)
+- Removed sprint parsing for epics (src/core/parser.ts)
+- Removed sprint picker from createEpic command
+- Removed epic sprint inheritance in createStory
+- Updated extractSprints() to only use stories
+- Updated hover provider to only show sprint for stories
+- Cleaned sprint from all 17 epic markdown files
+- Updated 6 test files
+
+Files changed (32 total):
+- src/types/epic.ts, webviewMessages.ts
+- src/core/parser.ts
+- src/commands/createEpic.ts, createEpicUtils.ts, createStory.ts, init.ts, initUtils.ts
+- src/view/boardView.ts, boardViewUtils.ts
+- src/providers/storyHoverProviderUtils.ts
+- src/test/suite/createEpic.test.ts, init.test.ts
+- src/test/unit/boardView.test.ts, createEpic.test.ts
+- .devstories/epics/EPIC-001.md through EPIC-017.md
+- CLAUDE.md (updated pitfalls, no auto-launch)
+
+Tests: 391 unit + 128 integration = 519 total passing

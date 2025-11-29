@@ -73,12 +73,6 @@ function getExistingSprints(config: DevStoriesConfig, store: Store): string[] {
     sprints.add(config.currentSprint);
   }
 
-  for (const epic of store.getEpics()) {
-    if (epic.sprint) {
-      sprints.add(epic.sprint);
-    }
-  }
-
   for (const story of store.getStories()) {
     if (story.sprint) {
       sprints.add(story.sprint);
@@ -158,9 +152,8 @@ export async function executeCreateStory(store: Store): Promise<boolean> {
   // Epic picker
   const epicOptions = epics.map(e => ({
     label: `[${e.id}] ${e.title}`,
-    description: e.sprint,
+    description: e.status,
     id: e.id,
-    sprint: e.sprint,
   }));
 
   const selectedEpic = await vscode.window.showQuickPick(epicOptions, {
@@ -294,8 +287,8 @@ export async function executeCreateStory(store: Store): Promise<boolean> {
     return false;
   }
 
-  // Sprint - inherit from epic or use current
-  const sprint = selectedEpic.sprint || config.currentSprint || 'backlog';
+  // Sprint - use current sprint from config or backlog
+  const sprint = config.currentSprint || 'backlog';
 
   // Optional: Dependency picker
   const stories = store.getStories();

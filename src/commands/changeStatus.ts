@@ -4,6 +4,7 @@
 
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { ConfigService } from '../core/configService';
 import { Store } from '../core/store';
 import { Story } from '../types/story';
 import { Epic } from '../types/epic';
@@ -40,14 +41,21 @@ async function readConfigYaml(): Promise<string | undefined> {
 /**
  * Execute the changeStatus command
  * Shows a QuickPick with available statuses
+ * @param configService - Optional ConfigService for live-reloaded config
  */
 export async function executeChangeStatus(
   store: Store,
-  item: Story | Epic
+  item: Story | Epic,
+  configService?: ConfigService
 ): Promise<boolean> {
-  // Read config to get available statuses
-  const configContent = await readConfigYaml();
-  const statuses = parseStatusesFromConfig(configContent ?? '');
+  // DS-035: Use ConfigService if available, otherwise read from file
+  let statuses: string[];
+  if (configService) {
+    statuses = configService.config.statuses.map(s => s.id);
+  } else {
+    const configContent = await readConfigYaml();
+    statuses = parseStatusesFromConfig(configContent ?? '');
+  }
 
   // Determine current status
   const currentStatus = item.status;

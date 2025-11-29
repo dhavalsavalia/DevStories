@@ -5,11 +5,10 @@
 
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import * as path from 'path';
 import { Store } from '../core/store';
+import { ConfigService } from '../core/configService';
 import { ExtensionMessage, WebviewMessage, InitPayload, StatusConfig } from '../types/webviewMessages';
 import {
-  parseStatuses,
   serializeStoryForWebview,
   serializeEpicForWebview,
   generateNonce,
@@ -26,7 +25,8 @@ export class BoardViewProvider implements vscode.WebviewViewProvider {
 
   constructor(
     private readonly extensionUri: vscode.Uri,
-    private readonly store: Store
+    private readonly store: Store,
+    private readonly configService: ConfigService
   ) {}
 
   resolveWebviewView(
@@ -52,6 +52,9 @@ export class BoardViewProvider implements vscode.WebviewViewProvider {
 
     // Subscribe to store updates
     this._disposables.push(this.store.onDidUpdate(() => this.sendInitData()));
+
+    // Subscribe to config changes (DS-035: live reload)
+    this._disposables.push(this.configService.onDidConfigChange(() => this.sendInitData()));
 
     // Listen for theme changes
     this._disposables.push(
@@ -145,23 +148,12 @@ export class BoardViewProvider implements vscode.WebviewViewProvider {
   }
 
   private loadStatuses(): StatusConfig[] {
-    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-    if (!workspaceFolder) {
-      return parseStatuses('');
-    }
-
-    const configPath = path.join(
-      workspaceFolder.uri.fsPath,
-      '.devstories',
-      'config.yaml'
-    );
-
-    try {
-      const content = fs.readFileSync(configPath, 'utf8');
-      return parseStatuses(content);
-    } catch {
-      return parseStatuses('');
-    }
+    // DS-035: Use ConfigService for live-reloaded statuses
+    const statuses = this.configService.config.statuses;
+    return statuses.map(s => ({
+      id: s.id,
+      label: s.label,
+    }));
   }
 
   private handleMessage(message: WebviewMessage): void {

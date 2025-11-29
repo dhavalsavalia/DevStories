@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { ConfigService } from '../core/configService';
 import { Store } from '../core/store';
 import { Epic } from '../types/epic';
 import { Story, StoryType } from '../types/story';
 
-// Status indicators using unicode symbols for clarity
-const STATUS_INDICATORS: Record<string, string> = {
+// Default status indicators using unicode symbols for clarity
+const DEFAULT_STATUS_INDICATORS: Record<string, string> = {
   todo: '○',        // Empty circle - not started
   in_progress: '◐', // Half circle - in progress
   review: '◑',      // Other half - in review
@@ -18,9 +19,12 @@ export class StoriesProvider implements vscode.TreeDataProvider<Epic | Story> {
 
   constructor(
     private store: Store,
-    private extensionPath?: string
+    private extensionPath: string | undefined,
+    private configService?: ConfigService
   ) {
     this.store.onDidUpdate(() => this.refresh());
+    // DS-035: Subscribe to config changes to refresh tree
+    this.configService?.onDidConfigChange(() => this.refresh());
   }
 
   refresh(): void {
@@ -72,7 +76,7 @@ export class StoriesProvider implements vscode.TreeDataProvider<Epic | Story> {
   }
 
   private getStatusIndicator(status: string): string {
-    return STATUS_INDICATORS[status] || '○';
+    return DEFAULT_STATUS_INDICATORS[status] || '○';
   }
 
   private createTreeItem(element: Epic | Story): vscode.TreeItem {

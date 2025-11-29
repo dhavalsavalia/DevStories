@@ -409,3 +409,27 @@ Files changed:
 
 Tests: 382 unit + 128 integration = 510 total passing (+8 unit)
 
+
+=== Session: 2025-11-29 16:00 ===
+Story: DS-048 (Interactive DevStories tutorial & sample workspace)
+Status: done
+
+Implemented interactive tutorial webview with 6 guided steps.
+
+Key changes:
+1. TutorialService - manages step definitions, completion state via GlobalState
+2. TutorialViewProvider - webview panel with step cards, progress bar, theme support
+3. startTutorial command - opens tutorial panel
+4. 16 SVG assets for light/dark step illustrations
+5. "Open Test Workspace" action to try features in sample project
+
+Files changed:
+- src/core/tutorialService.ts (step definitions + persistence)
+- src/view/tutorialView.ts (webview provider)
+- src/commands/startTutorial.ts + startTutorialUtils.ts
+- src/types/tutorialMessages.ts
+- webview/tutorial.{css,js} + tutorial-media/*.svg (16 assets)
+- package.json (command registration)
+- esbuild.js (copy tutorial assets)
+
+Tests: 386 unit + 128 integration = 514 total passing (+4 unit)

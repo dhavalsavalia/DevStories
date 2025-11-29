@@ -6,7 +6,7 @@ You MUST implement story `$ARGUMENTS` following ALL phases below. Do NOT skip an
 
 1. Run `pwd` and `date` to verify working directory and timestamp
 2. Run `./init.sh` to verify environment (deps, tests, compile)
-3. Read `claude-progress.txt` for context from previous sessions
+3. Read last ~100 lines of `claude-progress.txt` for recent context: `tail -100 claude-progress.txt`
 
 ## Phase 2: Story Setup
 
@@ -16,7 +16,6 @@ You MUST implement story `$ARGUMENTS` following ALL phases below. Do NOT skip an
    - `bug` → `bugfix/$ARGUMENTS-kebab-title`
    - Otherwise → `feature/$ARGUMENTS-kebab-title`
 4. Create the feature branch: `git checkout -b <branch-name>`
-5. Add entry to `claude-progress.txt` with current timestamp and "in_progress"
 
 ## Phase 3: Implementation (TDD - MUST FOLLOW)
 
@@ -30,27 +29,29 @@ For each acceptance criterion:
 
 Do NOT skip writing tests. TDD is mandatory.
 
+**Note**: For webview features, also verify DOM interactions manually (focus, typing, drag-drop).
+
 ## Phase 4: Verification
 
 1. Run `./init.sh` to run full test suite
 2. Extension Development Host launches automatically for manual verification
 3. Use test workspace at `/Users/dhavalsavalia/projects/devstories_test` to verify
 
-## Phase 5: Documentation (MUST COMPLETE)
+## Phase 5: Documentation (Keep Minimal)
 
 1. Update story file `.devstories/stories/$ARGUMENTS.md`:
-
    - Mark completed acceptance criteria checkboxes as `[x]`
-   - Add `## Implementation Notes` section with:
-     - Key decisions made
-   - Add `## Deferred Decisions` section if anything was postponed
+   - Add `## Decisions` section ONLY if non-obvious choices were made
    - Update `updated:` date in frontmatter
-2. Update `claude-progress.txt`:
+   - Do NOT add implementation notes (commit message covers that)
 
-   - Session summary with work done
-   - Files changed
+2. Append to `claude-progress.txt`:
+   - Session header with timestamp
+   - Story ID and brief summary
+   - Status: done
+   - Files changed (brief list)
    - Test counts
-   - Next steps (if any)
+
 3. Check if all stories in the epic are done → update epic status to `done`
 
 ## Phase 6: Commit
@@ -73,5 +74,5 @@ Do NOT skip writing tests. TDD is mandatory.
 - NEVER skip TDD - write tests FIRST
 - NEVER commit to main directly
 - ALWAYS use `--no-gpg-sign` for commits
-- ALWAYS update story file, progress file, and epic (if applicable)
+- Keep documentation minimal - commit messages are source of truth
 - Use TodoWrite to track progress through acceptance criteria

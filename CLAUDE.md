@@ -240,36 +240,37 @@ DevStories will manage its own development. After Phase 1 is complete:
 
 For long-running development across multiple sessions:
 
-1. **Start**: Run `pwd` to verify working directory and `date` for current timestamp, then `./init.sh` to verify environment
-2. **Context**: Read `claude-progress.txt` to understand last session's state and timestamp
+1. **Start**: Run `pwd` and `date`, then `./init.sh` to verify environment
+2. **Context**: Read last ~100 lines of `claude-progress.txt` (use `tail -100`)
 3. **Focus**: Pick ONE story from backlog, update progress file with "in_progress"
 4. **Implement**: Write tests first, then code (TDD)
 5. **Verify**: Run tests, manually verify in Extension Development Host
-6. **End**: Update `claude-progress.txt` with work done and next steps. **IMPORTANT**: Update the story file completely:
-   - Mark acceptance criteria checkboxes as done
-   - Add ## Implementation Notes section with files created, decisions made
-   - Add ## Deferred Decisions section for anything postponed with rationale
-   - Update epic status if all stories in epic are done
-7. **Commit**: Create feature branch (e.g., `feature/DS-008-status-icons`), commit there, never directly on main
+6. **End**: Update story file and progress log (see Documentation Strategy below)
+7. **Commit**: Create feature branch, commit there, never directly on main
 
 **Important**:
 - Always run `pwd` at session start to confirm location
-- Always update `claude-progress.txt` as you work - don't forget!
-- Never commit directly to main branch - use feature branches (MUST FOLLOW)
+- Never commit directly to main branch - use feature branches
 - Always use `--no-gpg-sign` flag when committing
 
 **Key files**:
 - `init.sh` - Environment setup and test runner
-- `claude-progress.txt` - Session-by-session work log
+- `claude-progress.txt` - Session-by-session work log (read tail only)
 - `scripts/ds-status.sh` - Story/epic status helper
+- `scripts/archive-progress.sh` - Archive old sessions when file gets large
 
-**Status commands** (use these instead of manual grep loops):
+**Status commands**:
 ```bash
 ./scripts/ds-status.sh           # Summary of all epics and stories
 ./scripts/ds-status.sh stories   # Detailed story list with titles
-./scripts/ds-status.sh epics     # Epic list with story counts
 ./scripts/ds-status.sh todo      # List only todo stories
 ./scripts/ds-status.sh next      # Show next story to work on
+```
+
+**Progress file management**:
+```bash
+# Archive when file exceeds ~1000 lines or ~15 sessions
+./scripts/archive-progress.sh --keep 5
 ```
 
 **Testing workflow (TDD)**:
@@ -282,8 +283,33 @@ For long-running development across multiple sessions:
    ```
 
 **Manual test workspace**: `/Users/dhavalsavalia/projects/devstories_test`
-- Contains dummy data with all story types (feature, bug, task, chore)
-- Contains all statuses (todo, in_progress, review, done)
-- 2 epics, 5 stories for visual verification
+- 2 epics, 5 stories with all types and statuses for visual verification
 
-**UI/Design work**: Use the `frontend-design` skill for creating sharp, modern, developer-friendly UI components (icons, webviews, etc.)
+**Webview testing**: When implementing webview features, add manual test checklist to story acceptance criteria (e.g., "type in search box", "drag card between columns"). DOM/focus bugs are hard to catch with unit tests.
+
+**UI/Design work**: Use the `frontend-design` skill for creating sharp, modern, developer-friendly UI components
+
+## Documentation Strategy
+
+**Goal**: Minimize redundancy, save tokens.
+
+**Story files** - Keep minimal:
+- Frontmatter (status, dates)
+- Description + acceptance criteria (checkboxes)
+- `## Decisions` section ONLY if non-obvious choices were made
+- NO implementation notes (commit messages cover that)
+
+**Progress file** (`claude-progress.txt`):
+- Session log for continuity between sessions
+- Read last ~100 lines at session start (not full file)
+- Archive when it exceeds ~1000 lines: `./scripts/archive-progress.sh`
+
+**Commit messages**: Source of truth for what changed and why
+
+**What to record where**:
+| Info | Location |
+|------|----------|
+| What was done | Commit message |
+| Why (decisions) | Story file `## Decisions` |
+| Session context | Progress file |
+| File changes | Git diff |

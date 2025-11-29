@@ -61,6 +61,7 @@ export function serializeStoryForWebview(story: Story): WebviewStory {
     epic: story.epic,
     status: story.status,
     size: story.size,
+    priority: story.priority,
     created: formatDate(story.created),
   };
 

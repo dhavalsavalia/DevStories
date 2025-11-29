@@ -127,10 +127,10 @@ statuses:
     ];
 
     const stories: WebviewStory[] = [
-      { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', created: '2025-01-01' },
-      { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', created: '2025-01-02' },
-      { id: 'S-003', title: 'Story 3', type: 'task', epic: 'E-2', status: 'in_progress', size: 'L', created: '2025-01-03' },
-      { id: 'S-004', title: 'Story 4', type: 'chore', epic: 'E-2', status: 'done', size: 'XS', created: '2025-01-04' },
+      { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', priority: 500, created: '2025-01-01' },
+      { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', priority: 500, created: '2025-01-02' },
+      { id: 'S-003', title: 'Story 3', type: 'task', epic: 'E-2', status: 'in_progress', size: 'L', priority: 500, created: '2025-01-03' },
+      { id: 'S-004', title: 'Story 4', type: 'chore', epic: 'E-2', status: 'done', size: 'XS', priority: 500, created: '2025-01-04' },
     ];
 
     test('getNextColumnIndex wraps around correctly', () => {

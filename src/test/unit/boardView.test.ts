@@ -271,10 +271,10 @@ statuses:
     ];
 
     const stories: WebviewStory[] = [
-      { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', created: '2025-01-01' },
-      { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', created: '2025-01-02' },
-      { id: 'S-003', title: 'Story 3', type: 'task', epic: 'E-2', status: 'in_progress', size: 'L', created: '2025-01-03' },
-      { id: 'S-004', title: 'Story 4', type: 'chore', epic: 'E-2', status: 'done', size: 'XS', created: '2025-01-04' },
+      { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', priority: 500, created: '2025-01-01' },
+      { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', priority: 500, created: '2025-01-02' },
+      { id: 'S-003', title: 'Story 3', type: 'task', epic: 'E-2', status: 'in_progress', size: 'L', priority: 500, created: '2025-01-03' },
+      { id: 'S-004', title: 'Story 4', type: 'chore', epic: 'E-2', status: 'done', size: 'XS', priority: 500, created: '2025-01-04' },
     ];
 
     it('should group stories by status id', () => {
@@ -295,8 +295,8 @@ statuses:
 
     it('should ignore stories with unknown status', () => {
       const storiesWithUnknown: WebviewStory[] = [
-        { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'unknown_status', size: 'M', created: '2025-01-01' },
-        { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', created: '2025-01-02' },
+        { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'unknown_status', size: 'M', priority: 500, created: '2025-01-01' },
+        { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', priority: 500, created: '2025-01-02' },
       ];
       const result = groupStoriesByStatus(storiesWithUnknown, statuses);
       expect(result.todo).toHaveLength(1);
@@ -317,10 +317,10 @@ statuses:
     ];
 
     const stories: WebviewStory[] = [
-      { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', created: '2025-01-01' },
-      { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', created: '2025-01-02' },
-      { id: 'S-003', title: 'Story 3', type: 'task', epic: 'E-2', status: 'in_progress', size: 'L', created: '2025-01-03' },
-      { id: 'S-004', title: 'Story 4', type: 'chore', epic: 'E-2', status: 'done', size: 'XS', created: '2025-01-04' },
+      { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', priority: 500, created: '2025-01-01' },
+      { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', priority: 500, created: '2025-01-02' },
+      { id: 'S-003', title: 'Story 3', type: 'task', epic: 'E-2', status: 'in_progress', size: 'L', priority: 500, created: '2025-01-03' },
+      { id: 'S-004', title: 'Story 4', type: 'chore', epic: 'E-2', status: 'done', size: 'XS', priority: 500, created: '2025-01-04' },
     ];
 
     it('should return stories for specified status', () => {
@@ -406,8 +406,8 @@ statuses:
     ];
 
     const stories: WebviewStory[] = [
-      { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', created: '2025-01-01' },
-      { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'in_progress', size: 'S', created: '2025-01-02' },
+      { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', priority: 500, created: '2025-01-01' },
+      { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'in_progress', size: 'S', priority: 500, created: '2025-01-02' },
     ];
 
     it('should return first card ID in column', () => {
@@ -434,9 +434,9 @@ statuses:
     ];
 
     const stories: WebviewStory[] = [
-      { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', created: '2025-01-01' },
-      { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', created: '2025-01-02' },
-      { id: 'S-003', title: 'Story 3', type: 'task', epic: 'E-2', status: 'in_progress', size: 'L', created: '2025-01-03' },
+      { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', priority: 500, created: '2025-01-01' },
+      { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', priority: 500, created: '2025-01-02' },
+      { id: 'S-003', title: 'Story 3', type: 'task', epic: 'E-2', status: 'in_progress', size: 'L', priority: 500, created: '2025-01-03' },
     ];
 
     it('should return index of card in column', () => {
@@ -536,9 +536,9 @@ statuses:
   describe('extractSprints', () => {
     it('should extract unique sprints from stories', () => {
       const stories: WebviewStory[] = [
-        { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', created: '2025-01-01', sprint: 'sprint-1' },
-        { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', created: '2025-01-02', sprint: 'sprint-2' },
-        { id: 'S-003', title: 'Story 3', type: 'task', epic: 'E-2', status: 'done', size: 'L', created: '2025-01-03', sprint: 'sprint-1' },
+        { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', priority: 500, created: '2025-01-01', sprint: 'sprint-1' },
+        { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', priority: 500, created: '2025-01-02', sprint: 'sprint-2' },
+        { id: 'S-003', title: 'Story 3', type: 'task', epic: 'E-2', status: 'done', size: 'L', priority: 500, created: '2025-01-03', sprint: 'sprint-1' },
       ];
       const result = extractSprints(stories);
       expect(result).toEqual(['sprint-1', 'sprint-2']);
@@ -546,8 +546,8 @@ statuses:
 
     it('should return sorted sprints', () => {
       const stories: WebviewStory[] = [
-        { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', created: '2025-01-01', sprint: 'z-sprint' },
-        { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', created: '2025-01-02', sprint: 'a-sprint' },
+        { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', priority: 500, created: '2025-01-01', sprint: 'z-sprint' },
+        { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', priority: 500, created: '2025-01-02', sprint: 'a-sprint' },
       ];
       const result = extractSprints(stories);
       expect(result).toEqual(['a-sprint', 'z-sprint']);
@@ -555,8 +555,8 @@ statuses:
 
     it('should handle stories without sprint', () => {
       const stories: WebviewStory[] = [
-        { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', created: '2025-01-01' },
-        { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', created: '2025-01-02', sprint: 'sprint-1' },
+        { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', priority: 500, created: '2025-01-01' },
+        { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', priority: 500, created: '2025-01-02', sprint: 'sprint-1' },
       ];
       const result = extractSprints(stories);
       expect(result).toEqual(['sprint-1']);
@@ -566,9 +566,9 @@ statuses:
   describe('extractAssignees', () => {
     it('should extract unique assignees from stories', () => {
       const stories: WebviewStory[] = [
-        { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', created: '2025-01-01', assignee: 'alice' },
-        { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', created: '2025-01-02', assignee: 'bob' },
-        { id: 'S-003', title: 'Story 3', type: 'task', epic: 'E-2', status: 'done', size: 'L', created: '2025-01-03', assignee: 'alice' },
+        { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', priority: 500, created: '2025-01-01', assignee: 'alice' },
+        { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', priority: 500, created: '2025-01-02', assignee: 'bob' },
+        { id: 'S-003', title: 'Story 3', type: 'task', epic: 'E-2', status: 'done', size: 'L', priority: 500, created: '2025-01-03', assignee: 'alice' },
       ];
       const result = extractAssignees(stories);
       expect(result).toEqual(['alice', 'bob']);
@@ -576,8 +576,8 @@ statuses:
 
     it('should return sorted assignees', () => {
       const stories: WebviewStory[] = [
-        { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', created: '2025-01-01', assignee: 'zara' },
-        { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', created: '2025-01-02', assignee: 'alice' },
+        { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', priority: 500, created: '2025-01-01', assignee: 'zara' },
+        { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', priority: 500, created: '2025-01-02', assignee: 'alice' },
       ];
       const result = extractAssignees(stories);
       expect(result).toEqual(['alice', 'zara']);
@@ -585,8 +585,8 @@ statuses:
 
     it('should handle stories without assignee', () => {
       const stories: WebviewStory[] = [
-        { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', created: '2025-01-01' },
-        { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', created: '2025-01-02', assignee: 'bob' },
+        { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', priority: 500, created: '2025-01-01' },
+        { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', priority: 500, created: '2025-01-02', assignee: 'bob' },
       ];
       const result = extractAssignees(stories);
       expect(result).toEqual(['bob']);
@@ -595,10 +595,10 @@ statuses:
 
   describe('filterStories', () => {
     const stories: WebviewStory[] = [
-      { id: 'S-001', title: 'Login Form', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', created: '2025-01-01', sprint: 'sprint-1', assignee: 'alice' },
-      { id: 'S-002', title: 'Fix Bug', type: 'bug', epic: 'E-1', status: 'in_progress', size: 'S', created: '2025-01-02', sprint: 'sprint-1', assignee: 'bob' },
-      { id: 'S-003', title: 'Database Task', type: 'task', epic: 'E-2', status: 'done', size: 'L', created: '2025-01-03', sprint: 'sprint-2' },
-      { id: 'S-004', title: 'Clean Up', type: 'chore', epic: 'E-2', status: 'todo', size: 'XS', created: '2025-01-04', sprint: 'sprint-2', assignee: 'alice' },
+      { id: 'S-001', title: 'Login Form', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', priority: 500, created: '2025-01-01', sprint: 'sprint-1', assignee: 'alice' },
+      { id: 'S-002', title: 'Fix Bug', type: 'bug', epic: 'E-1', status: 'in_progress', size: 'S', priority: 500, created: '2025-01-02', sprint: 'sprint-1', assignee: 'bob' },
+      { id: 'S-003', title: 'Database Task', type: 'task', epic: 'E-2', status: 'done', size: 'L', priority: 500, created: '2025-01-03', sprint: 'sprint-2' },
+      { id: 'S-004', title: 'Clean Up', type: 'chore', epic: 'E-2', status: 'todo', size: 'XS', priority: 500, created: '2025-01-04', sprint: 'sprint-2', assignee: 'alice' },
     ];
 
     it('should return all stories when no filters active', () => {

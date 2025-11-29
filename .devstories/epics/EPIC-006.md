@@ -2,7 +2,6 @@
 id: EPIC-006
 title: "Phase 6: Sprint Management"
 status: todo
-sprint: backlog
 created: 2025-11-28
 updated: 2025-11-28
 ---

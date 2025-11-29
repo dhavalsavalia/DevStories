@@ -147,7 +147,7 @@ export class BoardViewProvider implements vscode.WebviewViewProvider {
     const stories = this.store.getStories().map(serializeStoryForWebview);
     const epics = this.store.getEpics().map(serializeEpicForWebview);
     const statuses = this.loadStatuses();
-    const sprints = extractSprints(stories, epics);  // DS-023
+    const sprints = extractSprints(stories);  // DS-023
     const theme = getThemeKindFromNumber(vscode.window.activeColorTheme.kind);
 
     // DS-034: Include current sprint filter in init payload

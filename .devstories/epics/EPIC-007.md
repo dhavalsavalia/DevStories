@@ -2,7 +2,6 @@
 id: EPIC-007
 title: "Phase 7: Solo Dev Polish"
 status: todo
-sprint: backlog
 created: 2025-11-29
 updated: 2025-11-29
 ---

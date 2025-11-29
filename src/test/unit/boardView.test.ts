@@ -191,12 +191,6 @@ statuses:
       expect((result as any).content).toBeUndefined();
     });
 
-    it('should include sprint if present', () => {
-      const epic: Epic = { ...baseEpic, sprint: 'sprint-1' };
-      const result = serializeEpicForWebview(epic);
-      expect(result.sprint).toBe('sprint-1');
-    });
-
     it('should preserve all required fields', () => {
       const result = serializeEpicForWebview(baseEpic);
       expect(result.id).toBe('EPIC-001');
@@ -545,29 +539,7 @@ statuses:
         { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', created: '2025-01-02', sprint: 'sprint-2' },
         { id: 'S-003', title: 'Story 3', type: 'task', epic: 'E-2', status: 'done', size: 'L', created: '2025-01-03', sprint: 'sprint-1' },
       ];
-      const epics: WebviewEpic[] = [];
-      const result = extractSprints(stories, epics);
-      expect(result).toEqual(['sprint-1', 'sprint-2']);
-    });
-
-    it('should extract sprints from epics', () => {
-      const stories: WebviewStory[] = [];
-      const epics: WebviewEpic[] = [
-        { id: 'EPIC-001', title: 'Epic 1', status: 'in_progress', sprint: 'sprint-3' },
-        { id: 'EPIC-002', title: 'Epic 2', status: 'todo', sprint: 'sprint-4' },
-      ];
-      const result = extractSprints(stories, epics);
-      expect(result).toEqual(['sprint-3', 'sprint-4']);
-    });
-
-    it('should combine sprints from both stories and epics', () => {
-      const stories: WebviewStory[] = [
-        { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', created: '2025-01-01', sprint: 'sprint-1' },
-      ];
-      const epics: WebviewEpic[] = [
-        { id: 'EPIC-001', title: 'Epic 1', status: 'in_progress', sprint: 'sprint-2' },
-      ];
-      const result = extractSprints(stories, epics);
+      const result = extractSprints(stories);
       expect(result).toEqual(['sprint-1', 'sprint-2']);
     });
 
@@ -576,7 +548,7 @@ statuses:
         { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', created: '2025-01-01', sprint: 'z-sprint' },
         { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', created: '2025-01-02', sprint: 'a-sprint' },
       ];
-      const result = extractSprints(stories, []);
+      const result = extractSprints(stories);
       expect(result).toEqual(['a-sprint', 'z-sprint']);
     });
 
@@ -585,7 +557,7 @@ statuses:
         { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', created: '2025-01-01' },
         { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', created: '2025-01-02', sprint: 'sprint-1' },
       ];
-      const result = extractSprints(stories, []);
+      const result = extractSprints(stories);
       expect(result).toEqual(['sprint-1']);
     });
   });

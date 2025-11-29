@@ -2,7 +2,6 @@
 id: EPIC-003
 title: "Phase 3: Commands"
 status: done
-sprint: phase-3
 created: 2025-11-26
 updated: 2025-11-28
 ---

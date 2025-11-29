@@ -24,27 +24,6 @@ async function readConfig(workspaceUri: vscode.Uri): Promise<DevStoriesConfig | 
 }
 
 /**
- * Get existing sprints from config and current epics
- */
-function getExistingSprints(config: DevStoriesConfig, store: Store): string[] {
-  const sprints = new Set<string>();
-
-  // Add current sprint from config
-  if (config.currentSprint) {
-    sprints.add(config.currentSprint);
-  }
-
-  // Add sprints from existing epics
-  for (const epic of store.getEpics()) {
-    if (epic.sprint) {
-      sprints.add(epic.sprint);
-    }
-  }
-
-  return Array.from(sprints).sort();
-}
-
-/**
  * Check for duplicate epic titles
  */
 function findSimilarEpic(title: string, store: Store): string | undefined {
@@ -118,37 +97,6 @@ export async function executeCreateEpic(store: Store): Promise<boolean> {
     placeHolder: 'e.g., Allow users to securely sign in and manage their accounts',
   });
 
-  // Sprint picker
-  const existingSprints = getExistingSprints(config, store);
-  const sprintOptions: vscode.QuickPickItem[] = existingSprints.map(s => ({ label: s }));
-  sprintOptions.push({ label: '+ Create new sprint', description: 'Enter a new sprint name' });
-
-  const sprintChoice = await vscode.window.showQuickPick(sprintOptions, {
-    placeHolder: 'Select sprint',
-  });
-
-  if (!sprintChoice) {
-    return false; // User cancelled
-  }
-
-  let sprint = sprintChoice.label;
-  if (sprint === '+ Create new sprint') {
-    const newSprint = await vscode.window.showInputBox({
-      prompt: 'New sprint name',
-      placeHolder: 'e.g., sprint-2, q1-2025',
-      validateInput: (value) => {
-        if (!value || value.trim() === '') {
-          return 'Sprint name is required';
-        }
-        return undefined;
-      },
-    });
-    if (!newSprint) {
-      return false;
-    }
-    sprint = newSprint;
-  }
-
   // Generate ID
   const existingIds = store.getEpics().map(e => e.id);
   const nextNum = findNextEpicId(existingIds, config.epicPrefix);
@@ -158,7 +106,6 @@ export async function executeCreateEpic(store: Store): Promise<boolean> {
   const markdown = generateEpicMarkdown({
     id: epicId,
     title,
-    sprint,
     goal: goal || undefined,
   });
 

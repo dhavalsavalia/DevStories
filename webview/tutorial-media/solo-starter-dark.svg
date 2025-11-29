@@ -1,0 +1,12 @@
+<svg width="360" height="200" viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="360" height="200" rx="18" fill="#251625"/>
+  <rect x="28" y="36" width="304" height="128" rx="14" fill="#2a1b2c" stroke="#3f2740"/>
+  <rect x="44" y="56" width="160" height="14" rx="7" fill="#ff8ed9" opacity="0.6"/>
+  <rect x="44" y="80" width="220" height="10" rx="5" fill="#f36cbc" opacity="0.5"/>
+  <rect x="44" y="120" width="96" height="20" rx="10" fill="#ff8ed9" opacity="0.8"/>
+  <rect x="152" y="120" width="120" height="20" rx="10" fill="#bb5893" opacity="0.9"/>
+  <circle cx="280" cy="124" r="18" fill="#482742" stroke="#ff8ed9"/>
+  <path d="M272 124h16" stroke="#ff8ed9" stroke-width="3" stroke-linecap="round"/>
+  <path d="M280 116v16" stroke="#ff8ed9" stroke-width="3" stroke-linecap="round"/>
+  <text x="24" y="184" fill="#ffd9f2" font-size="18" font-family="'Segoe UI', sans-serif">Agile Solo Starter • Toggle rituals</text>
+</svg>

@@ -17,19 +17,22 @@ function copyWebviewAssets() {
     return;
   }
 
-  if (!fs.existsSync(destDir)) {
-    fs.mkdirSync(destDir, { recursive: true });
+  fs.rmSync(destDir, { recursive: true, force: true });
+  copyRecursive(srcDir, destDir);
+  console.log('[webview] Assets copied to dist/webview/');
+}
+
+function copyRecursive(source, target) {
+  const stats = fs.statSync(source);
+  if (stats.isDirectory()) {
+    fs.mkdirSync(target, { recursive: true });
+    for (const entry of fs.readdirSync(source)) {
+      copyRecursive(path.join(source, entry), path.join(target, entry));
+    }
+    return;
   }
 
-  const files = fs.readdirSync(srcDir);
-  files.forEach(file => {
-    const srcPath = path.join(srcDir, file);
-    const destPath = path.join(destDir, file);
-    if (fs.statSync(srcPath).isFile()) {
-      fs.copyFileSync(srcPath, destPath);
-    }
-  });
-  console.log('[webview] Assets copied to dist/webview/');
+  fs.copyFileSync(source, target);
 }
 
 /**

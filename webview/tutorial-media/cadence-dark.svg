@@ -1,0 +1,10 @@
+<svg width="360" height="200" viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="360" height="200" rx="18" fill="#0f1d24"/>
+  <rect x="32" y="44" width="296" height="120" rx="16" fill="#132733" stroke="#1f3a4a"/>
+  <circle cx="84" cy="104" r="46" fill="#193848" stroke="#295064"/>
+  <path d="M84 74v30l18 18" stroke="#5cd0ff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="150" y="64" width="150" height="16" rx="8" fill="#5cd0ff" opacity="0.45"/>
+  <rect x="150" y="92" width="120" height="12" rx="6" fill="#3c8fb3" opacity="0.6"/>
+  <rect x="150" y="114" width="180" height="12" rx="6" fill="#3c8fb3" opacity="0.4"/>
+  <text x="24" y="184" fill="#daf4ff" font-size="18" font-family="'Segoe UI', sans-serif">Cadence Reminders • Ritual schedule</text>
+</svg>

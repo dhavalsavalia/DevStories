@@ -6,9 +6,21 @@ import {
   serializeEpicForWebview,
   generateNonce,
   getThemeKindFromNumber,
+  // DS-021: Navigation utilities
+  getNextColumnIndex,
+  getPrevColumnIndex,
+  getNextCardIndex,
+  getPrevCardIndex,
+  findFirstCardInColumn,
+  getCardIndexInColumn,
+  getColumnIndexByStatus,
+  getStatusByColumnIndex,
+  getNextStatusInWorkflow,
+  groupStoriesByStatus,
 } from '../../view/boardViewUtils';
 import { Story } from '../../types/story';
 import { Epic } from '../../types/epic';
+import { StatusConfig, WebviewStory } from '../../types/webviewMessages';
 
 suite('BoardView Integration Test', () => {
   test('should have board view registered in package.json', async () => {
@@ -101,5 +113,84 @@ statuses:
     assert.strictEqual(getThemeKindFromNumber(3), 'high-contrast');
     assert.strictEqual(getThemeKindFromNumber(4), 'high-contrast');
     assert.strictEqual(getThemeKindFromNumber(99), 'dark'); // Unknown defaults to dark
+  });
+
+  // === DS-021: Drag-Drop + Keyboard Navigation Integration Tests ===
+
+  suite('DS-021: Navigation Utilities', () => {
+    const statuses: StatusConfig[] = [
+      { id: 'todo', label: 'To Do' },
+      { id: 'in_progress', label: 'In Progress' },
+      { id: 'review', label: 'Review' },
+      { id: 'done', label: 'Done' },
+    ];
+
+    const stories: WebviewStory[] = [
+      { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', created: '2025-01-01' },
+      { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', created: '2025-01-02' },
+      { id: 'S-003', title: 'Story 3', type: 'task', epic: 'E-2', status: 'in_progress', size: 'L', created: '2025-01-03' },
+      { id: 'S-004', title: 'Story 4', type: 'chore', epic: 'E-2', status: 'done', size: 'XS', created: '2025-01-04' },
+    ];
+
+    test('getNextColumnIndex wraps around correctly', () => {
+      assert.strictEqual(getNextColumnIndex(0, 4), 1);
+      assert.strictEqual(getNextColumnIndex(3, 4), 0, 'Should wrap to first');
+    });
+
+    test('getPrevColumnIndex wraps around correctly', () => {
+      assert.strictEqual(getPrevColumnIndex(1, 4), 0);
+      assert.strictEqual(getPrevColumnIndex(0, 4), 3, 'Should wrap to last');
+    });
+
+    test('getNextCardIndex wraps within column', () => {
+      assert.strictEqual(getNextCardIndex(0, 3), 1);
+      assert.strictEqual(getNextCardIndex(2, 3), 0, 'Should wrap to first');
+    });
+
+    test('getPrevCardIndex wraps within column', () => {
+      assert.strictEqual(getPrevCardIndex(1, 3), 0);
+      assert.strictEqual(getPrevCardIndex(0, 3), 2, 'Should wrap to last');
+    });
+
+    test('findFirstCardInColumn returns first card ID', () => {
+      const grouped = groupStoriesByStatus(stories, statuses);
+      assert.strictEqual(findFirstCardInColumn(grouped, 'todo'), 'S-001');
+      assert.strictEqual(findFirstCardInColumn(grouped, 'in_progress'), 'S-003');
+    });
+
+    test('findFirstCardInColumn returns null for empty column', () => {
+      const grouped = groupStoriesByStatus(stories, statuses);
+      assert.strictEqual(findFirstCardInColumn(grouped, 'review'), null);
+    });
+
+    test('getCardIndexInColumn returns correct index', () => {
+      const grouped = groupStoriesByStatus(stories, statuses);
+      assert.strictEqual(getCardIndexInColumn(grouped, 'todo', 'S-001'), 0);
+      assert.strictEqual(getCardIndexInColumn(grouped, 'todo', 'S-002'), 1);
+    });
+
+    test('getColumnIndexByStatus returns correct index', () => {
+      assert.strictEqual(getColumnIndexByStatus(statuses, 'todo'), 0);
+      assert.strictEqual(getColumnIndexByStatus(statuses, 'done'), 3);
+      assert.strictEqual(getColumnIndexByStatus(statuses, 'nonexistent'), -1);
+    });
+
+    test('getStatusByColumnIndex returns correct status', () => {
+      assert.strictEqual(getStatusByColumnIndex(statuses, 0), 'todo');
+      assert.strictEqual(getStatusByColumnIndex(statuses, 3), 'done');
+      assert.strictEqual(getStatusByColumnIndex(statuses, -1), null);
+      assert.strictEqual(getStatusByColumnIndex(statuses, 4), null);
+    });
+
+    test('getNextStatusInWorkflow advances correctly', () => {
+      assert.strictEqual(getNextStatusInWorkflow(statuses, 'todo'), 'in_progress');
+      assert.strictEqual(getNextStatusInWorkflow(statuses, 'in_progress'), 'review');
+      assert.strictEqual(getNextStatusInWorkflow(statuses, 'review'), 'done');
+    });
+
+    test('getNextStatusInWorkflow returns null at end', () => {
+      assert.strictEqual(getNextStatusInWorkflow(statuses, 'done'), null);
+      assert.strictEqual(getNextStatusInWorkflow(statuses, 'unknown'), null);
+    });
   });
 });

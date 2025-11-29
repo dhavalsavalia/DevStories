@@ -6,7 +6,7 @@
 const matter = require('gray-matter');
 import { Story } from '../types/story';
 import { Epic } from '../types/epic';
-import { StatusConfig, WebviewStory, WebviewEpic, ThemeKind } from '../types/webviewMessages';
+import { StatusConfig, WebviewStory, WebviewEpic, ThemeKind, FilterState } from '../types/webviewMessages';
 
 const DEFAULT_STATUSES: StatusConfig[] = [
   { id: 'todo', label: 'To Do' },
@@ -183,4 +183,236 @@ export function getStoriesForColumn(
   statusId: string
 ): WebviewStory[] {
   return grouped[statusId] || [];
+}
+
+// === DS-021: Drag-Drop + Keyboard Navigation Utilities ===
+
+/**
+ * Get next column index with wraparound
+ */
+export function getNextColumnIndex(currentIndex: number, totalColumns: number): number {
+  if (totalColumns <= 1) {
+    return 0;
+  }
+  return (currentIndex + 1) % totalColumns;
+}
+
+/**
+ * Get previous column index with wraparound
+ */
+export function getPrevColumnIndex(currentIndex: number, totalColumns: number): number {
+  if (totalColumns <= 1) {
+    return 0;
+  }
+  return (currentIndex - 1 + totalColumns) % totalColumns;
+}
+
+/**
+ * Get next card index with wraparound within column
+ */
+export function getNextCardIndex(currentIndex: number, totalCards: number): number {
+  if (totalCards === 0) {
+    return 0;
+  }
+  return (currentIndex + 1) % totalCards;
+}
+
+/**
+ * Get previous card index with wraparound within column
+ */
+export function getPrevCardIndex(currentIndex: number, totalCards: number): number {
+  if (totalCards === 0) {
+    return 0;
+  }
+  return (currentIndex - 1 + totalCards) % totalCards;
+}
+
+/**
+ * Find first card ID in a column (for column navigation)
+ */
+export function findFirstCardInColumn(
+  grouped: StoriesByStatus,
+  statusId: string
+): string | null {
+  const stories = grouped[statusId];
+  if (!stories || stories.length === 0) {
+    return null;
+  }
+  return stories[0].id;
+}
+
+/**
+ * Get index of a card within its column
+ */
+export function getCardIndexInColumn(
+  grouped: StoriesByStatus,
+  statusId: string,
+  cardId: string
+): number {
+  const stories = grouped[statusId];
+  if (!stories) {
+    return -1;
+  }
+  return stories.findIndex((s) => s.id === cardId);
+}
+
+/**
+ * Get column index by status ID
+ */
+export function getColumnIndexByStatus(
+  statuses: StatusConfig[],
+  statusId: string
+): number {
+  return statuses.findIndex((s) => s.id === statusId);
+}
+
+/**
+ * Get status ID by column index
+ */
+export function getStatusByColumnIndex(
+  statuses: StatusConfig[],
+  index: number
+): string | null {
+  if (index < 0 || index >= statuses.length) {
+    return null;
+  }
+  return statuses[index].id;
+}
+
+/**
+ * Get next status in workflow (for Space key advance)
+ * Returns null if at end of workflow or status not found
+ */
+export function getNextStatusInWorkflow(
+  statuses: StatusConfig[],
+  currentStatus: string
+): string | null {
+  const currentIndex = statuses.findIndex((s) => s.id === currentStatus);
+  if (currentIndex === -1 || currentIndex >= statuses.length - 1) {
+    return null;
+  }
+  return statuses[currentIndex + 1].id;
+}
+
+// === DS-023: Filter Utilities ===
+
+/**
+ * Default empty filter state
+ */
+export const DEFAULT_FILTER_STATE: FilterState = {
+  sprint: null,
+  epic: null,
+  type: null,
+  assignee: null,
+  search: '',
+};
+
+/**
+ * Extract unique sprints from stories and epics
+ */
+export function extractSprints(stories: WebviewStory[], epics: WebviewEpic[]): string[] {
+  const sprintSet = new Set<string>();
+
+  for (const story of stories) {
+    if (story.sprint) {
+      sprintSet.add(story.sprint);
+    }
+  }
+
+  for (const epic of epics) {
+    if (epic.sprint) {
+      sprintSet.add(epic.sprint);
+    }
+  }
+
+  // Sort alphabetically
+  return Array.from(sprintSet).sort();
+}
+
+/**
+ * Extract unique assignees from stories
+ */
+export function extractAssignees(stories: WebviewStory[]): string[] {
+  const assigneeSet = new Set<string>();
+
+  for (const story of stories) {
+    if (story.assignee) {
+      assigneeSet.add(story.assignee);
+    }
+  }
+
+  return Array.from(assigneeSet).sort();
+}
+
+/**
+ * Filter stories based on filter state
+ * Uses AND logic: all active filters must match
+ */
+export function filterStories(stories: WebviewStory[], filters: FilterState): WebviewStory[] {
+  return stories.filter((story) => {
+    // Sprint filter
+    if (filters.sprint !== null && story.sprint !== filters.sprint) {
+      return false;
+    }
+
+    // Epic filter
+    if (filters.epic !== null && story.epic !== filters.epic) {
+      return false;
+    }
+
+    // Type filter
+    if (filters.type !== null && story.type !== filters.type) {
+      return false;
+    }
+
+    // Assignee filter
+    if (filters.assignee !== null) {
+      // Empty string means "unassigned"
+      if (filters.assignee === '' && story.assignee) {
+        return false;
+      }
+      // Non-empty means specific assignee
+      if (filters.assignee !== '' && story.assignee !== filters.assignee) {
+        return false;
+      }
+    }
+
+    // Search filter (case-insensitive match on title or id)
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      const titleMatch = story.title.toLowerCase().includes(searchLower);
+      const idMatch = story.id.toLowerCase().includes(searchLower);
+      if (!titleMatch && !idMatch) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+}
+
+/**
+ * Check if any filter is active
+ */
+export function hasActiveFilters(filters: FilterState): boolean {
+  return (
+    filters.sprint !== null ||
+    filters.epic !== null ||
+    filters.type !== null ||
+    filters.assignee !== null ||
+    filters.search !== ''
+  );
+}
+
+/**
+ * Count active filters
+ */
+export function countActiveFilters(filters: FilterState): number {
+  let count = 0;
+  if (filters.sprint !== null) count++;
+  if (filters.epic !== null) count++;
+  if (filters.type !== null) count++;
+  if (filters.assignee !== null) count++;
+  if (filters.search !== '') count++;
+  return count;
 }

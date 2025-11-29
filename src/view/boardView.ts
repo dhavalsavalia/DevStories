@@ -14,7 +14,9 @@ import {
   serializeEpicForWebview,
   generateNonce,
   getThemeKindFromNumber,
+  extractSprints,
 } from './boardViewUtils';
+import { updateStoryStatus as updateStoryStatusInFile } from '../commands/changeStatusUtils';
 
 export class BoardViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewId = 'devstories.views.board';
@@ -128,12 +130,14 @@ export class BoardViewProvider implements vscode.WebviewViewProvider {
     const stories = this.store.getStories().map(serializeStoryForWebview);
     const epics = this.store.getEpics().map(serializeEpicForWebview);
     const statuses = this.loadStatuses();
+    const sprints = extractSprints(stories, epics);  // DS-023
     const theme = getThemeKindFromNumber(vscode.window.activeColorTheme.kind);
 
     const payload: InitPayload = {
       stories,
       epics,
       statuses,
+      sprints,  // DS-023
       theme,
     };
 
@@ -169,8 +173,8 @@ export class BoardViewProvider implements vscode.WebviewViewProvider {
         this.openStory(message.payload.id);
         break;
       case 'updateStatus':
-        // Will be implemented in DS-022
-        console.log('updateStatus:', message.payload);
+        // DS-021: Handle status update from drag-drop or keyboard
+        this.updateStoryStatus(message.payload.storyId, message.payload.newStatus);
         break;
       case 'filterChanged':
         // Will be implemented in DS-023
@@ -189,6 +193,50 @@ export class BoardViewProvider implements vscode.WebviewViewProvider {
 
     if (target?.filePath) {
       vscode.commands.executeCommand('vscode.open', vscode.Uri.file(target.filePath));
+    }
+  }
+
+  /**
+   * DS-021: Update story status from webview (drag-drop or keyboard)
+   */
+  private async updateStoryStatus(storyId: string, newStatus: string): Promise<void> {
+    const story = this.store.getStory(storyId);
+    if (!story?.filePath) {
+      this.postMessage({
+        type: 'updateFailed',
+        payload: {
+          storyId,
+          originalStatus: '',
+          error: 'Story not found',
+        },
+      });
+      return;
+    }
+
+    const originalStatus = story.status;
+
+    try {
+      // Read current file content
+      const content = fs.readFileSync(story.filePath, 'utf8');
+
+      // Update the status in frontmatter
+      const updatedContent = updateStoryStatusInFile(content, newStatus);
+
+      // Write back to file
+      fs.writeFileSync(story.filePath, updatedContent, 'utf8');
+
+      // Store will auto-update via file watcher, which triggers sendInitData
+      // The webview will receive storyUpdated message automatically
+    } catch (err) {
+      // Send failure message for rollback
+      this.postMessage({
+        type: 'updateFailed',
+        payload: {
+          storyId,
+          originalStatus,
+          error: err instanceof Error ? err.message : 'Unknown error',
+        },
+      });
     }
   }
 

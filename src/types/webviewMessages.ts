@@ -35,11 +35,21 @@ export interface WebviewEpic {
   sprint?: string;
 }
 
+// DS-023: Filter state for board view
+export interface FilterState {
+  sprint: string | null;      // null = all sprints
+  epic: string | null;        // null = all epics
+  type: string | null;        // null = all types
+  assignee: string | null;    // null = all, empty string = unassigned
+  search: string;             // empty = no search
+}
+
 // Init payload sent to webview on load
 export interface InitPayload {
   stories: WebviewStory[];
   epics: WebviewEpic[];
   statuses: StatusConfig[];
+  sprints: string[];          // DS-023: List of available sprints for filter dropdown
   currentSprint?: string;
   theme: ThemeKind;
 }
@@ -49,12 +59,13 @@ export type ExtensionMessage =
   | { type: 'init'; payload: InitPayload }
   | { type: 'storyUpdated'; payload: { story: WebviewStory } }
   | { type: 'storyDeleted'; payload: { id: string } }
-  | { type: 'themeChanged'; payload: { kind: ThemeKind } };
+  | { type: 'themeChanged'; payload: { kind: ThemeKind } }
+  | { type: 'updateFailed'; payload: { storyId: string; originalStatus: string; error: string } };
 
 // Webview → Extension messages
 export type WebviewMessage =
   | { type: 'updateStatus'; payload: { storyId: string; newStatus: string } }
   | { type: 'openStory'; payload: { id: string } }
-  | { type: 'filterChanged'; payload: { sprint: string | null; epic: string | null } }
+  | { type: 'filterChanged'; payload: FilterState }  // DS-023: Full filter state
   | { type: 'ready' }
   | { type: 'error'; payload: { message: string } };

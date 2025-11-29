@@ -601,3 +601,139 @@ Project Status: 22/25 stories done (88%)
 
 Next story: DS-021 (Drag-and-Drop)
 
+---
+
+=== Session: 2025-11-28 12:44 ===
+Story: DS-021 (Drag-Drop + Keyboard Navigation)
+Status: done
+
+Work done:
+- Added navigation utilities in `src/view/boardViewUtils.ts`:
+  - `getNextColumnIndex()`, `getPrevColumnIndex()`: Column navigation with wrap
+  - `getNextCardIndex()`, `getPrevCardIndex()`: Card navigation within column
+  - `findFirstCardInColumn()`: Find first card ID in column
+  - `getCardIndexInColumn()`: Get card index by ID
+  - `getColumnIndexByStatus()`, `getStatusByColumnIndex()`: Status<->column mapping
+  - `getNextStatusInWorkflow()`: Get next status for Space key advance
+- Added drag-drop styles in `webview/board.css`:
+  - `.dragging`: Card opacity + scale during drag
+  - `.drag-over`: Column highlight on dragover
+  - `.focused`: Keyboard focus outline
+  - `.just-moved`: Slide-in animation on successful drop
+  - `.update-failed`: Shake animation on failure
+- Implemented drag-drop in `webview/board.js`:
+  - `handleDragStart/End/Over/Leave/Drop`: Full HTML5 drag-drop
+  - Optimistic UI update with `pendingUpdates` Map for rollback
+  - `handleUpdateFailed()`: Rollback on error
+- Implemented keyboard navigation in `webview/board.js`:
+  - `handleKeydown()`: Global keydown handler
+  - j/k/↑/↓: Move between cards
+  - h/l/←/→: Move between columns
+  - Enter: Open story file
+  - Space: Advance status to next column
+  - 1-4: Jump to column by number
+  - Focus state persisted in webview state
+- Added `updateStoryStatus()` in `src/view/boardView.ts`:
+  - Handles `updateStatus` message from webview
+  - Uses `updateStoryStatus` from changeStatusUtils.ts
+  - Sends `updateFailed` message on error for rollback
+- Added `updateFailed` message type to `src/types/webviewMessages.ts`
+
+MVP Acceptance Criteria:
+- ✅ Cards are draggable (HTML5 drag-drop API)
+- ✅ Visual feedback during drag (card ghost, drop zone highlight)
+- ✅ Dropping card in new column sends `updateStatus` message
+- ✅ Optimistic UI update (immediate visual move)
+- ✅ Revert position if backend update fails
+- ✅ Cards maintain order within column
+
+Enhanced Acceptance Criteria:
+- ✅ Keyboard navigation (j/k/h/l, arrows, Enter, Space, 1-4)
+- ✅ Animations (move + error shake)
+- ⏸️ Touch support (deferred)
+- ⏸️ Multi-select drag (deferred)
+- ⏸️ Drag to reorder within column (deferred)
+
+Tests: 271 unit + 105 integration = 376 total passing (+37 new)
+
+Project Status: 23/25 stories done (92%)
+- Phase 5 (Board View): 3/5 done
+
+Next story: DS-022 (File Writer for Status Changes) - though this may already be complete since we're using changeStatusUtils
+
+---
+
+=== Session: 2025-11-28 13:06 ===
+Story: DS-022 + DS-023 (File Writer + Board Filters)
+Status: done
+
+DS-022 was already complete:
+- File writer functionality was implemented in DS-021 via changeStatusUtils.ts
+- Marked DS-022 as done (no additional code needed)
+
+DS-023 Work done:
+- Added `FilterState` interface to `src/types/webviewMessages.ts`
+- Updated `InitPayload` to include `sprints[]` for filter dropdowns
+- Added filter utility functions in `src/view/boardViewUtils.ts`:
+  - `DEFAULT_FILTER_STATE`: Empty filter state constant
+  - `extractSprints()`: Get unique sprints from stories/epics
+  - `extractAssignees()`: Get unique assignees from stories
+  - `filterStories()`: Apply filters with AND logic
+  - `hasActiveFilters()`: Check if any filter active
+  - `countActiveFilters()`: Count number of active filters
+- Updated `src/view/boardView.ts` to include sprints in init payload
+- Added comprehensive filter bar CSS in `webview/board.css`:
+  - Filter dropdowns with custom styling
+  - Search input with placeholder
+  - Quick filter chips (Bugs, Features, Unassigned)
+  - Clear button with active filter count badge
+  - Responsive layout with flex wrap
+- Implemented full filter system in `webview/board.js`:
+  - Filter state management with persistence via vscode.setState()
+  - Sprint, Epic, Type dropdown filters
+  - Debounced search input (150ms)
+  - Quick filter chip toggles
+  - Clear filters button
+  - Client-side filtering for instant response
+- Added 32 new unit tests for filter utilities
+- All MVP and most Enhanced criteria met
+
+MVP Acceptance Criteria:
+- ✅ Sprint filter dropdown in board header
+- ✅ "All Sprints" shows everything, specific sprint filters cards
+- ✅ Epic filter: Show stories from selected epic(s)
+- ✅ Filter state reflected in webview state (for persistence)
+- ✅ Clear filters button
+
+Enhanced Acceptance Criteria:
+- ✅ Multi-filter: Combine sprint + epic + type filters
+- ✅ Type filter: Show only features, bugs, etc.
+- ✅ Assignee filter: Filter by assignee (including "Unassigned")
+- ✅ Search: Quick text search across visible cards
+- ⏸️ Saved views: Deferred (requires config.yaml schema changes)
+- ✅ Quick filters: Chips for Bugs, Features, Unassigned
+
+Tests: 303 unit + 105 integration = 408 total passing (+32 new)
+
+Files changed:
+- src/types/webviewMessages.ts (FilterState, InitPayload update)
+- src/view/boardViewUtils.ts (filter utilities)
+- src/view/boardView.ts (sprints in init payload)
+- webview/board.css (filter bar styles)
+- webview/board.js (full filter implementation)
+- src/test/unit/boardView.test.ts (32 new tests)
+- .devstories/stories/DS-022.md (status: done)
+- .devstories/stories/DS-023.md (status: done + implementation notes)
+- .devstories/epics/EPIC-005.md (status: done)
+
+🎉 PROJECT COMPLETE! 🎉
+All 25 stories done (100%)
+All 5 phases complete:
+- Phase 1 (Foundation): ✅ 5/5 done
+- Phase 2 (Tree View): ✅ 4/4 done
+- Phase 3 (Commands): ✅ 7/7 done
+- Phase 4 (Links): ✅ 3/3 done
+- Phase 5 (Board View): ✅ 5/5 done
+
+Next steps: Merge feature branch to main, consider publishing extension
+

@@ -72,6 +72,159 @@ body {
 /* Board Container */
 #board {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* === DS-023: Filter Bar === */
+
+.filter-bar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
+  background-color: var(--vscode-sideBar-background);
+  border-bottom: 1px solid var(--vscode-widget-border);
+  flex-shrink: 0;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+/* Filter dropdowns */
+.filter-select {
+  appearance: none;
+  background-color: var(--vscode-dropdown-background);
+  border: 1px solid var(--vscode-dropdown-border);
+  border-radius: var(--border-radius);
+  color: var(--vscode-dropdown-foreground);
+  padding: 4px 24px 4px 8px;
+  font-size: 0.85em;
+  font-family: var(--vscode-font-family);
+  cursor: pointer;
+  min-width: 100px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23888' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+.filter-select:hover {
+  border-color: var(--vscode-focusBorder);
+}
+
+.filter-select:focus {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: -1px;
+}
+
+/* Search input */
+.filter-search {
+  flex: 1;
+  min-width: 120px;
+  max-width: 200px;
+  background-color: var(--vscode-input-background);
+  border: 1px solid var(--vscode-input-border);
+  border-radius: var(--border-radius);
+  color: var(--vscode-input-foreground);
+  padding: 4px 8px;
+  font-size: 0.85em;
+  font-family: var(--vscode-font-family);
+}
+
+.filter-search::placeholder {
+  color: var(--vscode-input-placeholderForeground);
+}
+
+.filter-search:focus {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: -1px;
+}
+
+/* Quick filter chips */
+.quick-filters {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background-color: var(--vscode-button-secondaryBackground);
+  border: none;
+  border-radius: 12px;
+  color: var(--vscode-button-secondaryForeground);
+  font-size: 0.75em;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.filter-chip:hover {
+  background-color: var(--vscode-button-secondaryHoverBackground);
+}
+
+.filter-chip.active {
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+}
+
+/* Clear filters button */
+.filter-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: transparent;
+  border: 1px solid var(--vscode-button-secondaryBackground);
+  border-radius: var(--border-radius);
+  color: var(--vscode-foreground);
+  font-size: 0.8em;
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.filter-clear:hover {
+  opacity: 1;
+  border-color: var(--vscode-focusBorder);
+}
+
+.filter-clear:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Active filter count badge */
+.filter-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background-color: var(--vscode-badge-background);
+  color: var(--vscode-badge-foreground);
+  font-size: 0.7em;
+  font-weight: 600;
+}
+
+/* Filter label */
+.filter-label {
+  font-size: 0.75em;
+  color: var(--vscode-descriptionForeground);
+  margin-right: 2px;
+}
+
+/* Board content area (columns scroll here) */
+.board-content {
+  flex: 1;
   padding: var(--spacing-sm);
   overflow: auto;
 }
@@ -262,6 +415,78 @@ body {
 
 .card[data-type="chore"] {
   border-left: 3px solid #a78bfa;
+}
+
+/* === DS-021: Drag-Drop Styles === */
+
+/* Card dragging state */
+.card[draggable="true"] {
+  cursor: grab;
+}
+
+.card.dragging {
+  opacity: 0.5;
+  transform: scale(1.02);
+  cursor: grabbing;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Column drop zone highlight */
+.column.drag-over .column-body {
+  background-color: var(--vscode-editor-selectionBackground);
+  border: 2px dashed var(--vscode-focusBorder);
+  border-radius: var(--border-radius);
+}
+
+/* Drop placeholder indicator */
+.drop-indicator {
+  height: 4px;
+  background-color: var(--vscode-focusBorder);
+  border-radius: 2px;
+  margin: var(--spacing-xs) 0;
+  transition: opacity 0.15s ease;
+}
+
+/* === DS-021: Keyboard Navigation Styles === */
+
+/* Focused card (keyboard navigation) */
+.card.focused {
+  outline: 2px solid var(--vscode-focusBorder);
+  outline-offset: 2px;
+}
+
+/* Focused column header (for empty columns) */
+.column.column-focused .column-header {
+  outline: 2px solid var(--vscode-focusBorder);
+  outline-offset: -2px;
+}
+
+/* Status update animation */
+@keyframes card-move {
+  0% {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.card.just-moved {
+  animation: card-move 0.2s ease-out;
+}
+
+/* Error shake animation for failed updates */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.card.update-failed {
+  animation: shake 0.3s ease-in-out;
+  border-color: var(--vscode-errorForeground);
 }
 
 /* Story count badges - will be used in DS-020 */

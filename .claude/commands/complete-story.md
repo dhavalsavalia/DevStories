@@ -57,7 +57,6 @@ Wait for user confirmation before proceeding.
 
 ```bash
 git checkout main
-git pull origin main  # Ensure up to date
 git merge --no-ff <branch-name> --no-gpg-sign -m "Merge <branch-name>"
 git branch -d <branch-name>
 ```

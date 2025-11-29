@@ -399,6 +399,9 @@ All 23 stories for DevStories v0.1, organized by implementation phase.
 **Size:** M
 **Dependencies:** DS-020
 
+---
+
+
 **Tasks:**
 - [ ] Implement drag-drop in board.js
 - [ ] Drag story card to new column
@@ -444,6 +447,235 @@ All 23 stories for DevStories v0.1, organized by implementation phase.
 **Tests:**
 - [ ] Integration: Filter works
 - [ ] Integration: Shows correct stories
+
+---
+
+## Phase 7: Solo Dev Polish (DS-034 to DS-040)
+
+Enhancements that keep DevStories fast, sprint-aware, and useful for solo developers before investing in heavier sprint tooling.
+
+### DS-034: Sprint-aware Status Bar & Picker
+
+**Size:** M  
+**Dependencies:** Status Bar (DS-009)
+
+**Tasks:**
+- Read `sprints.current` + history from config service
+- Show `Sprint <name>: ███░░ done/total` in status bar
+- Add `DevStories: Pick Sprint` command + QuickPick
+- Sync selection with tree + board filters
+
+**Tests:**
+- [ ] Unit: sprint stats calculation
+- [ ] Integration: picker updates filters
+
+---
+
+### DS-035: Config + Template Live Reload Service
+
+**Size:** M  
+**Dependencies:** Parser (DS-002), Watcher (DS-003)
+
+**Tasks:**
+- Watch `.devstories/config.yaml` + templates folder
+- Parse config into normalized object with statuses/sprints/sizes/templates
+- Emit events to consumers (commands, views, status bar)
+- Surface errors with fallback to last-known-good
+
+**Tests:**
+- [ ] Unit: debounce + parsing
+- [ ] Integration: live column/status updates
+
+---
+
+### DS-036: Quick Capture Inbox Triage Command
+
+**Size:** M  
+**Dependencies:** Quick Capture (DS-013)
+
+**Tasks:**
+- Add `DevStories: Triage Inbox` command
+- List inbox stories with metadata + bulk actions
+- Allow editing epic/sprint/size/status inline
+- Support archive/delete + success summary
+
+**Tests:**
+- [ ] Integration: move multiple stories to new epic
+- [ ] Unit: batch operation helpers
+
+---
+
+### DS-037: Assignee Command & UI Surfaces
+
+**Size:** M  
+**Dependencies:** Config watcher (DS-035)
+
+**Tasks:**
+- Command to assign/clear assignee using git user history
+- Update markdown frontmatter and refresh store
+- Display assignee chips in tree + board cards
+- Extend board filters/chips with "Assigned to me"
+
+**Tests:**
+- [ ] Unit: assignment command flow
+- [ ] Integration: board filter by assignee
+
+---
+
+### DS-038: Board Polish (Colors, WIP, Saved Filters)
+
+**Size:** L  
+**Dependencies:** DS-035, DS-037
+
+**Tasks:**
+- Apply status colors from config to columns/cards
+- Add optional WIP limit indicators per status
+- Persist named filter presets (save/update/delete)
+- Surface assignee/due/dependency metadata on cards
+- Ensure keyboard + drag-drop UX stay smooth
+
+**Tests:**
+- [ ] Unit: WIP calculations + preset persistence
+- [ ] Integration: visual regression / focus retention
+
+---
+
+### DS-039: Story ID Utilities (Open & Validate)
+
+**Size:** M  
+**Dependencies:** Link Resolver (DS-016)
+
+**Tasks:**
+- `DevStories: Open Story by ID` QuickPick
+- Workspace link validator with diagnostics + quick fixes
+- Optional stub-story generator for missing IDs
+
+**Tests:**
+- [ ] Unit: link scanning + diagnostic lifecycle
+- [ ] Integration: open-by-ID command
+
+---
+
+### DS-040: Incremental Store → Board Updates
+
+**Size:** M  
+**Dependencies:** Board view infrastructure (DS-019 to DS-023)
+
+**Tasks:**
+- Diff store payloads and emit granular `storyUpdated/storyDeleted` messages
+- Update webview state without full rerender
+- Provide fallback refresh message for edge cases
+- Measure perf + ensure focus/search stability
+
+**Tests:**
+- [ ] Unit: diffing utility
+- [ ] Integration: ensure search input stays focused during updates
+
+---
+
+## Phase 8: Cadence Kit (DS-041 to DS-045)
+
+Optional Agile-lite ceremony tools that layer on top of epics/stories to keep solos in rhythm without heavy sprints.
+
+### DS-041: Cadence Reminders & Ritual Prompts
+
+**Size:** M  
+**Dependencies:** Status bar upgrades (DS-034)
+
+**Tasks:**
+- Cadence config (day/time, rituals) in config.yaml
+- Status bar nudges + quick actions
+- `DevStories: Start Weekly Ritual` command flow
+- Respect VS Code quiet hours / Do Not Disturb
+
+**Tests:**
+- [ ] Unit: reminder scheduling + throttling
+- [ ] Integration: ritual command opens relevant views
+
+---
+
+### DS-042: Definition of Done Checklist Surface
+
+**Size:** M  
+**Dependencies:** Story templates (DS-014)
+
+**Tasks:**
+- Extend templates/frontmatter with `dod` arrays
+- Render DoD checklist view + tree badges
+- Guard status changes when required items unchecked (configurable)
+- Optional auto-check hooks (tests run, docs touched)
+
+**Tests:**
+- [ ] Unit: DoD parsing + serialization
+- [ ] Integration: status change guardrails
+
+---
+
+### DS-043: Flow Snapshot & Metrics View
+
+**Size:** M  
+**Dependencies:** Store timestamps (DS-004, DS-005)
+
+**Tasks:**
+- Calculate cycle/lead time, throughput, WIP
+- Build lightweight webview or markdown report with sparklines
+- Export command for sharing
+- Surface stats in status bar tooltip/board header
+
+**Tests:**
+- [ ] Unit: metric calculations
+- [ ] Integration: snapshot refresh on status change
+
+---
+
+### DS-044: Retro Generator Command
+
+**Size:** M  
+**Dependencies:** Flow snapshot (DS-043)
+
+**Tasks:**
+- Command to create retro markdown with auto-filled sections
+- Include done vs carry-over tables, metrics, prompts
+- Optional AI prompt scaffolding hooks
+- Save files under `.devstories/retros/`
+
+**Tests:**
+- [ ] Unit: retro content builder
+- [ ] Integration: generated retro links to stories/experiments
+
+---
+
+### DS-045: Improvement Experiment Tracker
+
+**Size:** S  
+**Dependencies:** Retro generator (DS-044)
+
+**Tasks:**
+- Experiment template + command
+- Tree/status view of active experiments
+- Link experiments to stories/retros
+- Reminder system for experiment check-ins
+
+**Tests:**
+- [ ] Unit: experiment template + linking
+- [ ] Integration: reminders + completion workflow
+
+---
+
+### DS-046: Agile Solo Starter Template Pack
+
+**Size:** S  
+**Dependencies:** Template system (DS-014)
+
+**Tasks:**
+- Create curated templates for backlog grooming, planning, retros, experiments
+- Add command to apply starter pack (creates sample epic/stories)
+- Wire optional config toggle to enable cadence features in one step
+- Update README/PRD with onboarding instructions
+
+**Tests:**
+- [ ] Unit: template parsing + command flow
+- [ ] Integration: starter pack generation + cleanup
 
 ---
 

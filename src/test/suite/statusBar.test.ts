@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { Store } from '../../core/store';
 import { Watcher } from '../../core/watcher';
+import { SprintFilterService } from '../../core/sprintFilterService';
 import { StatusBarController } from '../../view/statusBar';
 
 suite('StatusBar Test Suite', () => {
@@ -16,9 +17,11 @@ suite('StatusBar Test Suite', () => {
   const story2File = path.join(storiesDir, 'STATUS-002.md');
   const story3File = path.join(storiesDir, 'STATUS-003.md');
   const story4File = path.join(storiesDir, 'STATUS-004.md');
+  const story5File = path.join(storiesDir, 'STATUS-005.md');
 
   let watcher: Watcher;
   let store: Store;
+  let sprintFilterService: SprintFilterService;
   let statusBar: StatusBarController;
 
   setup(async () => {
@@ -88,17 +91,32 @@ created: 2025-01-01
 ---
 # Todo Story`);
 
+    // DS-034: Add story in sprint-2 for multi-sprint testing
+    fs.writeFileSync(story5File, `---
+id: STATUS-005
+title: Sprint 2 Story
+type: feature
+epic: EPIC-STATUS
+status: done
+sprint: sprint-2
+size: M
+created: 2025-01-01
+---
+# Sprint 2 Story`);
+
     watcher = new Watcher();
     store = new Store(watcher);
-    statusBar = new StatusBarController(store);
+    sprintFilterService = new SprintFilterService();
+    statusBar = new StatusBarController(store, undefined, sprintFilterService);
     await store.load();
   });
 
   teardown(() => {
     watcher.dispose();
+    sprintFilterService.dispose();
     statusBar.dispose();
 
-    const files = [epicFile, story1File, story2File, story3File, story4File];
+    const files = [epicFile, story1File, story2File, story3File, story4File, story5File];
     for (const file of files) {
       if (fs.existsSync(file)) {
         fs.unlinkSync(file);
@@ -108,8 +126,8 @@ created: 2025-01-01
 
   test('should count stories accurately', () => {
     const stats = statusBar.getStats();
-    assert.strictEqual(stats.total, 4, 'Should have 4 total stories');
-    assert.strictEqual(stats.done, 2, 'Should have 2 done stories');
+    assert.strictEqual(stats.total, 5, 'Should have 5 total stories');
+    assert.strictEqual(stats.done, 3, 'Should have 3 done stories');
   });
 
   test('should count stories by sprint', () => {
@@ -136,18 +154,55 @@ created: 2025-01-01
     await new Promise(resolve => setTimeout(resolve, 200));
 
     const stats = statusBar.getStats();
-    assert.strictEqual(stats.done, 3, 'Should now have 3 done stories');
+    assert.strictEqual(stats.done, 4, 'Should now have 4 done stories');
   });
 
   test('should format status bar text correctly', () => {
     const text = statusBar.getFormattedText();
-    // Expected format: "██░░ 2/4" or similar progress bar
-    assert.ok(text.includes('2/4') || text.includes('2 / 4'), 'Should show done/total count');
+    // Expected format: "$(checklist) All Sprints: ███░░░ 3/5"
+    assert.ok(text.includes('3/5'), 'Should show done/total count');
+    assert.ok(text.includes('All Sprints'), 'Should show All Sprints when no filter');
   });
 
   test('should show progress bar characters', () => {
     const text = statusBar.getFormattedText();
     // Should contain filled and empty bar characters
     assert.ok(text.includes('█') || text.includes('░'), 'Should contain progress bar characters');
+  });
+
+  // DS-034: New tests for sprint-aware status bar
+  test('should show sprint name when sprint filter is set', () => {
+    sprintFilterService.setSprint('sprint-1');
+    const text = statusBar.getFormattedText();
+    assert.ok(text.includes('sprint-1'), 'Should show sprint-1 in status bar');
+    assert.ok(text.includes('2/4'), 'Should show filtered count 2/4');
+  });
+
+  test('should show Backlog when backlog filter is set', () => {
+    sprintFilterService.setSprint('backlog');
+    const text = statusBar.getFormattedText();
+    assert.ok(text.includes('Backlog'), 'Should show Backlog in status bar');
+  });
+
+  test('should update when sprint filter changes', async () => {
+    // Start with all sprints
+    let text = statusBar.getFormattedText();
+    assert.ok(text.includes('All Sprints'), 'Should start with All Sprints');
+
+    // Change to sprint-2
+    sprintFilterService.setSprint('sprint-2');
+    // Give time for event to fire
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    text = statusBar.getFormattedText();
+    assert.ok(text.includes('sprint-2'), 'Should show sprint-2 after filter change');
+    assert.ok(text.includes('1/1'), 'Sprint-2 should show 1/1 (1 done story)');
+  });
+
+  test('should collect available sprints', () => {
+    const sprints = statusBar.getAvailableSprints();
+    assert.ok(sprints.includes('sprint-1'), 'Should include sprint-1');
+    assert.ok(sprints.includes('sprint-2'), 'Should include sprint-2');
+    assert.ok(!sprints.includes('backlog'), 'Should not include backlog in sprint list');
   });
 });

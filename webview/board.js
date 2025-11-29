@@ -79,6 +79,10 @@
       case 'updateFailed':
         handleUpdateFailed(message.payload);
         break;
+      // DS-034: Handle sprint filter change from extension (status bar picker)
+      case 'sprintFilterChanged':
+        handleSprintFilterChanged(message.payload);
+        break;
     }
   });
 
@@ -89,6 +93,11 @@
    * Handle init message - load all data
    */
   function handleInit(payload) {
+    // DS-034: Sync sprint filter from extension's current selection
+    const extensionSprintFilter = payload.currentSprint !== undefined
+      ? payload.currentSprint
+      : state.filters.sprint;
+
     state = {
       ...state,
       stories: payload.stories || [],
@@ -97,6 +106,10 @@
       sprints: payload.sprints || [],  // DS-023
       theme: payload.theme || 'dark',
       currentSprint: payload.currentSprint || null,
+      filters: {
+        ...state.filters,
+        sprint: extensionSprintFilter,  // DS-034: Sync sprint filter
+      },
     };
 
     saveState();
@@ -183,6 +196,25 @@
 
     // Log error for debugging
     console.error('Status update failed:', error);
+  }
+
+  /**
+   * DS-034: Handle sprint filter change from extension (status bar picker)
+   */
+  function handleSprintFilterChanged(payload) {
+    const { sprint } = payload;
+    // Update filter state - sprint can be null (all), 'backlog', or a sprint name
+    state.filters = {
+      ...state.filters,
+      sprint: sprint,
+    };
+    saveState();
+    renderBoard();
+    // Update the sprint dropdown if it exists
+    const sprintSelect = document.getElementById('filter-sprint');
+    if (sprintSelect) {
+      sprintSelect.value = sprint === null ? '' : sprint;
+    }
   }
 
   /**

@@ -3,10 +3,12 @@ import { executeChangeStatus } from './commands/changeStatus';
 import { executeCreateEpic } from './commands/createEpic';
 import { executeCreateStory } from './commands/createStory';
 import { executeInit } from './commands/init';
+import { executePickSprint } from './commands/pickSprint';
 import { executeQuickCapture } from './commands/quickCapture';
 import { executeSaveAsTemplate } from './commands/saveAsTemplate';
 import { AutoTimestamp } from './core/autoTimestamp';
 import { ConfigService } from './core/configService';
+import { SprintFilterService } from './core/sprintFilterService';
 import { Store } from './core/store';
 import { Watcher } from './core/watcher';
 import { StoryHoverProvider } from './providers/storyHoverProvider';
@@ -22,8 +24,9 @@ export async function activate(context: vscode.ExtensionContext) {
 	const watcher = new Watcher();
 	const store = new Store(watcher);
 	const configService = new ConfigService();
-	const storiesProvider = new StoriesProvider(store, context.extensionPath, configService);
-	const statusBarController = new StatusBarController(store);
+	const sprintFilterService = new SprintFilterService();
+	const storiesProvider = new StoriesProvider(store, context.extensionPath, configService, sprintFilterService);
+	const statusBarController = new StatusBarController(store, configService, sprintFilterService);
 	const autoTimestamp = new AutoTimestamp();
 
 	// Initialize config service (loads config and starts watching)
@@ -33,7 +36,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.window.registerTreeDataProvider('devstories.views.explorer', storiesProvider);
 
 	// Register Board View Provider (Webview)
-	const boardViewProvider = new BoardViewProvider(context.extensionUri, store, configService);
+	const boardViewProvider = new BoardViewProvider(context.extensionUri, store, configService, sprintFilterService);
 	const boardViewDisposable = vscode.window.registerWebviewViewProvider(
 		BoardViewProvider.viewId,
 		boardViewProvider
@@ -93,7 +96,11 @@ export async function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	context.subscriptions.push(watcher, configService, autoTimestamp, statusBarController, boardViewDisposable, linkProviderDisposable, hoverProviderDisposable, initCommand, createEpicCommand, createStoryCommand, quickCaptureCommand, saveAsTemplateCommand, changeStatusCommand);
+	const pickSprintCommand = vscode.commands.registerCommand('devstories.pickSprint', async () => {
+		await executePickSprint(store, sprintFilterService, configService);
+	});
+
+	context.subscriptions.push(watcher, configService, sprintFilterService, autoTimestamp, statusBarController, boardViewDisposable, linkProviderDisposable, hoverProviderDisposable, initCommand, createEpicCommand, createStoryCommand, quickCaptureCommand, saveAsTemplateCommand, changeStatusCommand, pickSprintCommand);
 }
 
 export function deactivate() {}

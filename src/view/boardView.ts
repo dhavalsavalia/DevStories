@@ -7,6 +7,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { Store } from '../core/store';
 import { ConfigService } from '../core/configService';
+import { SprintFilterService } from '../core/sprintFilterService';
 import { ExtensionMessage, WebviewMessage, InitPayload, StatusConfig } from '../types/webviewMessages';
 import {
   serializeStoryForWebview,
@@ -26,7 +27,8 @@ export class BoardViewProvider implements vscode.WebviewViewProvider {
   constructor(
     private readonly extensionUri: vscode.Uri,
     private readonly store: Store,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly sprintFilterService?: SprintFilterService
   ) {}
 
   resolveWebviewView(
@@ -55,6 +57,18 @@ export class BoardViewProvider implements vscode.WebviewViewProvider {
 
     // Subscribe to config changes (DS-035: live reload)
     this._disposables.push(this.configService.onDidConfigChange(() => this.sendInitData()));
+
+    // DS-034: Subscribe to sprint filter changes
+    if (this.sprintFilterService) {
+      this._disposables.push(
+        this.sprintFilterService.onDidSprintChange((sprint) => {
+          this.postMessage({
+            type: 'sprintFilterChanged',
+            payload: { sprint },
+          });
+        })
+      );
+    }
 
     // Listen for theme changes
     this._disposables.push(
@@ -136,11 +150,15 @@ export class BoardViewProvider implements vscode.WebviewViewProvider {
     const sprints = extractSprints(stories, epics);  // DS-023
     const theme = getThemeKindFromNumber(vscode.window.activeColorTheme.kind);
 
+    // DS-034: Include current sprint filter in init payload
+    const currentSprint = this.sprintFilterService?.currentSprint ?? undefined;
+
     const payload: InitPayload = {
       stories,
       epics,
       statuses,
       sprints,  // DS-023
+      currentSprint: currentSprint === null ? undefined : currentSprint,  // DS-034
       theme,
     };
 

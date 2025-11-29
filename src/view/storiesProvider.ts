@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { ConfigService } from '../core/configService';
+import { SprintFilterService } from '../core/sprintFilterService';
 import { Store } from '../core/store';
 import { Epic } from '../types/epic';
 import { Story, StoryType } from '../types/story';
@@ -20,11 +21,14 @@ export class StoriesProvider implements vscode.TreeDataProvider<Epic | Story> {
   constructor(
     private store: Store,
     private extensionPath: string | undefined,
-    private configService?: ConfigService
+    private configService?: ConfigService,
+    private sprintFilterService?: SprintFilterService
   ) {
     this.store.onDidUpdate(() => this.refresh());
     // DS-035: Subscribe to config changes to refresh tree
     this.configService?.onDidConfigChange(() => this.refresh());
+    // DS-034: Subscribe to sprint filter changes to refresh tree
+    this.sprintFilterService?.onDidSprintChange(() => this.refresh());
   }
 
   refresh(): void {
@@ -37,14 +41,46 @@ export class StoriesProvider implements vscode.TreeDataProvider<Epic | Story> {
 
   getChildren(element?: Epic | Story): Thenable<(Epic | Story)[]> {
     if (!element) {
-      return Promise.resolve(this.store.getEpics());
+      // Root level: return epics that have visible stories (based on sprint filter)
+      const sprintFilter = this.sprintFilterService?.currentSprint ?? null;
+      const allEpics = this.store.getEpics();
+
+      if (sprintFilter === null) {
+        // No filter - show all epics
+        return Promise.resolve(allEpics);
+      }
+
+      // Filter epics to only those with stories matching the sprint filter
+      const visibleEpics = allEpics.filter(epic => {
+        const stories = this.store.getStoriesByEpic(epic.id);
+        return stories.some(s => this.matchesSprintFilter(s, sprintFilter));
+      });
+
+      return Promise.resolve(visibleEpics);
     }
 
     if (!this.isStory(element)) {
-      return Promise.resolve(this.store.getStoriesByEpic(element.id));
+      // Epic: return filtered stories
+      const sprintFilter = this.sprintFilterService?.currentSprint ?? null;
+      const stories = this.store.getStoriesByEpic(element.id);
+
+      if (sprintFilter === null) {
+        return Promise.resolve(stories);
+      }
+
+      const filtered = stories.filter(s => this.matchesSprintFilter(s, sprintFilter));
+      return Promise.resolve(filtered);
     }
 
     return Promise.resolve([]);
+  }
+
+  private matchesSprintFilter(story: Story, sprintFilter: string): boolean {
+    if (sprintFilter === 'backlog') {
+      // Backlog = empty, undefined, or 'backlog' sprint
+      return !story.sprint || story.sprint === '' || story.sprint === 'backlog';
+    }
+    return story.sprint === sprintFilter;
   }
 
   private isStory(element: Epic | Story): element is Story {

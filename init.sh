@@ -25,7 +25,3 @@ npm run test:integration
 # 5. Success
 echo ""
 echo "All tests passed."
-
-# 6. Launch Extension Development Host
-echo "Launching Extension Development Host..."
-code --extensionDevelopmentPath="$(pwd)"

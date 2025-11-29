@@ -216,5 +216,47 @@ Some content`;
       expect(statusIds).toContain('todo');
       expect(statusIds).toContain('done');
     });
+
+    it('should have cadence config disabled by default', () => {
+      expect(DEFAULT_CONFIG.cadence).toBeDefined();
+      expect(DEFAULT_CONFIG.cadence.enabled).toBe(false);
+    });
+  });
+
+  describe('parseConfigYamlContent with cadence', () => {
+    it('should parse cadence config when present', () => {
+      const yaml = `
+version: 1
+cadence:
+  enabled: true
+  reminders:
+    planning:
+      day: monday
+      time: "09:00"
+    retro:
+      day: friday
+      time: "16:00"
+  activeHours:
+    start: 9
+    end: 18
+`;
+      const result = parseConfigYamlContent(yaml);
+
+      expect(result.cadence).toBeDefined();
+      expect(result.cadence?.enabled).toBe(true);
+      expect(result.cadence?.reminders.planning?.day).toBe('monday');
+      expect(result.cadence?.reminders.planning?.time).toBe('09:00');
+      expect(result.cadence?.reminders.retro?.day).toBe('friday');
+      expect(result.cadence?.activeHours?.start).toBe(9);
+      expect(result.cadence?.activeHours?.end).toBe(18);
+    });
+
+    it('should use default cadence when not in config', () => {
+      const yaml = `version: 1`;
+      const result = parseConfigYamlContent(yaml);
+      const merged = mergeConfigWithDefaults(result);
+
+      expect(merged.cadence.enabled).toBe(false);
+    });
   });
 });

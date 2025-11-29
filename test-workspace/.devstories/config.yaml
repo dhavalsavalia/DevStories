@@ -1,0 +1,16 @@
+
+version: 1
+project: "Test Project"
+id_prefix:
+  epic: "EPIC"
+  story: "STORY"
+statuses:
+  - id: todo
+    label: "To Do"
+  - id: in_progress
+    label: "In Progress"
+  - id: done
+    label: "Done"
+sprints:
+  current: "sprint-1"
+sizes: ["XS", "S", "M", "L", "XL"]

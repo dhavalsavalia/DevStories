@@ -804,6 +804,7 @@
 
   /**
    * Handle drag end
+   * DS-083: Also removes drop indicator
    */
   function handleDragEnd() {
     if (draggedCard) {
@@ -815,6 +816,9 @@
       col.classList.remove('drag-over');
     });
 
+    // DS-083: Remove drop indicator
+    removeDropIndicator();
+
     draggedCard = null;
     draggedStoryId = null;
     originalStatus = null;
@@ -822,29 +826,101 @@
 
   /**
    * Handle drag over column
+   * DS-083: Shows drop indicator for vertical reorder within same column
    */
   function handleDragOver(e) {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
 
     const column = e.target.closest('.column');
-    if (column) {
-      const targetStatus = column.getAttribute('data-status');
-      // Only highlight if dropping to different column
-      if (targetStatus !== originalStatus) {
-        column.classList.add('drag-over');
+    if (!column) return;
+
+    const targetStatus = column.getAttribute('data-status');
+
+    // Cross-column: highlight entire column
+    if (targetStatus !== originalStatus) {
+      column.classList.add('drag-over');
+      removeDropIndicator();
+      return;
+    }
+
+    // Same column: show drop indicator at position
+    column.classList.remove('drag-over');
+    showDropIndicator(e, column);
+  }
+
+  /**
+   * DS-083: Show drop indicator at the target position within column
+   */
+  function showDropIndicator(e, column) {
+    const columnBody = column.querySelector('.column-body');
+    if (!columnBody) return;
+
+    // Remove existing indicator
+    removeDropIndicator();
+
+    // Get all cards in column (excluding the dragged one)
+    const cards = Array.from(columnBody.querySelectorAll('.card:not(.dragging)'));
+    if (cards.length === 0) {
+      // Empty column or only dragged card - show at top
+      const indicator = createDropIndicator();
+      columnBody.insertBefore(indicator, columnBody.firstChild);
+      return;
+    }
+
+    // Find target position based on mouse Y
+    const dropY = e.clientY;
+    let insertBefore = null;
+
+    for (const card of cards) {
+      const rect = card.getBoundingClientRect();
+      const cardMiddle = rect.top + rect.height / 2;
+
+      if (dropY < cardMiddle) {
+        insertBefore = card;
+        break;
       }
+    }
+
+    // Create and insert indicator
+    const indicator = createDropIndicator();
+    if (insertBefore) {
+      columnBody.insertBefore(indicator, insertBefore);
+    } else {
+      columnBody.appendChild(indicator);
+    }
+  }
+
+  /**
+   * DS-083: Create drop indicator element
+   */
+  function createDropIndicator() {
+    const indicator = document.createElement('div');
+    indicator.className = 'drop-indicator';
+    indicator.id = 'drop-indicator';
+    return indicator;
+  }
+
+  /**
+   * DS-083: Remove drop indicator from DOM
+   */
+  function removeDropIndicator() {
+    const existing = document.getElementById('drop-indicator');
+    if (existing) {
+      existing.remove();
     }
   }
 
   /**
    * Handle drag leave column
+   * DS-083: Also removes drop indicator when leaving column
    */
   function handleDragLeave(e) {
     const column = e.target.closest('.column');
     // Only remove highlight if leaving the column entirely
     if (column && !column.contains(e.relatedTarget)) {
       column.classList.remove('drag-over');
+      removeDropIndicator();
     }
   }
 
@@ -893,6 +969,9 @@
     const columnBody = column.querySelector('.column-body');
     if (!columnBody) return;
 
+    // Remove drop indicator
+    removeDropIndicator();
+
     // Get column stories (excluding the dragged card) sorted by current display order
     const columnStories = state.stories
       .filter((s) => s.status === story.status && s.id !== story.id)
@@ -904,13 +983,19 @@
         return a.created.localeCompare(b.created);
       });
 
-    // Calculate drop index based on mouse Y position
-    const columnRect = columnBody.getBoundingClientRect();
+    // Calculate drop index based on actual card positions (same logic as indicator)
+    const cards = Array.from(columnBody.querySelectorAll('.card:not(.dragging)'));
     const dropY = e.clientY;
-    const cardHeight = 80; // Approximate card height
-    const relativeY = dropY - columnRect.top;
-    let dropIndex = Math.floor(relativeY / cardHeight);
-    dropIndex = Math.max(0, Math.min(columnStories.length, dropIndex));
+    let dropIndex = cards.length; // Default to end
+
+    for (let i = 0; i < cards.length; i++) {
+      const rect = cards[i].getBoundingClientRect();
+      const cardMiddle = rect.top + rect.height / 2;
+      if (dropY < cardMiddle) {
+        dropIndex = i;
+        break;
+      }
+    }
 
     // Calculate new priority
     const newPriority = calculatePriorityForPosition(columnStories, dropIndex);

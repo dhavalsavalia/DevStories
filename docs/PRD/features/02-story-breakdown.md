@@ -763,6 +763,30 @@ Launch-ready onboarding, tutorials, and documentation to make DevStories self-ex
 
 ---
 
+## Phase 10: Tutorial Hardening (DS-052)
+
+### DS-052: Tutorial Sample Distribution Hardening
+
+**Size:** M  
+**Dependencies:** DS-048 (Interactive Tutorial)
+
+**Context:** The tutorial currently assumes it can open the bundled `test-workspace` from the installed extension directory and that the user is running desktop VS Code. Marketplace installs, locked-down environments, and VS Code Web/Codespaces break those assumptions, leaving the tutorial unusable.
+
+**Tasks:**
+- [ ] On first run, copy the sample workspace into `context.globalStorageUri` (or prompt user for a destination) and reuse it on subsequent launches. Provide progress notifications and handle I/O errors gracefully.
+- [ ] Detect incompatible environments (VS Code Web, remote hosts, readonly installs) via `vscode.env.appHost`/`remoteName` and disable the "Open Sample Workspace" CTA with explanatory messaging.
+- [ ] Validate the active workspace contains `.devstories`; if not, surface guidance or kick off `DevStories: Init` so users aren’t left with an empty tutorial.
+- [ ] Add guards for missing/dist webview assets so the panel shows a friendly recovery message instead of a blank screen.
+- [ ] Clarify persistence expectations (globalState vs workspace) and consider storing tutorial progress per workspace to avoid surprise resets when syncing profiles.
+
+**Tests:**
+- [ ] Unit: sample workspace copier handles repeat runs and error paths.
+- [ ] Unit: environment detector flags unsupported hosts.
+- [ ] Integration: tutorial command guides users when `.devstories` is absent.
+- [ ] Integration: tutorial panel renders fallback UI when media/assets are missing.
+
+---
+
 ## Estimated Timeline
 
 **Assumptions:**

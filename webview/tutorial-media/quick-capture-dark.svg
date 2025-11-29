@@ -1,0 +1,10 @@
+<svg width="360" height="200" viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="360" height="200" rx="18" fill="#191428"/>
+  <rect x="24" y="32" width="312" height="48" rx="12" fill="#1f1933" stroke="#342a57"/>
+  <rect x="36" y="48" width="180" height="16" rx="8" fill="#aa9bff" opacity="0.6"/>
+  <rect x="24" y="96" width="312" height="72" rx="12" fill="#1f1933" stroke="#342a57" stroke-dasharray="8 8"/>
+  <rect x="40" y="112" width="90" height="12" rx="6" fill="#aa9bff" opacity="0.7"/>
+  <rect x="140" y="112" width="120" height="12" rx="6" fill="#6e5ccd" opacity="0.6"/>
+  <rect x="40" y="134" width="200" height="10" rx="5" fill="#8c7ddf" opacity="0.7"/>
+  <text x="24" y="184" fill="#ede8ff" font-size="18" font-family="'Segoe UI', sans-serif">Quick Capture • Highlight → Story</text>
+</svg>

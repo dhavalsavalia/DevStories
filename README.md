@@ -42,6 +42,23 @@ For developers who are tired of heavy project management tools, DevStories bring
 
 ---
 
+## 🧑‍🏫 Interactive Tutorial
+
+DevStories now includes a guided tutorial that walks through the core workflow with bundled sample data.
+
+1. Run `npm run compile` so the latest webview assets are available.
+2. Launch VS Code in extension development mode, for example:
+    ```bash
+    code --extensionDevelopmentPath="$(pwd)" "$(pwd)/test-workspace" --new-window
+    ```
+3. In the Extension Development Host, open the Command Palette and run **DevStories: Start Tutorial**.
+4. Choose whether to keep using your current workspace, open the bundled sample workspace, or reset tutorial progress.
+5. Inside the tutorial panel, check off steps as you complete them. Use the per-step CTA buttons to run commands like `DevStories: Init`, `DevStories: Create Epic`, and `DevStories: Quick Capture` without leaving the panel.
+
+If you do not see the tutorial panel, confirm the command was executed (it does not auto-open on activation) and that the extension was compiled beforehand so `dist/webview/` contains the tutorial assets.
+
+---
+
 ## 📚 Documentation
 
 Comprehensive PRD documentation is in `/docs/PRD/`:

@@ -13,7 +13,8 @@
   "activationEvents": [
     "onStartupFinished",
     "workspaceContains:.devstories",
-    "onCommand:devstories.openWelcome"
+    "onCommand:devstories.openWelcome",
+    "onCommand:devstories.startTutorial"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -80,6 +81,10 @@
       {
         "command": "devstories.openWelcome",
         "title": "DevStories: Open Welcome"
+      },
+      {
+        "command": "devstories.startTutorial",
+        "title": "DevStories: Start Tutorial"
       }
     ],
     "menus": {

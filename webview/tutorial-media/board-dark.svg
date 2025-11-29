@@ -1,0 +1,19 @@
+<svg width="360" height="200" viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="360" height="200" rx="18" fill="#111625"/>
+  <rect x="30" y="40" width="84" height="120" rx="14" fill="#161d30" stroke="#283149"/>
+  <rect x="138" y="40" width="84" height="120" rx="14" fill="#161d30" stroke="#283149"/>
+  <rect x="246" y="40" width="84" height="120" rx="14" fill="#161d30" stroke="#283149"/>
+  <rect x="42" y="56" width="60" height="20" rx="10" fill="#90a6ff" opacity="0.8"/>
+  <rect x="42" y="84" width="60" height="20" rx="10" fill="#90a6ff" opacity="0.4"/>
+  <rect x="150" y="56" width="60" height="20" rx="10" fill="#6ed5b7" opacity="0.8"/>
+  <rect x="150" y="84" width="60" height="20" rx="10" fill="#6ed5b7" opacity="0.4"/>
+  <rect x="258" y="56" width="60" height="20" rx="10" fill="#f4b45f" opacity="0.8"/>
+  <rect x="258" y="84" width="60" height="20" rx="10" fill="#f4b45f" opacity="0.4"/>
+  <path d="M 204 66 L 244 66" stroke="#51618d" stroke-width="4" marker-end="url(#arrow-dark)" opacity="0.7"/>
+  <defs>
+    <marker id="arrow-dark" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#51618d" />
+    </marker>
+  </defs>
+  <text x="24" y="184" fill="#e8edff" font-size="18" font-family="'Segoe UI', sans-serif">Board • Drag stories across workflow</text>
+</svg>

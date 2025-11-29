@@ -7,6 +7,7 @@ import {
   TemplateData,
   DEFAULT_CONFIG,
   debounce,
+  getSprintIndex,
 } from '../../core/configServiceUtils';
 
 describe('ConfigService Utils', () => {
@@ -257,6 +258,76 @@ cadence:
       const merged = mergeConfigWithDefaults(result);
 
       expect(merged.cadence.enabled).toBe(false);
+    });
+  });
+
+  describe('parseConfigYamlContent with sprint sequence', () => {
+    it('should parse sprint sequence array', () => {
+      const yaml = `
+version: 1
+sprints:
+  current: "sprint-2"
+  sequence:
+    - sprint-1
+    - sprint-2
+    - sprint-3
+    - backlog
+`;
+      const result = parseConfigYamlContent(yaml);
+
+      expect(result.currentSprint).toBe('sprint-2');
+      expect(result.sprintSequence).toEqual(['sprint-1', 'sprint-2', 'sprint-3', 'backlog']);
+    });
+
+    it('should handle missing sequence', () => {
+      const yaml = `
+version: 1
+sprints:
+  current: "sprint-1"
+`;
+      const result = parseConfigYamlContent(yaml);
+      const merged = mergeConfigWithDefaults(result);
+
+      expect(merged.currentSprint).toBe('sprint-1');
+      expect(merged.sprintSequence).toEqual([]);
+    });
+
+    it('should handle empty sequence', () => {
+      const yaml = `
+version: 1
+sprints:
+  current: "sprint-1"
+  sequence: []
+`;
+      const result = parseConfigYamlContent(yaml);
+
+      expect(result.sprintSequence).toEqual([]);
+    });
+  });
+
+  describe('getSprintIndex', () => {
+    const sequence = ['foundation-1', 'polish-1', 'polish-2', 'launch-1', 'backlog'];
+
+    it('should return index for sprint in sequence', () => {
+      expect(getSprintIndex('foundation-1', sequence)).toBe(0);
+      expect(getSprintIndex('polish-1', sequence)).toBe(1);
+      expect(getSprintIndex('backlog', sequence)).toBe(4);
+    });
+
+    it('should return Infinity for sprint not in sequence', () => {
+      expect(getSprintIndex('unknown-sprint', sequence)).toBe(Infinity);
+    });
+
+    it('should return Infinity for undefined sprint', () => {
+      expect(getSprintIndex(undefined, sequence)).toBe(Infinity);
+    });
+
+    it('should return Infinity for empty sequence', () => {
+      expect(getSprintIndex('sprint-1', [])).toBe(Infinity);
+    });
+
+    it('should handle empty string sprint', () => {
+      expect(getSprintIndex('', sequence)).toBe(Infinity);
     });
   });
 });

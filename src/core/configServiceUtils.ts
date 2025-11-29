@@ -37,6 +37,7 @@ export interface ConfigData {
   epicPrefix: string;
   storyPrefix: string;
   currentSprint?: string;
+  sprintSequence: string[];
   statuses: StatusDef[];
   sizes: StorySize[];
   inlineTemplates?: Partial<Record<StoryType, string>>;
@@ -49,6 +50,7 @@ export interface ConfigData {
 export const DEFAULT_CONFIG: ConfigData = {
   epicPrefix: 'EPIC',
   storyPrefix: 'STORY',
+  sprintSequence: [],
   statuses: [
     { id: 'todo', label: 'To Do' },
     { id: 'in_progress', label: 'In Progress' },
@@ -87,6 +89,9 @@ export function parseConfigYamlContent(content: string): Partial<ConfigData> {
     // Sprint
     if (parsed.sprints?.current) {
       result.currentSprint = parsed.sprints.current;
+    }
+    if (Array.isArray(parsed.sprints?.sequence)) {
+      result.sprintSequence = parsed.sprints.sequence;
     }
 
     // Statuses
@@ -147,11 +152,24 @@ export function mergeConfigWithDefaults(parsed: Partial<ConfigData>): ConfigData
     epicPrefix: parsed.epicPrefix ?? DEFAULT_CONFIG.epicPrefix,
     storyPrefix: parsed.storyPrefix ?? DEFAULT_CONFIG.storyPrefix,
     currentSprint: parsed.currentSprint,
+    sprintSequence: parsed.sprintSequence ?? DEFAULT_CONFIG.sprintSequence,
     statuses: parsed.statuses ?? DEFAULT_CONFIG.statuses,
     sizes: parsed.sizes ?? DEFAULT_CONFIG.sizes,
     inlineTemplates: parsed.inlineTemplates,
     cadence: parsed.cadence ?? DEFAULT_CONFIG.cadence,
   };
+}
+
+/**
+ * Get the index of a sprint in the sequence.
+ * Returns Infinity for sprints not in sequence (sorts to end).
+ */
+export function getSprintIndex(sprintName: string | undefined, sequence: string[]): number {
+  if (!sprintName) {
+    return Infinity;
+  }
+  const index = sequence.indexOf(sprintName);
+  return index === -1 ? Infinity : index;
 }
 
 /**

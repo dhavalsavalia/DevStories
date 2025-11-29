@@ -737,3 +737,26 @@ All 5 phases complete:
 
 Next steps: Merge feature branch to main, consider publishing extension
 
+---
+
+=== Session: 2025-11-29 10:39 ===
+Story: DS-033 (Load .devstories on extension activation)
+Status: done
+
+Bug fix: Extension wasn't loading story data on activation.
+
+Root cause:
+1. `store.load()` called but NOT awaited in extension.ts
+2. `store.load()` didn't fire `onDidUpdate` event after completing
+
+Fix applied:
+1. Changed `activate()` to async and await `store.load()`
+2. Added `_onDidUpdate.fire()` at end of `load()` method
+
+Files changed:
+- src/extension.ts (await store.load())
+- src/core/store.ts (fire onDidUpdate after load)
+- src/test/suite/store.test.ts (new test: onDidUpdate fires after load)
+
+Tests: 303 unit + 106 integration = 409 total passing (+1 new)
+

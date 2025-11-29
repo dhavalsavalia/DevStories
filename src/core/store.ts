@@ -26,6 +26,9 @@ export class Store {
 
     await Promise.all(storyFiles.map(uri => this.parseAndAddStory(uri)));
     await Promise.all(epicFiles.map(uri => this.parseAndAddEpic(uri)));
+
+    // Notify listeners that data has been loaded
+    this._onDidUpdate.fire();
   }
 
   getStory(id: string): Story | undefined {

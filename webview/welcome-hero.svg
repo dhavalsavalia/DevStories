@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="360" height="240" viewBox="0 0 360 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DevStories board illustration">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9d7bff" />
+      <stop offset="100%" stop-color="#5ad4ff" />
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="360" height="240" rx="20" fill="url(#grad)" opacity="0.18" />
+  <g transform="translate(36,32)">
+    <rect width="288" height="176" rx="16" fill="#1e1e2d" opacity="0.75" />
+    <rect x="16" y="24" width="64" height="16" rx="8" fill="#7dd3fc" />
+    <rect x="96" y="24" width="48" height="16" rx="8" fill="#f9a8d4" />
+    <rect x="160" y="24" width="72" height="16" rx="8" fill="#c4b5fd" />
+    <g transform="translate(16,56)">
+      <rect width="64" height="96" rx="10" fill="#2f2f45" />
+      <rect x="12" y="16" width="40" height="8" rx="4" fill="#7ee0c3" />
+      <rect x="12" y="32" width="40" height="8" rx="4" fill="#adb5ff" />
+      <rect x="12" y="48" width="40" height="8" rx="4" fill="#fcd34d" />
+    </g>
+    <g transform="translate(108,56)">
+      <rect width="64" height="96" rx="10" fill="#2f2f45" />
+      <rect x="12" y="16" width="40" height="8" rx="4" fill="#c4b5fd" />
+      <rect x="12" y="32" width="40" height="8" rx="4" fill="#7ee0c3" />
+      <rect x="12" y="48" width="40" height="8" rx="4" fill="#fca5a5" />
+    </g>
+    <g transform="translate(200,56)">
+      <rect width="64" height="96" rx="10" fill="#2f2f45" />
+      <rect x="12" y="16" width="40" height="8" rx="4" fill="#f9a8d4" />
+      <rect x="12" y="32" width="40" height="8" rx="4" fill="#7dd3fc" />
+      <rect x="12" y="48" width="40" height="8" rx="4" fill="#c4b5fd" />
+    </g>
+    <circle cx="256" cy="148" r="12" fill="#7dd3fc" opacity="0.9" />
+    <circle cx="232" cy="148" r="6" fill="#f9a8d4" opacity="0.7" />
+  </g>
+</svg>

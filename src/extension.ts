@@ -16,6 +16,8 @@ import { Watcher } from './core/watcher';
 import { StoryHoverProvider } from './providers/storyHoverProvider';
 import { StoryLinkProvider } from './providers/storyLinkProvider';
 import { BoardViewProvider } from './view/boardView';
+import { WelcomeExperience } from './core/welcomeExperience';
+import { WelcomeViewProvider } from './view/welcomeView';
 import { RitualStatusBarController } from './view/ritualStatusBar';
 import { StatusBarController } from './view/statusBar';
 import { StoriesProvider } from './view/storiesProvider';
@@ -28,11 +30,12 @@ export async function activate(context: vscode.ExtensionContext) {
 	const store = new Store(watcher);
 	const configService = new ConfigService();
 	const sprintFilterService = new SprintFilterService();
-	const cadenceService = new CadenceService(configService);
+	 const cadenceService = new CadenceService(configService);
 	const storiesProvider = new StoriesProvider(store, context.extensionPath, configService, sprintFilterService);
 	const statusBarController = new StatusBarController(store, configService, sprintFilterService);
 	const ritualStatusBarController = new RitualStatusBarController(cadenceService);
 	const autoTimestamp = new AutoTimestamp();
+	 const welcomeExperience = new WelcomeExperience(context.globalState);
 
 	// Initialize config service (loads config and starts watching)
 	await configService.initialize();
@@ -41,11 +44,16 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.window.registerTreeDataProvider('devstories.views.explorer', storiesProvider);
 
 	// Register Board View Provider (Webview)
-	const boardViewProvider = new BoardViewProvider(context.extensionUri, store, configService, sprintFilterService);
-	const boardViewDisposable = vscode.window.registerWebviewViewProvider(
+	 const boardViewProvider = new BoardViewProvider(context.extensionUri, store, configService, sprintFilterService);
+	 const boardViewDisposable = vscode.window.registerWebviewViewProvider(
 		BoardViewProvider.viewId,
 		boardViewProvider
-	);
+	 );
+	 const welcomeViewProvider = new WelcomeViewProvider(context, welcomeExperience);
+	 const welcomeViewDisposable = vscode.window.registerWebviewViewProvider(
+		WelcomeViewProvider.viewId,
+		welcomeViewProvider
+	 );
 
 	// Register Document Link Provider for [[ID]] links
 	const storyLinkProvider = new StoryLinkProvider(store);
@@ -105,11 +113,41 @@ export async function activate(context: vscode.ExtensionContext) {
 		await executePickSprint(store, sprintFilterService, configService);
 	});
 
-	const startRitualCommand = vscode.commands.registerCommand('devstories.startRitual', async () => {
+	 const startRitualCommand = vscode.commands.registerCommand('devstories.startRitual', async () => {
 		await executeStartRitual(store, cadenceService);
-	});
+	 });
 
-	context.subscriptions.push(watcher, configService, sprintFilterService, cadenceService, autoTimestamp, statusBarController, ritualStatusBarController, boardViewDisposable, linkProviderDisposable, hoverProviderDisposable, initCommand, createEpicCommand, createStoryCommand, quickCaptureCommand, saveAsTemplateCommand, changeStatusCommand, pickSprintCommand, startRitualCommand);
+	 const openWelcomeCommand = vscode.commands.registerCommand('devstories.openWelcome', async () => {
+		await welcomeViewProvider.reveal();
+	 });
+
+	 if (welcomeExperience.shouldAutoOpen()) {
+		await welcomeViewProvider.reveal();
+		await welcomeExperience.markDismissed();
+	 }
+
+	context.subscriptions.push(
+		watcher,
+		configService,
+		sprintFilterService,
+		cadenceService,
+		autoTimestamp,
+		statusBarController,
+		ritualStatusBarController,
+		boardViewDisposable,
+		welcomeViewDisposable,
+		linkProviderDisposable,
+		hoverProviderDisposable,
+		initCommand,
+		createEpicCommand,
+		createStoryCommand,
+		quickCaptureCommand,
+		saveAsTemplateCommand,
+		changeStatusCommand,
+		pickSprintCommand,
+		startRitualCommand,
+		openWelcomeCommand
+	);
 }
 
 export function deactivate() {}

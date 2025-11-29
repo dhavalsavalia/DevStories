@@ -12,7 +12,8 @@
   ],
   "activationEvents": [
     "onStartupFinished",
-    "workspaceContains:.devstories"
+    "workspaceContains:.devstories",
+    "onCommand:devstories.openWelcome"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -27,6 +28,11 @@
     },
     "views": {
       "devstories-explorer": [
+        {
+          "type": "webview",
+          "id": "devstories.views.welcome",
+          "name": "Welcome"
+        },
         {
           "id": "devstories.views.explorer",
           "name": "Stories"
@@ -70,6 +76,10 @@
       {
         "command": "devstories.startRitual",
         "title": "DevStories: Start Weekly Ritual"
+      },
+      {
+        "command": "devstories.openWelcome",
+        "title": "DevStories: Open Welcome"
       }
     ],
     "menus": {

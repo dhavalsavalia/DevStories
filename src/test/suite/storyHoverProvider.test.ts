@@ -40,6 +40,7 @@ suite('StoryHoverProvider Integration Test', () => {
       epic: 'EPIC-001',
       status: 'in_progress',
       size: 'M',
+      priority: 500,
       sprint: 'sprint-1',
       created: new Date('2025-01-15'),
       content: '',

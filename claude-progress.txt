@@ -329,3 +329,60 @@ Files changed:
 - src/test/suite/pickSprint.test.ts (new - 7 tests)
 
 Tests: 338 unit + 122 integration = 460 total passing (+30 new)
+
+---
+
+=== Session: 2025-11-29 12:28 ===
+Story: DS-041 (Cadence reminders & ritual prompts)
+Status: done
+
+Implemented cadence reminders and ritual prompts for solo dev weekly rituals.
+
+Key changes:
+1. Created cadenceServiceUtils.ts with pure utility functions:
+   - parseCadenceConfig() - parse cadence from config.yaml
+   - calculateNextOccurrence() - calculate next ritual occurrence
+   - getNextRitual() - find nearest upcoming ritual
+   - shouldShowReminder() - check if within active hours
+   - formatRitualText() - format for status bar display
+   - getRitualStatusBarText() - combined utility for status bar
+
+2. Created CadenceService (src/core/cadenceService.ts):
+   - Manages cadence config from ConfigService
+   - Periodic reminder check (every 5 minutes)
+   - Notification throttling (1 hour between reminders)
+   - Shows notifications for rituals within 24 hours
+   - Respects active hours configuration
+
+3. Created RitualStatusBarController (src/view/ritualStatusBar.ts):
+   - Shows next ritual in status bar when cadence enabled
+   - Click invokes devstories.startRitual command
+   - Tooltip with detailed ritual info
+
+4. Created startRitual command (src/commands/startRitual.ts):
+   - QuickPick to select ritual type (planning/retro/grooming)
+   - Planning: shows backlog stats, opens board/backlog stories
+   - Retro: creates retro note template, views done stories
+   - Grooming: shows unsized/inbox stats, creates stories
+
+5. Extended ConfigData with cadence config:
+   - cadence.enabled - toggle reminders on/off
+   - cadence.reminders.{planning,retro,grooming} - day/time per ritual
+   - cadence.activeHours - start/end hours for reminders
+
+Files changed:
+- src/core/cadenceServiceUtils.ts (new - pure utilities)
+- src/core/cadenceService.ts (new - main service)
+- src/core/configServiceUtils.ts (extended for cadence)
+- src/view/ritualStatusBar.ts (new - status bar item)
+- src/commands/startRitual.ts (new - ritual walkthrough)
+- src/extension.ts (wire up CadenceService + RitualStatusBar)
+- package.json (register startRitual command)
+- src/test/unit/cadenceService.test.ts (new - 29 tests)
+- src/test/unit/cadenceServiceIntegration.test.ts (new - 3 tests)
+- src/test/unit/startRitual.test.ts (new - 3 tests)
+- src/test/unit/configService.test.ts (+3 tests for cadence)
+- src/test/suite/cadenceService.test.ts (new - 5 integration tests)
+- src/test/suite/startRitual.test.ts (new - 1 integration test)
+
+Tests: 376 unit + 128 integration = 504 total passing (+44 new)

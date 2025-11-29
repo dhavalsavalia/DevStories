@@ -66,6 +66,10 @@
       {
         "command": "devstories.pickSprint",
         "title": "DevStories: Pick Sprint"
+      },
+      {
+        "command": "devstories.startRitual",
+        "title": "DevStories: Start Weekly Ritual"
       }
     ],
     "menus": {

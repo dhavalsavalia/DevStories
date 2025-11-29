@@ -406,3 +406,75 @@ export function countActiveFilters(filters: FilterState): number {
   if (filters.search !== '') count++;
   return count;
 }
+
+// === DS-081: Story Sorting and Priority Badge ===
+
+/**
+ * Check if a story is blocked by unresolved dependencies
+ * A story is blocked if any of its dependencies is not in 'done' status
+ */
+export function isStoryBlocked(story: WebviewStory, allStories: WebviewStory[]): boolean {
+  if (!story.dependencies || story.dependencies.length === 0) {
+    return false;
+  }
+
+  for (const depId of story.dependencies) {
+    const depStory = allStories.find((s) => s.id === depId);
+    // If dependency doesn't exist, assume it's not blocking (graceful handling)
+    if (!depStory) {
+      continue;
+    }
+    // If dependency is not done, this story is blocked
+    if (depStory.status !== 'done') {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Sort stories within a column:
+ * 1. Blocked stories go to the end
+ * 2. Sort by priority ascending (lower priority number = higher priority)
+ * 3. Sort by created date ascending (older first)
+ *
+ * @param columnStories - Stories in this column (same status)
+ * @param allStories - All stories in the board (for dependency resolution)
+ * @returns Sorted array (does not mutate original)
+ */
+export function sortStoriesForColumn(
+  columnStories: WebviewStory[],
+  allStories: WebviewStory[]
+): WebviewStory[] {
+  if (columnStories.length === 0) {
+    return [];
+  }
+
+  // Create a copy to avoid mutating the original
+  return [...columnStories].sort((a, b) => {
+    const aBlocked = isStoryBlocked(a, allStories);
+    const bBlocked = isStoryBlocked(b, allStories);
+
+    // Blocked stories go last
+    if (aBlocked !== bBlocked) {
+      return aBlocked ? 1 : -1;
+    }
+
+    // Sort by priority ascending (lower number = higher priority)
+    if (a.priority !== b.priority) {
+      return a.priority - b.priority;
+    }
+
+    // Sort by created date ascending (older first)
+    return a.created.localeCompare(b.created);
+  });
+}
+
+/**
+ * Determine if priority badge should be shown
+ * Badge is shown when priority differs from default (500)
+ */
+export function shouldShowPriorityBadge(priority: number): boolean {
+  return priority !== 500;
+}

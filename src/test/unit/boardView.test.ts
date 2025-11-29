@@ -30,6 +30,10 @@ import {
   filterStories,
   hasActiveFilters,
   countActiveFilters,
+  // DS-081: Sorting and Priority
+  isStoryBlocked,
+  sortStoriesForColumn,
+  shouldShowPriorityBadge,
 } from '../../view/boardViewUtils';
 import { Story } from '../../types/story';
 import { Epic } from '../../types/epic';
@@ -747,6 +751,148 @@ statuses:
     it('should count assignee empty string as active', () => {
       const filters: FilterState = { ...DEFAULT_FILTER_STATE, assignee: '' };
       expect(countActiveFilters(filters)).toBe(1);
+    });
+  });
+
+  // === DS-081: Story Sorting and Priority Badge ===
+
+  describe('isStoryBlocked', () => {
+    const stories: WebviewStory[] = [
+      { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', priority: 500, created: '2025-01-01' },
+      { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'in_progress', size: 'S', priority: 500, created: '2025-01-02' },
+      { id: 'S-003', title: 'Story 3', type: 'task', epic: 'E-2', status: 'done', size: 'L', priority: 500, created: '2025-01-03' },
+    ];
+
+    it('should return false for story with no dependencies', () => {
+      expect(isStoryBlocked(stories[0], stories)).toBe(false);
+    });
+
+    it('should return false when all dependencies are done', () => {
+      const storyWithDeps: WebviewStory = {
+        ...stories[0],
+        dependencies: ['S-003'], // S-003 is done
+      };
+      expect(isStoryBlocked(storyWithDeps, stories)).toBe(false);
+    });
+
+    it('should return true when any dependency is not done', () => {
+      const storyWithDeps: WebviewStory = {
+        ...stories[0],
+        dependencies: ['S-002'], // S-002 is in_progress
+      };
+      expect(isStoryBlocked(storyWithDeps, stories)).toBe(true);
+    });
+
+    it('should return true when dependency is todo', () => {
+      const allTodo: WebviewStory[] = [
+        { id: 'S-001', title: 'Story 1', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', priority: 500, created: '2025-01-01', dependencies: ['S-002'] },
+        { id: 'S-002', title: 'Story 2', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', priority: 500, created: '2025-01-02' },
+      ];
+      expect(isStoryBlocked(allTodo[0], allTodo)).toBe(true);
+    });
+
+    it('should return false when dependency does not exist (graceful)', () => {
+      const storyWithMissingDep: WebviewStory = {
+        ...stories[0],
+        dependencies: ['S-999'], // non-existent
+      };
+      expect(isStoryBlocked(storyWithMissingDep, stories)).toBe(false);
+    });
+
+    it('should return true if at least one dependency is blocking even with others done', () => {
+      const storyWithMixedDeps: WebviewStory = {
+        ...stories[0],
+        dependencies: ['S-002', 'S-003'], // S-002 is in_progress, S-003 is done
+      };
+      expect(isStoryBlocked(storyWithMixedDeps, stories)).toBe(true);
+    });
+  });
+
+  describe('sortStoriesForColumn', () => {
+    it('should place blocked stories at the end', () => {
+      const stories: WebviewStory[] = [
+        { id: 'S-001', title: 'Blocked', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', priority: 100, created: '2025-01-01', dependencies: ['S-002'] },
+        { id: 'S-002', title: 'Not blocked', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', priority: 500, created: '2025-01-02' },
+      ];
+      const sorted = sortStoriesForColumn(stories, stories);
+      expect(sorted[0].id).toBe('S-002'); // Not blocked first
+      expect(sorted[1].id).toBe('S-001'); // Blocked last
+    });
+
+    it('should sort by priority ascending (lower priority first) among non-blocked', () => {
+      const stories: WebviewStory[] = [
+        { id: 'S-001', title: 'High priority', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', priority: 100, created: '2025-01-01' },
+        { id: 'S-002', title: 'Low priority', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', priority: 900, created: '2025-01-02' },
+        { id: 'S-003', title: 'Medium priority', type: 'task', epic: 'E-2', status: 'todo', size: 'L', priority: 500, created: '2025-01-03' },
+      ];
+      const sorted = sortStoriesForColumn(stories, stories);
+      expect(sorted.map(s => s.priority)).toEqual([100, 500, 900]);
+    });
+
+    it('should sort by created date ascending when priority is equal', () => {
+      const stories: WebviewStory[] = [
+        { id: 'S-001', title: 'Older', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', priority: 500, created: '2025-01-01' },
+        { id: 'S-002', title: 'Newer', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', priority: 500, created: '2025-01-10' },
+        { id: 'S-003', title: 'Middle', type: 'task', epic: 'E-2', status: 'todo', size: 'L', priority: 500, created: '2025-01-05' },
+      ];
+      const sorted = sortStoriesForColumn(stories, stories);
+      expect(sorted.map(s => s.id)).toEqual(['S-001', 'S-003', 'S-002']);
+    });
+
+    it('should apply full sorting: blocked last, then priority, then created', () => {
+      const stories: WebviewStory[] = [
+        { id: 'S-001', title: 'Blocked high priority', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', priority: 100, created: '2025-01-01', dependencies: ['S-005'] },
+        { id: 'S-002', title: 'Not blocked low priority', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', priority: 800, created: '2025-01-02' },
+        { id: 'S-003', title: 'Not blocked high priority', type: 'task', epic: 'E-2', status: 'todo', size: 'L', priority: 100, created: '2025-01-03' },
+        { id: 'S-004', title: 'Blocked low priority', type: 'chore', epic: 'E-2', status: 'todo', size: 'XS', priority: 800, created: '2025-01-04', dependencies: ['S-005'] },
+        { id: 'S-005', title: 'Blocker story', type: 'feature', epic: 'E-1', status: 'in_progress', size: 'M', priority: 500, created: '2025-01-05' },
+      ];
+      const sorted = sortStoriesForColumn(stories, stories);
+      // Non-blocked first (S-002, S-003, S-005), sorted by priority then created
+      // Then blocked (S-001, S-004), sorted by priority then created
+      expect(sorted.map(s => s.id)).toEqual(['S-003', 'S-005', 'S-002', 'S-001', 'S-004']);
+    });
+
+    it('should not mutate original array', () => {
+      const stories: WebviewStory[] = [
+        { id: 'S-002', title: 'Second', type: 'bug', epic: 'E-1', status: 'todo', size: 'S', priority: 500, created: '2025-01-02' },
+        { id: 'S-001', title: 'First', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', priority: 100, created: '2025-01-01' },
+      ];
+      const originalOrder = stories.map(s => s.id);
+      sortStoriesForColumn(stories, stories);
+      expect(stories.map(s => s.id)).toEqual(originalOrder);
+    });
+
+    it('should handle empty array', () => {
+      const sorted = sortStoriesForColumn([], []);
+      expect(sorted).toEqual([]);
+    });
+
+    it('should handle single story', () => {
+      const stories: WebviewStory[] = [
+        { id: 'S-001', title: 'Only', type: 'feature', epic: 'E-1', status: 'todo', size: 'M', priority: 500, created: '2025-01-01' },
+      ];
+      const sorted = sortStoriesForColumn(stories, stories);
+      expect(sorted).toHaveLength(1);
+      expect(sorted[0].id).toBe('S-001');
+    });
+  });
+
+  describe('shouldShowPriorityBadge', () => {
+    it('should return true for priority < 500', () => {
+      expect(shouldShowPriorityBadge(100)).toBe(true);
+      expect(shouldShowPriorityBadge(0)).toBe(true);
+      expect(shouldShowPriorityBadge(499)).toBe(true);
+    });
+
+    it('should return false for default priority 500', () => {
+      expect(shouldShowPriorityBadge(500)).toBe(false);
+    });
+
+    it('should return true for priority > 500', () => {
+      expect(shouldShowPriorityBadge(501)).toBe(true);
+      expect(shouldShowPriorityBadge(900)).toBe(true);
+      expect(shouldShowPriorityBadge(1000)).toBe(true);
     });
   });
 });

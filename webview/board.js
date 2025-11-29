@@ -604,7 +604,56 @@
   }
 
   /**
+   * DS-081: Check if a story is blocked by unresolved dependencies
+   * A story is blocked if any of its dependencies is not in 'done' status
+   */
+  function isStoryBlocked(story, allStories) {
+    if (!story.dependencies || story.dependencies.length === 0) {
+      return false;
+    }
+
+    for (const depId of story.dependencies) {
+      const depStory = allStories.find((s) => s.id === depId);
+      // If dependency doesn't exist, assume it's not blocking (graceful)
+      if (!depStory) {
+        continue;
+      }
+      // If dependency is not done, this story is blocked
+      if (depStory.status !== 'done') {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * DS-081: Sort stories within a column
+   * Order: blocked last → lower priority first → older created first
+   */
+  function sortStoriesForColumn(columnStories, allStories) {
+    return [...columnStories].sort((a, b) => {
+      const aBlocked = isStoryBlocked(a, allStories);
+      const bBlocked = isStoryBlocked(b, allStories);
+
+      // Blocked stories go last
+      if (aBlocked !== bBlocked) {
+        return aBlocked ? 1 : -1;
+      }
+
+      // Sort by priority ascending (lower number = higher priority)
+      if (a.priority !== b.priority) {
+        return a.priority - b.priority;
+      }
+
+      // Sort by created date ascending (older first)
+      return a.created.localeCompare(b.created);
+    });
+  }
+
+  /**
    * Group stories by status ID
+   * DS-081: Now applies sorting within each column
    */
   function groupStoriesByStatus(stories, statuses) {
     const grouped = {};
@@ -616,6 +665,12 @@
         grouped[story.status].push(story);
       }
     });
+
+    // DS-081: Sort stories within each column
+    for (const statusId of Object.keys(grouped)) {
+      grouped[statusId] = sortStoriesForColumn(grouped[statusId], stories);
+    }
+
     return grouped;
   }
 
@@ -645,6 +700,7 @@
   /**
    * Render a single card
    * DS-021: Added draggable, data-status, focused class
+   * DS-081: Added priority badge, blocked state
    */
   function renderCard(story) {
     const typeIcon = TYPE_ICONS[story.type] || '📄';
@@ -654,14 +710,29 @@
       depsCount > 0 ? `<span class="deps-count">🔗 ${depsCount}</span>` : '';
     const focusedClass = state.focusedCardId === story.id ? ' focused' : '';
 
+    // DS-081: Check if story is blocked
+    const isBlocked = isStoryBlocked(story, state.stories);
+    const blockedClass = isBlocked ? ' blocked' : '';
+    const blockedBadge = isBlocked ? '<span class="blocked-badge">⛔</span>' : '';
+
+    // DS-081: Priority badge - only show if not default (500)
+    const showPriority = story.priority !== 500;
+    const priorityBadge = showPriority
+      ? `<span class="priority-badge">[${story.priority}]</span>`
+      : '';
+
     return `
-      <div class="card${focusedClass}" draggable="true" data-id="${escapeHtml(story.id)}" data-type="${escapeHtml(story.type)}" data-status="${escapeHtml(story.status)}" tabindex="0">
+      <div class="card${focusedClass}${blockedClass}" draggable="true" data-id="${escapeHtml(story.id)}" data-type="${escapeHtml(story.type)}" data-status="${escapeHtml(story.status)}" tabindex="0">
         <div class="card-header">
           <span class="card-id">
             <span class="type-icon">${typeIcon}</span>
             ${escapeHtml(story.id)}
+            ${priorityBadge}
           </span>
-          <span class="size-badge">${escapeHtml(story.size)}</span>
+          <div class="card-badges">
+            ${blockedBadge}
+            <span class="size-badge">${escapeHtml(story.size)}</span>
+          </div>
         </div>
         <div class="card-title">${escapeHtml(story.title)}</div>
         <div class="card-footer">

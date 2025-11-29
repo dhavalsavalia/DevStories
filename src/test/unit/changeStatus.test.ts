@@ -7,6 +7,7 @@ import { describe, it, expect } from 'vitest';
 import {
   updateStoryStatus,
   updateEpicStatus,
+  updateStoryPriority,
   getNextWorkflowStatus,
   parseStatusesFromConfig,
 } from '../../commands/changeStatusUtils';
@@ -241,6 +242,61 @@ Description of the epic.
       expect(result).toContain('Description of the epic.');
       expect(result).toContain('## Stories');
       expect(result).toContain('[[DS-001]]');
+    });
+  });
+
+  // === DS-083: Priority Update Tests ===
+
+  describe('updateStoryPriority', () => {
+    const storyContent = `---
+id: DS-001
+title: "Test Story"
+type: feature
+epic: EPIC-001
+status: todo
+sprint: sprint-1
+size: M
+priority: 500
+assignee: ""
+dependencies:
+created: 2025-01-15
+updated: 2025-01-15
+---
+
+# Test Story
+
+Description here.
+`;
+
+    it('should update priority in frontmatter', () => {
+      const result = updateStoryPriority(storyContent, 250);
+      expect(result).toContain('priority: 250');
+      expect(result).not.toContain('priority: 500');
+    });
+
+    it('should update the updated timestamp', () => {
+      const result = updateStoryPriority(storyContent, 100);
+      const today = new Date().toISOString().split('T')[0];
+      expect(result).toMatch(new RegExp(`updated: ['"]?${today}['"]?`));
+    });
+
+    it('should preserve all other frontmatter fields', () => {
+      const result = updateStoryPriority(storyContent, 750);
+      expect(result).toContain('id: DS-001');
+      expect(result).toContain('status: todo');
+      expect(result).toContain('sprint: sprint-1');
+      expect(result).toContain('size: M');
+    });
+
+    it('should preserve markdown content', () => {
+      const result = updateStoryPriority(storyContent, 1);
+      expect(result).toContain('# Test Story');
+      expect(result).toContain('Description here.');
+    });
+
+    it('should handle priority value of 1 (minimum)', () => {
+      const result = updateStoryPriority(storyContent, 1);
+      expect(result).toContain('priority: 1');
     });
   });
 });

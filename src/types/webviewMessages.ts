@@ -67,6 +67,7 @@ export type ExtensionMessage =
 // Webview → Extension messages
 export type WebviewMessage =
   | { type: 'updateStatus'; payload: { storyId: string; newStatus: string } }
+  | { type: 'updatePriority'; payload: { storyId: string; newPriority: number } }  // DS-083: Reorder priority
   | { type: 'openStory'; payload: { id: string } }
   | { type: 'filterChanged'; payload: FilterState }  // DS-023: Full filter state
   | { type: 'ready' }

@@ -850,6 +850,7 @@
 
   /**
    * Handle drop on column
+   * DS-083: Supports both cross-column status change and vertical reorder within column
    */
   function handleDrop(e) {
     e.preventDefault();
@@ -860,23 +861,102 @@
     const newStatus = column.getAttribute('data-status');
     column.classList.remove('drag-over');
 
-    // Don't do anything if dropped on same column
-    if (newStatus === originalStatus) return;
-
-    // Optimistic update: immediately update local state
+    // Get the story being dragged
     const story = state.stories.find((s) => s.id === draggedStoryId);
-    if (story) {
-      // Store original for rollback
-      pendingUpdates.set(draggedStoryId, originalStatus);
+    if (!story) return;
 
-      // Update locally
-      story.status = newStatus;
-      saveState();
-      renderBoard();
-
-      // Send to extension
-      window.boardApi.updateStatus(draggedStoryId, newStatus);
+    // DS-083: Detect vertical reorder vs cross-column move
+    if (newStatus === originalStatus) {
+      // Same column: this is a reorder within the column
+      handleReorderWithinColumn(e, column, story);
+      return;
     }
+
+    // Cross-column: status change (existing behavior)
+    // Store original for rollback
+    pendingUpdates.set(draggedStoryId, originalStatus);
+
+    // Update locally
+    story.status = newStatus;
+    saveState();
+    renderBoard();
+
+    // Send to extension
+    window.boardApi.updateStatus(draggedStoryId, newStatus);
+  }
+
+  /**
+   * DS-083: Handle reorder within the same column (vertical drag)
+   * Calculate new priority based on drop position and update via extension
+   */
+  function handleReorderWithinColumn(e, column, story) {
+    const columnBody = column.querySelector('.column-body');
+    if (!columnBody) return;
+
+    // Get column stories (excluding the dragged card) sorted by current display order
+    const columnStories = state.stories
+      .filter((s) => s.status === story.status && s.id !== story.id)
+      .sort((a, b) => {
+        const aBlocked = isStoryBlocked(a, state.stories);
+        const bBlocked = isStoryBlocked(b, state.stories);
+        if (aBlocked !== bBlocked) return aBlocked ? 1 : -1;
+        if (a.priority !== b.priority) return a.priority - b.priority;
+        return a.created.localeCompare(b.created);
+      });
+
+    // Calculate drop index based on mouse Y position
+    const columnRect = columnBody.getBoundingClientRect();
+    const dropY = e.clientY;
+    const cardHeight = 80; // Approximate card height
+    const relativeY = dropY - columnRect.top;
+    let dropIndex = Math.floor(relativeY / cardHeight);
+    dropIndex = Math.max(0, Math.min(columnStories.length, dropIndex));
+
+    // Calculate new priority
+    const newPriority = calculatePriorityForPosition(columnStories, dropIndex);
+
+    // Don't update if priority hasn't changed
+    if (newPriority === story.priority) return;
+
+    // Store original priority for potential rollback
+    const originalPriority = story.priority;
+    pendingUpdates.set(story.id, { status: originalStatus, priority: originalPriority });
+
+    // Optimistic update
+    story.priority = newPriority;
+    saveState();
+    renderBoard();
+
+    // Send to extension
+    window.boardApi.updatePriority(story.id, newPriority);
+  }
+
+  /**
+   * DS-083: Calculate new priority for drop position
+   * Mirrors the logic from boardViewUtils.ts for consistency
+   */
+  function calculatePriorityForPosition(columnStories, dropIndex) {
+    // Empty column: use default priority
+    if (columnStories.length === 0) {
+      return 500;
+    }
+
+    // Drop at first position: priority = first story's priority - 10
+    if (dropIndex === 0) {
+      const firstPriority = columnStories[0].priority;
+      return Math.max(1, firstPriority - 10);
+    }
+
+    // Drop at last position: priority = last story's priority + 10
+    if (dropIndex >= columnStories.length) {
+      const lastPriority = columnStories[columnStories.length - 1].priority;
+      return lastPriority + 10;
+    }
+
+    // Drop between two stories: average of neighbors
+    const abovePriority = columnStories[dropIndex - 1].priority;
+    const belowPriority = columnStories[dropIndex].priority;
+    return Math.round((abovePriority + belowPriority) / 2);
   }
 
   // === DS-021: Keyboard Navigation ===
@@ -1103,6 +1183,16 @@
       vscode.postMessage({
         type: 'updateStatus',
         payload: { storyId, newStatus },
+      });
+    },
+
+    /**
+     * DS-083: Update story priority for reordering
+     */
+    updatePriority(storyId, newPriority) {
+      vscode.postMessage({
+        type: 'updatePriority',
+        payload: { storyId, newPriority },
       });
     },
 

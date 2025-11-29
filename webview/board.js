@@ -804,6 +804,7 @@
 
   /**
    * Handle drag end
+   * DS-083: Also removes drop indicator
    */
   function handleDragEnd() {
     if (draggedCard) {
@@ -815,6 +816,9 @@
       col.classList.remove('drag-over');
     });
 
+    // DS-083: Remove drop indicator
+    removeDropIndicator();
+
     draggedCard = null;
     draggedStoryId = null;
     originalStatus = null;
@@ -822,34 +826,107 @@
 
   /**
    * Handle drag over column
+   * DS-083: Shows drop indicator for vertical reorder within same column
    */
   function handleDragOver(e) {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
 
     const column = e.target.closest('.column');
-    if (column) {
-      const targetStatus = column.getAttribute('data-status');
-      // Only highlight if dropping to different column
-      if (targetStatus !== originalStatus) {
-        column.classList.add('drag-over');
+    if (!column) return;
+
+    const targetStatus = column.getAttribute('data-status');
+
+    // Cross-column: highlight entire column
+    if (targetStatus !== originalStatus) {
+      column.classList.add('drag-over');
+      removeDropIndicator();
+      return;
+    }
+
+    // Same column: show drop indicator at position
+    column.classList.remove('drag-over');
+    showDropIndicator(e, column);
+  }
+
+  /**
+   * DS-083: Show drop indicator at the target position within column
+   */
+  function showDropIndicator(e, column) {
+    const columnBody = column.querySelector('.column-body');
+    if (!columnBody) return;
+
+    // Remove existing indicator
+    removeDropIndicator();
+
+    // Get all cards in column (excluding the dragged one)
+    const cards = Array.from(columnBody.querySelectorAll('.card:not(.dragging)'));
+    if (cards.length === 0) {
+      // Empty column or only dragged card - show at top
+      const indicator = createDropIndicator();
+      columnBody.insertBefore(indicator, columnBody.firstChild);
+      return;
+    }
+
+    // Find target position based on mouse Y
+    const dropY = e.clientY;
+    let insertBefore = null;
+
+    for (const card of cards) {
+      const rect = card.getBoundingClientRect();
+      const cardMiddle = rect.top + rect.height / 2;
+
+      if (dropY < cardMiddle) {
+        insertBefore = card;
+        break;
       }
+    }
+
+    // Create and insert indicator
+    const indicator = createDropIndicator();
+    if (insertBefore) {
+      columnBody.insertBefore(indicator, insertBefore);
+    } else {
+      columnBody.appendChild(indicator);
+    }
+  }
+
+  /**
+   * DS-083: Create drop indicator element
+   */
+  function createDropIndicator() {
+    const indicator = document.createElement('div');
+    indicator.className = 'drop-indicator';
+    indicator.id = 'drop-indicator';
+    return indicator;
+  }
+
+  /**
+   * DS-083: Remove drop indicator from DOM
+   */
+  function removeDropIndicator() {
+    const existing = document.getElementById('drop-indicator');
+    if (existing) {
+      existing.remove();
     }
   }
 
   /**
    * Handle drag leave column
+   * DS-083: Also removes drop indicator when leaving column
    */
   function handleDragLeave(e) {
     const column = e.target.closest('.column');
     // Only remove highlight if leaving the column entirely
     if (column && !column.contains(e.relatedTarget)) {
       column.classList.remove('drag-over');
+      removeDropIndicator();
     }
   }
 
   /**
    * Handle drop on column
+   * DS-083: Supports both cross-column status change and vertical reorder within column
    */
   function handleDrop(e) {
     e.preventDefault();
@@ -860,23 +937,111 @@
     const newStatus = column.getAttribute('data-status');
     column.classList.remove('drag-over');
 
-    // Don't do anything if dropped on same column
-    if (newStatus === originalStatus) return;
-
-    // Optimistic update: immediately update local state
+    // Get the story being dragged
     const story = state.stories.find((s) => s.id === draggedStoryId);
-    if (story) {
-      // Store original for rollback
-      pendingUpdates.set(draggedStoryId, originalStatus);
+    if (!story) return;
 
-      // Update locally
-      story.status = newStatus;
-      saveState();
-      renderBoard();
-
-      // Send to extension
-      window.boardApi.updateStatus(draggedStoryId, newStatus);
+    // DS-083: Detect vertical reorder vs cross-column move
+    if (newStatus === originalStatus) {
+      // Same column: this is a reorder within the column
+      handleReorderWithinColumn(e, column, story);
+      return;
     }
+
+    // Cross-column: status change (existing behavior)
+    // Store original for rollback
+    pendingUpdates.set(draggedStoryId, originalStatus);
+
+    // Update locally
+    story.status = newStatus;
+    saveState();
+    renderBoard();
+
+    // Send to extension
+    window.boardApi.updateStatus(draggedStoryId, newStatus);
+  }
+
+  /**
+   * DS-083: Handle reorder within the same column (vertical drag)
+   * Calculate new priority based on drop position and update via extension
+   */
+  function handleReorderWithinColumn(e, column, story) {
+    const columnBody = column.querySelector('.column-body');
+    if (!columnBody) return;
+
+    // Remove drop indicator
+    removeDropIndicator();
+
+    // Get column stories (excluding the dragged card) sorted by current display order
+    const columnStories = state.stories
+      .filter((s) => s.status === story.status && s.id !== story.id)
+      .sort((a, b) => {
+        const aBlocked = isStoryBlocked(a, state.stories);
+        const bBlocked = isStoryBlocked(b, state.stories);
+        if (aBlocked !== bBlocked) return aBlocked ? 1 : -1;
+        if (a.priority !== b.priority) return a.priority - b.priority;
+        return a.created.localeCompare(b.created);
+      });
+
+    // Calculate drop index based on actual card positions (same logic as indicator)
+    const cards = Array.from(columnBody.querySelectorAll('.card:not(.dragging)'));
+    const dropY = e.clientY;
+    let dropIndex = cards.length; // Default to end
+
+    for (let i = 0; i < cards.length; i++) {
+      const rect = cards[i].getBoundingClientRect();
+      const cardMiddle = rect.top + rect.height / 2;
+      if (dropY < cardMiddle) {
+        dropIndex = i;
+        break;
+      }
+    }
+
+    // Calculate new priority
+    const newPriority = calculatePriorityForPosition(columnStories, dropIndex);
+
+    // Don't update if priority hasn't changed
+    if (newPriority === story.priority) return;
+
+    // Store original priority for potential rollback
+    const originalPriority = story.priority;
+    pendingUpdates.set(story.id, { status: originalStatus, priority: originalPriority });
+
+    // Optimistic update
+    story.priority = newPriority;
+    saveState();
+    renderBoard();
+
+    // Send to extension
+    window.boardApi.updatePriority(story.id, newPriority);
+  }
+
+  /**
+   * DS-083: Calculate new priority for drop position
+   * Mirrors the logic from boardViewUtils.ts for consistency
+   */
+  function calculatePriorityForPosition(columnStories, dropIndex) {
+    // Empty column: use default priority
+    if (columnStories.length === 0) {
+      return 500;
+    }
+
+    // Drop at first position: priority = first story's priority - 10
+    if (dropIndex === 0) {
+      const firstPriority = columnStories[0].priority;
+      return Math.max(1, firstPriority - 10);
+    }
+
+    // Drop at last position: priority = last story's priority + 10
+    if (dropIndex >= columnStories.length) {
+      const lastPriority = columnStories[columnStories.length - 1].priority;
+      return lastPriority + 10;
+    }
+
+    // Drop between two stories: average of neighbors
+    const abovePriority = columnStories[dropIndex - 1].priority;
+    const belowPriority = columnStories[dropIndex].priority;
+    return Math.round((abovePriority + belowPriority) / 2);
   }
 
   // === DS-021: Keyboard Navigation ===
@@ -1103,6 +1268,16 @@
       vscode.postMessage({
         type: 'updateStatus',
         payload: { storyId, newStatus },
+      });
+    },
+
+    /**
+     * DS-083: Update story priority for reordering
+     */
+    updatePriority(storyId, newPriority) {
+      vscode.postMessage({
+        type: 'updatePriority',
+        payload: { storyId, newPriority },
       });
     },
 

@@ -478,3 +478,84 @@ export function sortStoriesForColumn(
 export function shouldShowPriorityBadge(priority: number): boolean {
   return priority !== 500;
 }
+
+// === DS-083: Drag-Drop Reorder Priority Calculation ===
+
+/**
+ * Check if this is a reorder within the same column (vertical drag)
+ * vs a cross-column status change (horizontal drag)
+ */
+export function isReorderWithinColumn(originalStatus: string, targetStatus: string): boolean {
+  return originalStatus === targetStatus;
+}
+
+/**
+ * Calculate priority as average of two priorities (for inserting between two stories)
+ */
+export function calculatePriorityBetween(abovePriority: number, belowPriority: number): number {
+  return Math.round((abovePriority + belowPriority) / 2);
+}
+
+/**
+ * Calculate new priority for a story dropped at a specific position in a column
+ *
+ * @param columnStories - Stories currently in the column (sorted by priority)
+ * @param dropIndex - Index where the story is being dropped (0 = first, length = last)
+ * @returns New priority value for the dropped story
+ */
+export function calculatePriorityForPosition(
+  columnStories: WebviewStory[],
+  dropIndex: number
+): number {
+  // Empty column: use default priority
+  if (columnStories.length === 0) {
+    return 500;
+  }
+
+  // Drop at first position: priority = first story's priority - 10
+  if (dropIndex === 0) {
+    const firstPriority = columnStories[0].priority;
+    return Math.max(1, firstPriority - 10); // Clamp to minimum 1
+  }
+
+  // Drop at last position: priority = last story's priority + 10
+  if (dropIndex >= columnStories.length) {
+    const lastPriority = columnStories[columnStories.length - 1].priority;
+    return lastPriority + 10;
+  }
+
+  // Drop between two stories: average of neighbors
+  const abovePriority = columnStories[dropIndex - 1].priority;
+  const belowPriority = columnStories[dropIndex].priority;
+  return calculatePriorityBetween(abovePriority, belowPriority);
+}
+
+/**
+ * Calculate the drop target index based on mouse Y position within column
+ *
+ * @param dropY - Mouse Y position in page coordinates
+ * @param columnTop - Top position of column body in page coordinates
+ * @param cardCount - Number of cards currently in the column
+ * @param cardHeight - Approximate height of each card in pixels (default 80)
+ * @returns Index where the card should be inserted (0 to cardCount)
+ */
+export function getDropTargetIndex(
+  dropY: number,
+  columnTop: number,
+  cardCount: number,
+  cardHeight: number = 80
+): number {
+  // Empty column: always index 0
+  if (cardCount === 0) {
+    return 0;
+  }
+
+  // Calculate relative Y position within column
+  const relativeY = dropY - columnTop;
+
+  // Calculate target index based on card positions
+  const targetIndex = Math.floor(relativeY / cardHeight);
+
+  // Clamp to valid range [0, cardCount]
+  return Math.max(0, Math.min(cardCount, targetIndex));
+}

@@ -271,3 +271,61 @@ Files changed:
 - .devstories/stories/DS-035.md (marked done)
 
 Tests: 319 unit + 111 integration = 430 total passing (+21 new)
+
+---
+
+=== Session: 2025-11-29 12:08 ===
+Story: DS-034 (Sprint-aware status bar & picker)
+Status: done
+
+Implemented sprint-aware status bar with picker for filtering stories by sprint.
+
+Key changes:
+1. Created SprintFilterService (src/core/sprintFilterService.ts):
+   - Shared sprint filter state across StatusBar, TreeView, BoardView
+   - Event-based: subscribers notified on filter change
+
+2. Created statusBarUtils.ts with pure utility functions:
+   - getStatsFromStories() - filter stories by sprint
+   - buildProgressBar() - render progress bar
+   - getFormattedStatusBarText() - format "Sprint X: ███░░░ N/M"
+   - collectAvailableSprints() - gather sprints from stories + config
+
+3. Updated StatusBarController:
+   - Shows "All Sprints" when no filter, sprint name when filtered
+   - Subscribes to SprintFilterService, ConfigService, Store
+   - Click invokes devstories.pickSprint command
+   - Rich tooltip with stats breakdown
+
+4. Created pickSprint command (src/commands/pickSprint.ts):
+   - QuickPick with All Sprints, Current Sprint (from config), Backlog, other sprints
+   - Sets SprintFilterService which propagates to all views
+
+5. Updated StoriesProvider (tree view):
+   - Filters epics to only show those with matching stories
+   - Filters stories within each epic by sprint
+
+6. Updated BoardViewProvider:
+   - Sends sprint filter to webview on change
+   - Includes currentSprint in init payload
+
+7. Updated webview/board.js:
+   - Handles sprintFilterChanged message
+   - Syncs sprint filter dropdown on init
+
+Files changed:
+- src/core/sprintFilterService.ts (new)
+- src/view/statusBarUtils.ts (new)
+- src/view/statusBar.ts (refactored to use utils + filter service)
+- src/commands/pickSprint.ts (new)
+- src/view/storiesProvider.ts (sprint filtering)
+- src/view/boardView.ts (sprint filter propagation)
+- src/types/webviewMessages.ts (added sprintFilterChanged message)
+- webview/board.js (handle sprint filter)
+- package.json (registered pickSprint command)
+- src/extension.ts (wire up SprintFilterService)
+- src/test/unit/statusBar.test.ts (new - 19 tests)
+- src/test/suite/statusBar.test.ts (updated + 4 new tests)
+- src/test/suite/pickSprint.test.ts (new - 7 tests)
+
+Tests: 338 unit + 122 integration = 460 total passing (+30 new)

@@ -60,7 +60,8 @@ export type ExtensionMessage =
   | { type: 'storyUpdated'; payload: { story: WebviewStory } }
   | { type: 'storyDeleted'; payload: { id: string } }
   | { type: 'themeChanged'; payload: { kind: ThemeKind } }
-  | { type: 'updateFailed'; payload: { storyId: string; originalStatus: string; error: string } };
+  | { type: 'updateFailed'; payload: { storyId: string; originalStatus: string; error: string } }
+  | { type: 'sprintFilterChanged'; payload: { sprint: string | null } };  // DS-034: Sprint filter from extension
 
 // Webview → Extension messages
 export type WebviewMessage =

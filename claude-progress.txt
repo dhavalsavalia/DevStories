@@ -229,3 +229,45 @@ Files changed:
 - .devstories/stories/DS-026.md (marked done)
 
 Tests: 303 unit + 106 integration = 409 total passing (no new tests - fix is in webview JS)
+
+---
+
+=== Session: 2025-11-29 12:00 ===
+Story: DS-035 (Config + template live reload service)
+Status: done
+
+Implemented ConfigService for live-reloading config.yaml and templates.
+
+Key changes:
+1. Created ConfigService (src/core/configService.ts) that watches:
+   - .devstories/config.yaml for status/sprint/size changes
+   - .devstories/templates/*.md for custom templates
+
+2. Created configServiceUtils.ts with pure utility functions:
+   - parseConfigYamlContent() - parse YAML content
+   - parseTemplateFile() - parse template with frontmatter
+   - mergeConfigWithDefaults() - fill in missing config with defaults
+   - debounce() - generic debounce helper
+
+3. Wired ConfigService into extension:
+   - BoardViewProvider subscribes to onDidConfigChange → re-renders columns
+   - StoriesProvider subscribes to onDidConfigChange → rebuilds tree
+   - changeStatus command optionally uses ConfigService for statuses
+
+4. Error handling:
+   - Parse errors show VS Code warning message
+   - Falls back to last-known-good config values
+   - onParseError event for consumers
+
+Files changed:
+- src/core/configService.ts (new - main service)
+- src/core/configServiceUtils.ts (new - pure utilities)
+- src/extension.ts (wire up ConfigService)
+- src/view/boardView.ts (use ConfigService for statuses)
+- src/view/storiesProvider.ts (subscribe to config changes)
+- src/commands/changeStatus.ts (optional ConfigService param)
+- src/test/unit/configService.test.ts (16 unit tests)
+- src/test/suite/configService.test.ts (5 integration tests)
+- .devstories/stories/DS-035.md (marked done)
+
+Tests: 319 unit + 111 integration = 430 total passing (+21 new)

@@ -6,6 +6,7 @@ import { executeInit } from './commands/init';
 import { executeQuickCapture } from './commands/quickCapture';
 import { executeSaveAsTemplate } from './commands/saveAsTemplate';
 import { AutoTimestamp } from './core/autoTimestamp';
+import { ConfigService } from './core/configService';
 import { Store } from './core/store';
 import { Watcher } from './core/watcher';
 import { StoryHoverProvider } from './providers/storyHoverProvider';
@@ -20,15 +21,19 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Initialize Core Components
 	const watcher = new Watcher();
 	const store = new Store(watcher);
-	const storiesProvider = new StoriesProvider(store, context.extensionPath);
+	const configService = new ConfigService();
+	const storiesProvider = new StoriesProvider(store, context.extensionPath, configService);
 	const statusBarController = new StatusBarController(store);
 	const autoTimestamp = new AutoTimestamp();
+
+	// Initialize config service (loads config and starts watching)
+	await configService.initialize();
 
 	// Register Tree Data Provider
 	vscode.window.registerTreeDataProvider('devstories.views.explorer', storiesProvider);
 
 	// Register Board View Provider (Webview)
-	const boardViewProvider = new BoardViewProvider(context.extensionUri, store);
+	const boardViewProvider = new BoardViewProvider(context.extensionUri, store, configService);
 	const boardViewDisposable = vscode.window.registerWebviewViewProvider(
 		BoardViewProvider.viewId,
 		boardViewProvider
@@ -83,12 +88,12 @@ export async function activate(context: vscode.ExtensionContext) {
 			const epic = store.getEpic(item.id);
 			const target = story || epic;
 			if (target) {
-				await executeChangeStatus(store, target);
+				await executeChangeStatus(store, target, configService);
 			}
 		}
 	});
 
-	context.subscriptions.push(watcher, autoTimestamp, statusBarController, boardViewDisposable, linkProviderDisposable, hoverProviderDisposable, initCommand, createEpicCommand, createStoryCommand, quickCaptureCommand, saveAsTemplateCommand, changeStatusCommand);
+	context.subscriptions.push(watcher, configService, autoTimestamp, statusBarController, boardViewDisposable, linkProviderDisposable, hoverProviderDisposable, initCommand, createEpicCommand, createStoryCommand, quickCaptureCommand, saveAsTemplateCommand, changeStatusCommand);
 }
 
 export function deactivate() {}

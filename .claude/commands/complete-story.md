@@ -13,6 +13,7 @@ git log --oneline -5
 ```
 
 Verify:
+
 - You are on a feature/bugfix branch (NOT main)
 - There are no uncommitted changes
 
@@ -27,25 +28,23 @@ Verify:
 Check these items:
 
 1. **Story file**:
-   - [ ] All acceptance criteria marked as `[x]`
+
+   - [ ] All worked on acceptance criteria marked as `[x]`
    - [ ] `status: done` in frontmatter
    - [ ] `## Implementation Notes` section exists
    - [ ] `updated:` date is current
-
 2. **Progress file**:
+
    - [ ] Current session documented
    - [ ] Files changed listed
    - [ ] Test counts updated
-
-3. **Tests**:
-   - Run `./init.sh` to verify all tests pass
-   - Report test counts
 
 ## Step 4: Decision Point
 
 If ALL checks pass, ask the user:
 
 > "All checks passed. Ready to merge `<branch-name>` to main?"
+>
 > - Tests: X unit + Y integration passing
 > - Story: All criteria complete
 > - Documentation: Updated
@@ -54,7 +53,7 @@ If ALL checks pass, ask the user:
 
 Wait for user confirmation before proceeding.
 
-## Step 5A: Merge Flow (if approved)
+## Step 5: Merge Flow (if approved)
 
 ```bash
 git checkout main
@@ -64,20 +63,10 @@ git branch -d <branch-name>
 ```
 
 Report:
+
 - Merge commit hash
 - Branch deleted
 - Current main status
-
-## Step 5B: Fix Flow (if issues found)
-
-If any checks failed:
-
-1. List all issues found
-2. Create TodoWrite list for fixes
-3. Stay on feature branch
-4. Say: "Issues found. Staying on `<branch-name>` to address fixes."
-
-Do NOT merge if there are issues.
 
 ## Critical Rules
 

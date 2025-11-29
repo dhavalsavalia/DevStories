@@ -526,3 +526,27 @@ Additional changes:
 8. Added 2 tests for hover card priority display
 
 Tests: 397 unit + 128 integration = 525 total passing (+2 more)
+
+=== Session: 2025-11-29 18:33 ===
+Story: DS-081 (Board view sorting and priority badge)
+Status: done
+
+Implemented story sorting within board columns and added priority/blocked badges.
+
+Key changes:
+1. Added `isStoryBlocked()` - checks if dependencies are not done
+2. Added `sortStoriesForColumn()` - sorts: blocked last → priority asc → created asc
+3. Added `shouldShowPriorityBadge()` - returns true for non-500 priority
+4. Updated `groupStoriesByStatus()` in board.js to apply sorting after grouping
+5. Updated `renderCard()` - added priority badge [N] and blocked badge ⛔
+6. Added CSS for `.priority-badge`, `.blocked-badge`, `.card.blocked`
+7. Added 16 new unit tests for sorting and priority functions
+
+Files changed:
+- src/view/boardViewUtils.ts (+3 functions)
+- src/test/unit/boardView.test.ts (+16 tests)
+- webview/board.js (isStoryBlocked, sortStoriesForColumn, renderCard update)
+- webview/board.css (priority badge, blocked state styles)
+- .devstories/stories/DS-081.md (marked done)
+
+Tests: 413 unit + 128 integration = 541 total passing (+16 unit)

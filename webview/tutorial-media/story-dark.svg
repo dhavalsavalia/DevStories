@@ -1,0 +1,10 @@
+<svg width="360" height="200" viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="360" height="200" rx="18" fill="#102420"/>
+  <rect x="24" y="32" width="312" height="136" rx="14" fill="#142d27" stroke="#1e4037"/>
+  <rect x="40" y="52" width="220" height="12" rx="6" fill="#81f5d2" opacity="0.4"/>
+  <rect x="40" y="74" width="180" height="10" rx="5" fill="#4ddbb5" opacity="0.55"/>
+  <rect x="40" y="94" width="240" height="10" rx="5" fill="#4ddbb5" opacity="0.35"/>
+  <rect x="40" y="130" width="72" height="16" rx="8" fill="#4ddbb5" opacity="0.8"/>
+  <rect x="120" y="130" width="96" height="16" rx="8" fill="#227f68" opacity="0.8"/>
+  <text x="24" y="184" fill="#d6fff3" font-size="18" font-family="'Segoe UI', sans-serif">Create Story • Link to epic</text>
+</svg>

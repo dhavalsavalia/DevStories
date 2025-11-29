@@ -1,0 +1,10 @@
+<svg width="360" height="200" viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="360" height="200" rx="18" fill="#fff9f2"/>
+  <rect x="24" y="32" width="312" height="136" rx="14" fill="#ffffff" stroke="#f1d6b8"/>
+  <rect x="40" y="52" width="180" height="14" rx="7" fill="#f28f45" opacity="0.5"/>
+  <rect x="40" y="76" width="220" height="10" rx="5" fill="#f4b27a" opacity="0.7"/>
+  <rect x="40" y="96" width="200" height="10" rx="5" fill="#f4b27a" opacity="0.5"/>
+  <rect x="40" y="132" width="96" height="16" rx="8" fill="#f28f45" opacity="0.6"/>
+  <rect x="148" y="132" width="120" height="16" rx="8" fill="#f7caa0" opacity="0.8"/>
+  <text x="24" y="184" fill="#5b351f" font-size="18" font-family="'Segoe UI', sans-serif">Create Epic • Capture themes</text>
+</svg>

@@ -28,11 +28,11 @@ export interface WebviewStory {
 }
 
 // Webview-safe epic (excludes filePath/content)
+// Note: Epics don't have sprints - sprints are story-level only
 export interface WebviewEpic {
   id: string;
   title: string;
   status: string;
-  sprint?: string;
 }
 
 // DS-023: Filter state for board view

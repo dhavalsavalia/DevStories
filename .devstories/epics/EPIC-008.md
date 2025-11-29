@@ -2,7 +2,6 @@
 id: EPIC-008
 title: "Phase 8: Cadence Kit"
 status: todo
-sprint: backlog
 created: 2025-11-29
 updated: 2025-11-29
 ---

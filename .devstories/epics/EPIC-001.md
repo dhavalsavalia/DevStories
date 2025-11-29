@@ -2,7 +2,6 @@
 id: EPIC-001
 title: "Phase 1: Foundation"
 status: done
-sprint: phase-1
 created: 2025-11-26
 ---
 

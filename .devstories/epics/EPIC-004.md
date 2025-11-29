@@ -2,7 +2,6 @@
 id: EPIC-004
 title: "Phase 4: Links"
 status: done
-sprint: phase-4
 created: 2025-11-26
 updated: 2025-11-28
 ---

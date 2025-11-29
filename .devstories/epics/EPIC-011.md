@@ -2,7 +2,6 @@
 id: EPIC-011
 title: "Error Handling & Lint"
 status: todo
-sprint: polish-2
 created: 2025-11-29
 updated: 2025-11-29
 ---

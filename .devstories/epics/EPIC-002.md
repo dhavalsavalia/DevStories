@@ -2,7 +2,6 @@
 id: EPIC-002
 title: "Phase 2: Tree View"
 status: done
-sprint: phase-2
 created: 2025-11-26
 ---
 

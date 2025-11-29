@@ -2,7 +2,6 @@
 id: EPIC-010
 title: "Production Polish"
 status: todo
-sprint: polish-1
 created: 2025-11-29
 updated: 2025-11-29
 ---

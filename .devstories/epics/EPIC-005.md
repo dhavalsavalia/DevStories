@@ -2,7 +2,6 @@
 id: EPIC-005
 title: "Phase 5: Board View"
 status: done
-sprint: phase-5
 created: 2025-11-26
 updated: 2025-11-28
 ---

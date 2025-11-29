@@ -102,14 +102,13 @@ statuses:
       const markdown = generateEpicMarkdown({
         id: 'EPIC-001',
         title: 'Test Epic',
-        sprint: 'sprint-1',
         goal: 'Build amazing features',
       });
 
       expect(markdown).toContain('id: EPIC-001');
       expect(markdown).toContain('title: "Test Epic"');
       expect(markdown).toContain('status: todo');
-      expect(markdown).toContain('sprint: sprint-1');
+      expect(markdown).not.toContain('sprint:'); // Epics don't have sprints
       expect(markdown).toContain('# Test Epic');
       expect(markdown).toContain('Build amazing features');
     });
@@ -118,7 +117,6 @@ statuses:
       const markdown = generateEpicMarkdown({
         id: 'EPIC-002',
         title: 'Another Epic',
-        sprint: 'sprint-2',
       });
 
       expect(markdown).toContain('[Add epic description here]');
@@ -128,7 +126,6 @@ statuses:
       const markdown = generateEpicMarkdown({
         id: 'EPIC-003',
         title: 'Epic with "quotes"',
-        sprint: 'sprint-1',
       });
 
       expect(markdown).toContain('title: "Epic with \\"quotes\\""');
@@ -139,7 +136,6 @@ statuses:
       const markdown = generateEpicMarkdown({
         id: 'EPIC-001',
         title: 'Test Epic',
-        sprint: 'sprint-1',
       });
 
       expect(markdown).toContain(`created: ${today}`);
@@ -149,7 +145,6 @@ statuses:
       const markdown = generateEpicMarkdown({
         id: 'EPIC-001',
         title: 'Test Epic',
-        sprint: 'sprint-1',
       });
 
       expect(markdown).toContain('## Stories');

@@ -50,14 +50,13 @@ statuses:
 		const markdown = generateEpicMarkdown({
 			id: 'EPIC-001',
 			title: 'Test Epic',
-			sprint: 'sprint-1',
 			goal: 'Build great stuff',
 		});
 
 		assert.ok(markdown.includes('id: EPIC-001'), 'Should have epic ID');
 		assert.ok(markdown.includes('title: "Test Epic"'), 'Should have title');
 		assert.ok(markdown.includes('status: todo'), 'Should default to todo');
-		assert.ok(markdown.includes('sprint: sprint-1'), 'Should have sprint');
+		assert.ok(!markdown.includes('sprint:'), 'Should NOT have sprint (epics dont have sprints)');
 		assert.ok(markdown.includes('# Test Epic'), 'Should have markdown heading');
 		assert.ok(markdown.includes('Build great stuff'), 'Should include goal');
 		assert.ok(markdown.includes('## Stories'), 'Should include Stories section');
@@ -69,7 +68,6 @@ statuses:
 		const markdown = generateEpicMarkdown({
 			id: 'EPIC-001',
 			title: 'Epic with "quotes"',
-			sprint: 'sprint-1',
 		});
 
 		assert.ok(markdown.includes('title: "Epic with \\"quotes\\""'), 'Should escape quotes');

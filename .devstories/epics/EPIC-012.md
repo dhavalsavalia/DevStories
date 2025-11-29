@@ -2,7 +2,6 @@
 id: EPIC-012
 title: "Accessibility & Security"
 status: todo
-sprint: polish-3
 created: 2025-11-29
 updated: 2025-11-29
 ---

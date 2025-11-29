@@ -2,7 +2,6 @@
 id: EPIC-015
 title: "AI Integration"
 status: todo
-sprint: future-1
 created: 2025-11-29
 updated: 2025-11-29
 ---

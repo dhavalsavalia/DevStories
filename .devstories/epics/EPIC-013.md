@@ -2,7 +2,6 @@
 id: EPIC-013
 title: "Test Coverage"
 status: todo
-sprint: polish-4
 created: 2025-11-29
 updated: 2025-11-29
 ---

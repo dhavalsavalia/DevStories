@@ -2,7 +2,6 @@
 id: EPIC-017
 title: "Priority & Ordering System"
 status: todo
-sprint: foundation-1
 created: 2025-11-29
 updated: 2025-11-29
 ---

@@ -58,12 +58,12 @@ suite('Init Command Integration Test', () => {
 	test('generateSampleEpic should create valid epic', async () => {
 		const { generateSampleEpic } = await import('../../commands/initUtils');
 
-		const epic = generateSampleEpic('sprint-1', 'DS');
+		const epic = generateSampleEpic('DS');
 
 		assert.ok(epic.includes('id: EPIC-001'), 'Should have epic ID');
 		assert.ok(epic.includes('title: Sample Epic'), 'Should have title');
 		assert.ok(epic.includes('status: todo'), 'Should have status');
-		assert.ok(epic.includes('sprint: sprint-1'), 'Should have sprint');
+		assert.ok(!epic.includes('sprint:'), 'Should NOT have sprint (epics dont have sprints)');
 		assert.ok(epic.includes('[[DS-001]]'), 'Should link to sample story');
 	});
 

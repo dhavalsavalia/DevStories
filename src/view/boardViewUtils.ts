@@ -84,17 +84,11 @@ export function serializeStoryForWebview(story: Story): WebviewStory {
  * Serialize Epic for webview (exclude sensitive filePath/content)
  */
 export function serializeEpicForWebview(epic: Epic): WebviewEpic {
-  const result: WebviewEpic = {
+  return {
     id: epic.id,
     title: epic.title,
     status: epic.status,
   };
-
-  if (epic.sprint) {
-    result.sprint = epic.sprint;
-  }
-
-  return result;
 }
 
 /**
@@ -308,20 +302,15 @@ export const DEFAULT_FILTER_STATE: FilterState = {
 };
 
 /**
- * Extract unique sprints from stories and epics
+ * Extract unique sprints from stories
+ * Note: Epics don't have sprints - sprints are story-level only
  */
-export function extractSprints(stories: WebviewStory[], epics: WebviewEpic[]): string[] {
+export function extractSprints(stories: WebviewStory[]): string[] {
   const sprintSet = new Set<string>();
 
   for (const story of stories) {
     if (story.sprint) {
       sprintSet.add(story.sprint);
-    }
-  }
-
-  for (const epic of epics) {
-    if (epic.sprint) {
-      sprintSet.add(epic.sprint);
     }
   }
 

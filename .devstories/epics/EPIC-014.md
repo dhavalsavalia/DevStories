@@ -2,7 +2,6 @@
 id: EPIC-014
 title: "Marketplace Launch"
 status: todo
-sprint: launch-1
 created: 2025-11-29
 updated: 2025-11-29
 ---

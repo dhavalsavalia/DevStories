@@ -2,7 +2,6 @@
 id: EPIC-016
 title: "Multi-Platform Core"
 status: todo
-sprint: future-2
 created: 2025-11-29
 updated: 2025-11-29
 ---

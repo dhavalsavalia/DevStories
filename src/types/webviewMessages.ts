@@ -21,6 +21,7 @@ export interface WebviewStory {
   status: string;
   sprint?: string;
   size: string;
+  priority: number;
   assignee?: string;
   dependencies?: string[];
   created: string; // ISO date string

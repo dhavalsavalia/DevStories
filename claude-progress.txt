@@ -512,3 +512,17 @@ Files changed:
 - src/test/suite/storyHoverProvider.test.ts (added priority to mocks)
 
 Tests: 395 unit + 128 integration = 523 total passing (+4 new)
+
+(continued) - Full priority integration:
+
+Additional changes:
+1. Updated devstories_test workspace - added priority to 4 stories (50, 100, 200, 800)
+2. createStoryUtils.ts - new stories include priority: 500 in markdown
+3. WebviewStory type - added priority: number
+4. serializeStoryForWebview - includes priority in webview data
+5. storyHoverProviderUtils - shows priority in hover card when non-default
+6. initUtils.ts - sample story includes priority: 500
+7. Fixed ~30 WebviewStory mocks in boardView tests with priority: 500
+8. Added 2 tests for hover card priority display
+
+Tests: 397 unit + 128 integration = 525 total passing (+2 more)

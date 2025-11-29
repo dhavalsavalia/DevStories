@@ -77,3 +77,19 @@ export function updateEpicStatus(content: string, newStatus: string): string {
   // Stringify back to markdown
   return matter.stringify(parsed.content, parsed.data);
 }
+
+/**
+ * DS-083: Update the priority field in a story's frontmatter
+ * Returns the updated markdown content
+ */
+export function updateStoryPriority(content: string, newPriority: number): string {
+  const parsed = matter(content);
+  const today = new Date().toISOString().split('T')[0];
+
+  // Update priority and timestamp
+  parsed.data.priority = newPriority;
+  parsed.data.updated = today;
+
+  // Stringify back to markdown
+  return matter.stringify(parsed.content, parsed.data);
+}

@@ -550,3 +550,42 @@ Files changed:
 - .devstories/stories/DS-081.md (marked done)
 
 Tests: 413 unit + 128 integration = 541 total passing (+16 unit)
+
+=== Session: 2025-11-29 18:38 ===
+Story: DS-083 (Drag-drop reorder in board)
+Status: done
+
+Implemented drag-drop reordering within board columns by updating story priority.
+
+Key changes:
+1. Added priority calculation utilities (boardViewUtils.ts):
+   - `isReorderWithinColumn()` - detect vertical vs cross-column drag
+   - `calculatePriorityBetween()` - average of neighbors
+   - `calculatePriorityForPosition()` - handle first/last/between cases
+   - `getDropTargetIndex()` - calculate drop position from mouse Y
+
+2. Updated webview (board.js):
+   - Modified `handleDrop()` to detect same-column reorder
+   - Added `handleReorderWithinColumn()` - calculates priority, sends message
+   - Added `calculatePriorityForPosition()` - mirrors TS implementation
+   - Added `updatePriority` to `window.boardApi`
+
+3. Added extension message handler (boardView.ts):
+   - `updatePriority` message type in WebviewMessage union
+   - `updateStoryPriority()` method - reads file, updates priority, writes back
+   - File watcher triggers refresh automatically
+
+4. Added `updateStoryPriority()` utility (changeStatusUtils.ts):
+   - Updates priority field in frontmatter via gray-matter
+   - Also updates `updated` timestamp
+
+Files changed (7):
+- src/view/boardViewUtils.ts (+4 functions)
+- src/types/webviewMessages.ts (+1 message type)
+- src/view/boardView.ts (+updateStoryPriority method)
+- src/commands/changeStatusUtils.ts (+updateStoryPriority function)
+- webview/board.js (+reorder logic, +API method)
+- src/test/unit/boardView.test.ts (+19 tests)
+- src/test/unit/changeStatus.test.ts (+5 tests)
+
+Tests: 437 unit + 128 integration = 565 total passing (+24 new)

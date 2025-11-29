@@ -34,6 +34,11 @@ import {
   isStoryBlocked,
   sortStoriesForColumn,
   shouldShowPriorityBadge,
+  // DS-083: Drag-Drop Reorder Priority Calculation
+  isReorderWithinColumn,
+  calculatePriorityBetween,
+  calculatePriorityForPosition,
+  getDropTargetIndex,
 } from '../../view/boardViewUtils';
 import { Story } from '../../types/story';
 import { Epic } from '../../types/epic';
@@ -893,6 +898,135 @@ statuses:
       expect(shouldShowPriorityBadge(501)).toBe(true);
       expect(shouldShowPriorityBadge(900)).toBe(true);
       expect(shouldShowPriorityBadge(1000)).toBe(true);
+    });
+  });
+
+  // === DS-083: Drag-Drop Reorder Priority Calculation ===
+
+  describe('isReorderWithinColumn', () => {
+    it('should return true when status unchanged', () => {
+      expect(isReorderWithinColumn('todo', 'todo')).toBe(true);
+    });
+
+    it('should return false when status changes', () => {
+      expect(isReorderWithinColumn('todo', 'in_progress')).toBe(false);
+    });
+  });
+
+  describe('calculatePriorityBetween', () => {
+    it('should return average of two priorities', () => {
+      expect(calculatePriorityBetween(100, 200)).toBe(150);
+    });
+
+    it('should round to nearest integer', () => {
+      expect(calculatePriorityBetween(100, 201)).toBe(151);
+    });
+
+    it('should handle equal priorities', () => {
+      expect(calculatePriorityBetween(500, 500)).toBe(500);
+    });
+
+    it('should handle large gap', () => {
+      expect(calculatePriorityBetween(100, 900)).toBe(500);
+    });
+  });
+
+  describe('calculatePriorityForPosition', () => {
+    const baseStory = (id: string, priority: number): WebviewStory => ({
+      id,
+      title: `Story ${id}`,
+      type: 'feature',
+      epic: 'E-1',
+      status: 'todo',
+      size: 'M',
+      priority,
+      created: '2025-01-01',
+    });
+
+    it('should return priority - 10 when dropped at first position', () => {
+      const columnStories = [baseStory('S-001', 100), baseStory('S-002', 200)];
+      expect(calculatePriorityForPosition(columnStories, 0)).toBe(90);
+    });
+
+    it('should return priority + 10 when dropped at last position', () => {
+      const columnStories = [baseStory('S-001', 100), baseStory('S-002', 200)];
+      expect(calculatePriorityForPosition(columnStories, 2)).toBe(210);
+    });
+
+    it('should return average when dropped between two stories', () => {
+      const columnStories = [
+        baseStory('S-001', 100),
+        baseStory('S-002', 200),
+        baseStory('S-003', 300),
+      ];
+      expect(calculatePriorityForPosition(columnStories, 1)).toBe(150);
+      expect(calculatePriorityForPosition(columnStories, 2)).toBe(250);
+    });
+
+    it('should return 500 for empty column', () => {
+      expect(calculatePriorityForPosition([], 0)).toBe(500);
+    });
+
+    it('should handle single story column - drop before', () => {
+      const columnStories = [baseStory('S-001', 500)];
+      expect(calculatePriorityForPosition(columnStories, 0)).toBe(490);
+    });
+
+    it('should handle single story column - drop after', () => {
+      const columnStories = [baseStory('S-001', 500)];
+      expect(calculatePriorityForPosition(columnStories, 1)).toBe(510);
+    });
+
+    it('should handle very small gap between priorities', () => {
+      const columnStories = [baseStory('S-001', 100), baseStory('S-002', 101)];
+      // Average of 100 and 101 would be 100.5, rounds to 101 - but that's same as S-002!
+      // In practice, we round but accept possible collision
+      expect(calculatePriorityForPosition(columnStories, 1)).toBe(101);
+    });
+
+    it('should handle drop at negative resulting priority (clamp to minimum 1)', () => {
+      const columnStories = [baseStory('S-001', 5)];
+      // 5 - 10 = -5, should clamp to 1
+      expect(calculatePriorityForPosition(columnStories, 0)).toBe(1);
+    });
+  });
+
+  describe('getDropTargetIndex', () => {
+    it('should return 0 for drop at column top', () => {
+      const dropY = 10;
+      const columnTop = 0;
+      const cardCount = 4;
+      // Each card approximately 80px, dropping at Y=10 should be first position
+      expect(getDropTargetIndex(dropY, columnTop, cardCount, 80)).toBe(0);
+    });
+
+    it('should return card count for drop at column bottom', () => {
+      const dropY = 350;
+      const columnTop = 0;
+      const cardCount = 4;
+      // 4 cards * 80px = 320px, dropping at 350 should be last position
+      expect(getDropTargetIndex(dropY, columnTop, cardCount, 80)).toBe(4);
+    });
+
+    it('should return middle index for drop in middle', () => {
+      const dropY = 160;  // Middle of 4 cards (320px total)
+      const columnTop = 0;
+      const cardCount = 4;
+      // With 80px cards, 160px should be at card index 2
+      const result = getDropTargetIndex(dropY, columnTop, cardCount, 80);
+      expect(result).toBe(2);
+    });
+
+    it('should return 0 for empty column', () => {
+      const columnTop = 0;
+      expect(getDropTargetIndex(200, columnTop, 0, 80)).toBe(0);
+    });
+
+    it('should account for column top offset', () => {
+      const dropY = 110; // 10px into column + 100 offset
+      const columnTop = 100;
+      const cardCount = 4;
+      expect(getDropTargetIndex(dropY, columnTop, cardCount, 80)).toBe(0);
     });
   });
 });

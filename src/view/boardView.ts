@@ -16,7 +16,7 @@ import {
   getThemeKindFromNumber,
   extractSprints,
 } from './boardViewUtils';
-import { updateStoryStatus as updateStoryStatusInFile } from '../commands/changeStatusUtils';
+import { updateStoryStatus as updateStoryStatusInFile, updateStoryPriority as updateStoryPriorityInFile } from '../commands/changeStatusUtils';
 
 export class BoardViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewId = 'devstories.views.board';
@@ -186,6 +186,10 @@ export class BoardViewProvider implements vscode.WebviewViewProvider {
         // DS-021: Handle status update from drag-drop or keyboard
         this.updateStoryStatus(message.payload.storyId, message.payload.newStatus);
         break;
+      case 'updatePriority':
+        // DS-083: Handle priority update from vertical reorder
+        this.updateStoryPriority(message.payload.storyId, message.payload.newPriority);
+        break;
       case 'filterChanged':
         // Will be implemented in DS-023
         console.log('filterChanged:', message.payload);
@@ -244,6 +248,48 @@ export class BoardViewProvider implements vscode.WebviewViewProvider {
         payload: {
           storyId,
           originalStatus,
+          error: err instanceof Error ? err.message : 'Unknown error',
+        },
+      });
+    }
+  }
+
+  /**
+   * DS-083: Update story priority from webview (vertical reorder)
+   */
+  private async updateStoryPriority(storyId: string, newPriority: number): Promise<void> {
+    const story = this.store.getStory(storyId);
+    if (!story?.filePath) {
+      this.postMessage({
+        type: 'updateFailed',
+        payload: {
+          storyId,
+          originalStatus: '',
+          error: 'Story not found',
+        },
+      });
+      return;
+    }
+
+    try {
+      // Read current file content
+      const content = fs.readFileSync(story.filePath, 'utf8');
+
+      // Update the priority in frontmatter
+      const updatedContent = updateStoryPriorityInFile(content, newPriority);
+
+      // Write back to file
+      fs.writeFileSync(story.filePath, updatedContent, 'utf8');
+
+      // Store will auto-update via file watcher, which triggers sendInitData
+      // The webview will receive storyUpdated message automatically
+    } catch (err) {
+      // Send failure message for rollback
+      this.postMessage({
+        type: 'updateFailed',
+        payload: {
+          storyId,
+          originalStatus: String(story.priority), // Original priority stored as string
           error: err instanceof Error ? err.message : 'Unknown error',
         },
       });

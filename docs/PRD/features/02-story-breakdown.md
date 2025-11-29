@@ -679,6 +679,90 @@ Optional Agile-lite ceremony tools that layer on top of epics/stories to keep so
 
 ---
 
+## Phase 9: Onboarding & Docs (DS-047 to DS-051)
+
+Launch-ready onboarding, tutorials, and documentation to make DevStories self-explanatory on first install.
+
+### DS-047: First-run Welcome Hub + Quick Actions
+
+**Size:** M  
+**Dependencies:** none
+
+**Tasks:**
+- Implement welcome webview with init/learn/customize actions
+- Persist dismissal state via globalState
+- Provide release notes section for returning users
+
+**Tests:**
+- [ ] Unit: state persistence + command wiring
+- [ ] Integration: first-run triggers once per workspace
+
+---
+
+### DS-048: Interactive DevStories Tutorial & Sample Workspace
+
+**Size:** L  
+**Dependencies:** DS-047
+
+**Tasks:**
+- Create walkthrough (VS Code builtin or custom) covering full workflow
+- Bundle/open sample workspace with realistic data
+- Track tutorial progress + reset command
+
+**Tests:**
+- [ ] Unit: step tracking
+- [ ] Integration: tutorial actions succeed against sample workspace
+
+---
+
+### DS-049: Docusaurus Documentation Site
+
+**Size:** L  
+**Dependencies:** none
+
+**Tasks:**
+- Scaffold site structure + theme
+- Author core pages (overview, quick start, workflows, cadence, FAQ)
+- Configure deployment pipeline
+
+**Tests:**
+- [ ] CI: docs build + deploy pipeline
+- [ ] Manual QA: links/screenshots valid
+
+---
+
+### DS-050: Screenshot Automation Pipeline
+
+**Size:** M  
+**Dependencies:** DS-049
+
+**Tasks:**
+- Script Playwright/VS Code scenarios
+- Capture dark/light screenshots, optimize assets
+- Wire into CI (`npm run shots`)
+
+**Tests:**
+- [ ] CI: screenshot job produces artifacts
+- [ ] Unit: scenario scripts exit cleanly
+
+---
+
+### DS-051: In-editor Docs Navigator & Contextual Help
+
+**Size:** M  
+**Dependencies:** DS-049
+
+**Tasks:**
+- Command to open docs topics via QuickPick
+- Help icons/tooltips linking to doc anchors
+- Offline fallback excerpts
+
+**Tests:**
+- [ ] Unit: command + config toggles
+- [ ] Integration: context help opens correct URLs/fallbacks
+
+---
+
 ## Estimated Timeline
 
 **Assumptions:**

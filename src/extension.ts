@@ -14,7 +14,7 @@ import { BoardViewProvider } from './view/boardView';
 import { StatusBarController } from './view/statusBar';
 import { StoriesProvider } from './view/storiesProvider';
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
 	console.log('DevStories is now active!');
 
 	// Initialize Core Components
@@ -48,8 +48,8 @@ export function activate(context: vscode.ExtensionContext) {
 		storyHoverProvider
 	);
 
-	// Load initial data
-	store.load();
+	// Load initial data and wait for completion
+	await store.load();
 
 	// Register Commands
 	const initCommand = vscode.commands.registerCommand('devstories.init', async () => {

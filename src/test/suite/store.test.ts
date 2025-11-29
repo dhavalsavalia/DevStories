@@ -71,6 +71,35 @@ created: 2025-01-01
 		assert.strictEqual(stories[0].id, 'STORY-TEST');
 	});
 
+	test('should fire onDidUpdate after load completes', async () => {
+		// Wait for any watcher events from setup() to settle
+		await new Promise(resolve => setTimeout(resolve, 500));
+
+		// Create a fresh store with its own watcher to avoid watcher-triggered events
+		const freshWatcher = new Watcher();
+		const freshStore = new Store(freshWatcher);
+
+		let updateFired = false;
+		const disposable = freshStore.onDidUpdate(() => {
+			updateFired = true;
+		});
+
+		// load() should fire onDidUpdate when done
+		await freshStore.load();
+
+		// Give a small delay for any async event firing
+		await new Promise(resolve => setTimeout(resolve, 50));
+
+		assert.ok(updateFired, 'load() should fire onDidUpdate after completing');
+
+		// Verify data was loaded
+		const epic = freshStore.getEpic('EPIC-TEST');
+		assert.ok(epic, 'Epic should be loaded after onDidUpdate fires');
+
+		disposable.dispose();
+		freshWatcher.dispose();
+	});
+
 	test('should update on file change', async () => {
 		await store.load();
 

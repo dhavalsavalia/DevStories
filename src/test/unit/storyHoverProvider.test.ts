@@ -66,6 +66,7 @@ describe('storyHoverProviderUtils', () => {
       epic: 'EPIC-001',
       status: 'done',
       size: 'M',
+      priority: 500,
       created: new Date('2025-01-15'),
       content: 'Some content',
     };

@@ -60,6 +60,7 @@ statuses:
       epic: 'EPIC-001',
       status: 'todo',
       size: 'M',
+      priority: 500,
       created: new Date(),
       content: 'secret content',
       filePath: '/secret/path',

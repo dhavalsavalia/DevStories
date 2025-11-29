@@ -107,6 +107,7 @@ statuses:
       epic: 'EPIC-001',
       status: 'todo',
       size: 'M',
+      priority: 500,
       created: new Date('2025-01-15'),
       content: 'Some markdown content',
     };

@@ -433,3 +433,25 @@ Files changed:
 - esbuild.js (copy tutorial assets)
 
 Tests: 386 unit + 128 integration = 514 total passing (+4 unit)
+
+=== Session: 2025-11-29 17:45 ===
+Story: DS-079 (Sprint sequence configuration)
+Status: done
+
+Added sprint sequence configuration to enable ordered sprints.
+
+Key changes:
+1. Added `sprintSequence: string[]` to ConfigData interface
+2. Updated parseConfigYamlContent() to parse `sprints.sequence` array
+3. Added `getSprintIndex()` helper - returns index or Infinity for unknown sprints
+4. Updated mergeConfigWithDefaults() to include sprintSequence
+5. Added 8 new tests for sprint sequence parsing and index lookup
+
+Files changed:
+- src/core/configServiceUtils.ts (interface, parsing, getSprintIndex)
+- src/test/unit/configService.test.ts (+8 tests)
+- .devstories/config.yaml (added sequence array)
+- .devstories/epics/EPIC-017.md (new epic)
+- .devstories/stories/DS-079.md through DS-083.md (new stories)
+
+Tests: 394 unit + 128 integration = 522 total passing (+8 new)

@@ -1,0 +1,8 @@
+Core Concept
+
+Sprints are the primary time axis. Stories flow through sprints. Epics are just thematic groupings.
+
+Sprint Timeline:    polish-1 → polish-2 → polish-3 → launch-1 → future-1
+                        ↑          ↑          ↑
+Epic A stories:      [S1, S2]    [S3]
+Epic B stories:      [S4]        [S5, S6]    [S7]

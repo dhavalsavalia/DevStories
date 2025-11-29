@@ -1,0 +1,9 @@
+<svg width="360" height="200" viewBox="0 0 360 200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="360" height="200" rx="18" fill="#f3f6ff"/>
+  <rect x="24" y="32" width="312" height="32" rx="8" fill="#ffffff" stroke="#dbe2ff"/>
+  <rect x="36" y="40" width="120" height="16" rx="8" fill="#5c6ac4" opacity="0.25"/>
+  <rect x="24" y="80" width="312" height="88" rx="10" fill="#fff" stroke="#dbe2ff" stroke-dasharray="6 6"/>
+  <rect x="36" y="96" width="132" height="12" rx="6" fill="#5c6ac4" opacity="0.45"/>
+  <rect x="36" y="118" width="220" height="10" rx="5" fill="#9aa3d6" opacity="0.7"/>
+  <text x="24" y="184" fill="#2b3245" font-size="18" font-family="'Segoe UI', 'SF Pro Display', sans-serif">DevStories Init • Sample config preview</text>
+</svg>

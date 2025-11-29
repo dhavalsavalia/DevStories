@@ -760,3 +760,26 @@ Files changed:
 
 Tests: 303 unit + 106 integration = 409 total passing (+1 new)
 
+---
+
+=== Session: 2025-11-29 11:16 ===
+Story: DS-026 (Fix search input blur on first keystroke)
+Status: done
+
+Bug fix: Board filter search input loses focus after first keystroke.
+
+Root cause:
+- `renderBoard()` replaces entire DOM on filter change
+- Debounced search input triggers `onFilterChanged()` -> `renderBoard()`
+- Focus lost when innerHTML is replaced
+
+Fix applied:
+1. Save focus state and cursor position before DOM re-render, restore after
+2. Skip keyboard navigation when user is focused on input/select/textarea elements
+
+Files changed:
+- webview/board.js (renderBoard() focus preservation + handleKeydown() input check)
+- .devstories/stories/DS-026.md (marked done)
+
+Tests: 303 unit + 106 integration = 409 total passing (no new tests - fix is in webview JS)
+

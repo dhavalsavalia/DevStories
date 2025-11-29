@@ -208,9 +208,17 @@
    * Render the kanban board
    * DS-020: Full kanban implementation
    * DS-023: Filter bar + filtered stories
+   * DS-026: Focus preservation for search input
    */
   function renderBoard() {
     if (!loadingEl || !boardEl) return;
+
+    // DS-026: Save focus state before re-rendering
+    const activeElement = document.activeElement;
+    const searchInput = document.getElementById('filter-search');
+    const shouldRestoreSearchFocus = activeElement === searchInput;
+    const searchSelectionStart = shouldRestoreSearchFocus ? searchInput.selectionStart : null;
+    const searchSelectionEnd = shouldRestoreSearchFocus ? searchInput.selectionEnd : null;
 
     loadingEl.style.display = 'none';
     boardEl.style.display = 'flex';
@@ -238,6 +246,17 @@
 
     // DS-023: Attach filter event handlers
     attachFilterHandlers();
+
+    // DS-026: Restore search input focus after re-render
+    if (shouldRestoreSearchFocus) {
+      const newSearchInput = document.getElementById('filter-search');
+      if (newSearchInput) {
+        newSearchInput.focus();
+        if (searchSelectionStart !== null && searchSelectionEnd !== null) {
+          newSearchInput.setSelectionRange(searchSelectionStart, searchSelectionEnd);
+        }
+      }
+    }
 
     // Attach click handlers for cards
     boardEl.querySelectorAll('.card').forEach((card) => {
@@ -765,6 +784,12 @@
   function handleKeydown(e) {
     // Only handle if board is visible
     if (!boardEl || boardEl.style.display === 'none') return;
+
+    // DS-026: Skip keyboard navigation when focused on input/select elements
+    const activeElement = document.activeElement;
+    if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'SELECT' || activeElement.tagName === 'TEXTAREA')) {
+      return;
+    }
 
     const storiesByStatus = groupStoriesByStatus(state.stories, state.statuses);
     const totalColumns = state.statuses.length;

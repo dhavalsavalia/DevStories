@@ -95,6 +95,11 @@ export function formatHoverCard(
     lines.push(`**Size:** ${story.size}  `);
   }
 
+  // Priority (stories only, show when non-default)
+  if (isStory && story.priority !== 500) {
+    lines.push(`**Priority:** ${story.priority}  `);
+  }
+
   // Epic (stories only)
   if (isStory && story.epic) {
     lines.push(`**Epic:** ${story.epic}  `);

@@ -132,6 +132,7 @@ epic: EPIC-001
 status: todo
 sprint: ${sprint}
 size: S
+priority: 500
 assignee: ""
 dependencies: []
 created: ${today}

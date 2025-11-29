@@ -69,6 +69,53 @@ Content`;
       expect(story.dependencies).toEqual([]);
       expect(story.updated).toBeUndefined();
     });
+
+    it('should parse priority field when present', () => {
+      const content = `---
+id: DS-001
+title: Priority Story
+type: feature
+epic: EPIC-001
+status: todo
+size: M
+priority: 100
+created: 2025-01-01
+---
+Content`;
+      const story = Parser.parseStory(content);
+      expect(story.priority).toBe(100);
+    });
+
+    it('should default priority to 500 when not specified', () => {
+      const content = `---
+id: DS-001
+title: No Priority Story
+type: feature
+epic: EPIC-001
+status: todo
+size: M
+created: 2025-01-01
+---
+Content`;
+      const story = Parser.parseStory(content);
+      expect(story.priority).toBe(500);
+    });
+
+    it('should parse priority = 0 correctly', () => {
+      const content = `---
+id: DS-001
+title: Zero Priority Story
+type: feature
+epic: EPIC-001
+status: todo
+size: M
+priority: 0
+created: 2025-01-01
+---
+Content`;
+      const story = Parser.parseStory(content);
+      expect(story.priority).toBe(0);
+    });
   });
 
   describe('parseEpic', () => {

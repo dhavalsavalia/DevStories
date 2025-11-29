@@ -66,6 +66,7 @@ describe('storyHoverProviderUtils', () => {
       epic: 'EPIC-001',
       status: 'done',
       size: 'M',
+      priority: 500,
       created: new Date('2025-01-15'),
       content: 'Some content',
     };
@@ -128,6 +129,18 @@ describe('storyHoverProviderUtils', () => {
       const result = formatHoverCard(mockEpic, 'epic');
 
       expect(result).not.toContain('**Progress:**');
+    });
+
+    it('should include priority if non-default', () => {
+      const priorityStory: Story = { ...mockStory, priority: 100 };
+      const result = formatHoverCard(priorityStory, 'story');
+
+      expect(result).toContain('**Priority:** 100');
+    });
+
+    it('should not include priority if default (500)', () => {
+      const result = formatHoverCard(mockStory, 'story');
+      expect(result).not.toContain('**Priority:**');
     });
   });
 

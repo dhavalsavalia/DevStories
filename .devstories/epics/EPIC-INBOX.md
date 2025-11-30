@@ -15,4 +15,5 @@ Quick captures and ideas to triage later.
 
 - [[DS-102]] new feature
 - [[DS-103]] Fix Keyboard Navigation in Board
+- [[DS-104]] Add quick add stories to backlog by default
 

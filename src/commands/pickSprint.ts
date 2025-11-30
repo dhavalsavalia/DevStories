@@ -32,15 +32,16 @@ export async function executePickSprint(
   // All Sprints option
   items.push({
     label: '$(list-flat) All Sprints',
-    description: selectedSprint === null ? '(current)' : undefined,
+    description: selectedSprint === null ? '(selected)' : undefined,
     value: null,
   });
 
   // Current sprint from config (if defined and exists)
   if (currentSprint && availableSprints.includes(currentSprint)) {
+    const isSelected = selectedSprint === currentSprint;
     items.push({
-      label: `$(star) ${currentSprint}`,
-      description: selectedSprint === currentSprint ? '(current)' : 'Current sprint',
+      label: `$(star-full) ${currentSprint}`,
+      description: isSelected ? 'Current Sprint · (selected)' : 'Current Sprint',
       value: currentSprint,
     });
   }
@@ -50,7 +51,7 @@ export async function executePickSprint(
   if (hasBacklogStories) {
     items.push({
       label: '$(archive) Backlog',
-      description: selectedSprint === 'backlog' ? '(current)' : undefined,
+      description: selectedSprint === 'backlog' ? '(selected)' : undefined,
       value: 'backlog',
     });
   }
@@ -69,7 +70,7 @@ export async function executePickSprint(
     if (sprint !== currentSprint) {
       items.push({
         label: `$(milestone) ${sprint}`,
-        description: selectedSprint === sprint ? '(current)' : undefined,
+        description: selectedSprint === sprint ? '(selected)' : undefined,
         value: sprint,
       });
     }

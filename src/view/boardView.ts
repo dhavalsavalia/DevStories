@@ -153,6 +153,7 @@ export class BoardViewProvider implements vscode.WebviewViewProvider {
 
     // DS-034: Include current sprint filter in init payload
     const currentSprint = this.sprintFilterService?.currentSprint ?? undefined;
+    const configCurrentSprint = this.configService.config.currentSprint;
 
     const payload: InitPayload = {
       stories,
@@ -160,6 +161,7 @@ export class BoardViewProvider implements vscode.WebviewViewProvider {
       statuses,
       sprints,  // DS-023
       currentSprint: currentSprint === null ? undefined : currentSprint,  // DS-034
+      configCurrentSprint,  // Config's current sprint for ★ indicator
       theme,
     };
 

@@ -287,8 +287,36 @@ export async function executeCreateStory(store: Store): Promise<boolean> {
     return false;
   }
 
-  // Sprint - use current sprint from config or backlog
-  const sprint = config.currentSprint || 'backlog';
+  // Sprint picker - optional, with current sprint pre-selected
+  const existingSprints = getExistingSprints(config, store);
+  const defaultSprint = config.currentSprint || 'backlog';
+
+  // Build sprint options with current sprint first
+  const sprintOptions: { label: string; description?: string }[] = [
+    { label: defaultSprint, description: config.currentSprint ? 'Current Sprint' : undefined },
+  ];
+
+  // Add other sprints (excluding default to avoid duplication)
+  for (const s of existingSprints) {
+    if (s !== defaultSprint) {
+      sprintOptions.push({ label: s });
+    }
+  }
+
+  // Add backlog if not already included
+  if (defaultSprint !== 'backlog' && !existingSprints.includes('backlog')) {
+    sprintOptions.push({ label: 'backlog' });
+  }
+
+  const selectedSprintItem = await vscode.window.showQuickPick(sprintOptions, {
+    placeHolder: 'Select sprint (Enter to accept default)',
+  });
+
+  if (!selectedSprintItem) {
+    return false;
+  }
+
+  const sprint = selectedSprintItem.label;
 
   // Optional: Dependency picker
   const stories = store.getStories();

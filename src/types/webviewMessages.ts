@@ -51,7 +51,8 @@ export interface InitPayload {
   epics: WebviewEpic[];
   statuses: StatusConfig[];
   sprints: string[];          // DS-023: List of available sprints for filter dropdown
-  currentSprint?: string;
+  currentSprint?: string;     // Currently selected sprint filter
+  configCurrentSprint?: string; // Config's current sprint (for ★ indicator)
   theme: ThemeKind;
 }
 

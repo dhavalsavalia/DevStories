@@ -138,6 +138,15 @@ export class StoriesProvider implements vscode.TreeDataProvider<Epic | Story> {
       item.iconPath = this.getIconPath('epic');
       item.description = `${this.getStatusIndicator(element.status)} ${element.status}`;
       item.tooltip = new vscode.MarkdownString(`**${element.id}**: ${element.title}\n\nStatus: ${element.status}`);
+
+      if (element.filePath) {
+        item.command = {
+          command: 'vscode.open',
+          title: 'Open Epic',
+          arguments: [vscode.Uri.file(element.filePath)]
+        };
+      }
+
       return item;
     } else {
       // Story item

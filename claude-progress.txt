@@ -943,3 +943,23 @@ Files changed (8):
 - .devstories/stories/DS-063.md (updated)
 
 Tests: 539 unit + 131 integration = 670 total (+39 new)
+
+=== Session: 2025-11-30 12:30 ===
+Story: DS-064 (Add unit tests for statusBar.ts)
+Status: done
+
+Implementation:
+- Added getCommand(), isVisible(), show(), hide() methods to StatusBarController
+- Extracted formatTooltipLines() to statusBarUtils.ts for unit testing
+- Refactored getTooltip() to use the new utility function
+- Added 6 new unit tests for tooltip formatting
+- Added 4 new integration tests (click handler, visibility toggle, dispose)
+
+Files changed (4):
+- src/view/statusBar.ts (added visibility tracking, getCommand, show/hide methods)
+- src/view/statusBarUtils.ts (added formatTooltipLines function)
+- src/test/unit/statusBar.test.ts (added 6 tooltip tests)
+- src/test/suite/statusBar.test.ts (added 4 tests: click handler, visibility, dispose)
+- .devstories/stories/DS-064.md (updated)
+
+Tests: 545 unit + 135 integration = 680 total (+10 new)

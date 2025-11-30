@@ -205,4 +205,44 @@ created: 2025-01-01
     assert.ok(sprints.includes('sprint-2'), 'Should include sprint-2');
     assert.ok(!sprints.includes('backlog'), 'Should not include backlog in sprint list');
   });
+
+  // DS-064: Additional tests for click handler and visibility
+  test('should register click handler command', () => {
+    // Verify the status bar has the pickSprint command registered
+    // We access the internal statusBarItem via a test-only method
+    const command = statusBar.getCommand();
+    assert.strictEqual(command, 'devstories.pickSprint', 'Should have pickSprint command');
+  });
+
+  test('should be visible after construction', () => {
+    // Verify the status bar is visible (shown by default)
+    const isVisible = statusBar.isVisible();
+    assert.strictEqual(isVisible, true, 'Should be visible after construction');
+  });
+
+  test('should toggle visibility', () => {
+    // Test show/hide functionality
+    assert.strictEqual(statusBar.isVisible(), true, 'Should start visible');
+
+    statusBar.hide();
+    assert.strictEqual(statusBar.isVisible(), false, 'Should be hidden after hide()');
+
+    statusBar.show();
+    assert.strictEqual(statusBar.isVisible(), true, 'Should be visible after show()');
+  });
+
+  test('should not throw on dispose', () => {
+    // Create a new status bar to test dispose independently
+    const testStore = new Store(watcher);
+    const testSprintFilter = new SprintFilterService();
+    const testStatusBar = new StatusBarController(testStore, undefined, testSprintFilter);
+
+    // Dispose should not throw
+    assert.doesNotThrow(() => {
+      testStatusBar.dispose();
+    }, 'dispose() should not throw');
+
+    // Clean up
+    testSprintFilter.dispose();
+  });
 });

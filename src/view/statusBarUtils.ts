@@ -76,6 +76,39 @@ export function getFormattedStatusBarText(done: number, total: number, sprint: s
 }
 
 /**
+ * Format tooltip content lines
+ * @param done - Number of done stories
+ * @param total - Total number of stories
+ * @param sprint - Current sprint filter (null = all sprints)
+ * @returns Array of lines for tooltip display
+ */
+export function formatTooltipLines(done: number, total: number, sprint: string | null): string[] {
+  const remaining = total - done;
+
+  const lines: string[] = [
+    '**DevStories: Sprint Progress**',
+    '',
+  ];
+
+  if (sprint === null) {
+    lines.push('📊 Showing: All Sprints');
+  } else if (sprint === 'backlog') {
+    lines.push('📊 Showing: Backlog');
+  } else {
+    lines.push(`📊 Showing: ${sprint}`);
+  }
+
+  lines.push('');
+  lines.push(`✅ Done: ${done}`);
+  lines.push(`📝 Remaining: ${remaining}`);
+  lines.push(`📦 Total: ${total}`);
+  lines.push('');
+  lines.push('*Click to change sprint filter*');
+
+  return lines;
+}
+
+/**
  * Collect available sprints from stories and config
  * @param stories - All stories
  * @param currentSprint - Current sprint from config (may be undefined)

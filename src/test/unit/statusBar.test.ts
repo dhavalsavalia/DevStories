@@ -9,6 +9,7 @@ import {
   getFormattedStatusBarText,
   buildProgressBar,
   collectAvailableSprints,
+  formatTooltipLines,
 } from '../../view/statusBarUtils';
 import { Story } from '../../types/story';
 
@@ -195,6 +196,48 @@ describe('statusBarUtils', () => {
     it('should return empty array for no stories and no config sprint', () => {
       const sprints = collectAvailableSprints([], undefined);
       expect(sprints).toEqual([]);
+    });
+  });
+
+  // DS-064: Additional tests for tooltip formatting
+  describe('formatTooltipLines', () => {
+    it('should show "All Sprints" when sprint is null', () => {
+      const lines = formatTooltipLines(3, 5, null);
+      expect(lines).toContain('📊 Showing: All Sprints');
+      expect(lines).toContain('✅ Done: 3');
+      expect(lines).toContain('📝 Remaining: 2');
+      expect(lines).toContain('📦 Total: 5');
+    });
+
+    it('should show sprint name when sprint is specified', () => {
+      const lines = formatTooltipLines(2, 4, 'sprint-1');
+      expect(lines).toContain('📊 Showing: sprint-1');
+      expect(lines).toContain('✅ Done: 2');
+      expect(lines).toContain('📝 Remaining: 2');
+      expect(lines).toContain('📦 Total: 4');
+    });
+
+    it('should show "Backlog" for backlog filter', () => {
+      const lines = formatTooltipLines(1, 3, 'backlog');
+      expect(lines).toContain('📊 Showing: Backlog');
+    });
+
+    it('should include header and click hint', () => {
+      const lines = formatTooltipLines(0, 0, null);
+      expect(lines).toContain('**DevStories: Sprint Progress**');
+      expect(lines).toContain('*Click to change sprint filter*');
+    });
+
+    it('should calculate remaining correctly', () => {
+      const lines = formatTooltipLines(7, 10, null);
+      expect(lines).toContain('📝 Remaining: 3');
+    });
+
+    it('should handle zero stories', () => {
+      const lines = formatTooltipLines(0, 0, 'sprint-1');
+      expect(lines).toContain('✅ Done: 0');
+      expect(lines).toContain('📝 Remaining: 0');
+      expect(lines).toContain('📦 Total: 0');
     });
   });
 });

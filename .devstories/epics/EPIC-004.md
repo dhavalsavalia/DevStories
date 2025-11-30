@@ -1,12 +1,12 @@
 ---
 id: EPIC-004
-title: "Phase 4: Links"
+title: Links
 status: done
 created: 2025-11-26
 updated: 2025-11-28
 ---
 
-# Phase 4: Links
+# Links
 
 ## Description
 Wiki-style linking system with `[[ID]]` syntax for connecting stories. Includes validation, navigation, hover previews, and backlinks tracking.

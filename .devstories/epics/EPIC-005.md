@@ -1,12 +1,12 @@
 ---
 id: EPIC-005
-title: "Phase 5: Board View"
+title: Board View
 status: done
 created: 2025-11-26
 updated: 2025-11-28
 ---
 
-# Phase 5: Board View
+# Board View
 
 ## Description
 Visual Kanban board in a VS Code webview with drag-drop, keyboard navigation, filters, and real-time sync with markdown files.

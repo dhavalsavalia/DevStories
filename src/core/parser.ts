@@ -1,6 +1,7 @@
 import matter from 'gray-matter';
 import { Epic, EpicStatus } from '../types/epic';
 import { Story, StorySize, StoryStatus, StoryType } from '../types/story';
+import { validateStoryTitle, validateEpicName } from '../utils/inputValidation';
 
 export class Parser {
   static parseStory(content: string, filePath?: string): Story {
@@ -14,6 +15,12 @@ export class Parser {
     // Required fields
     if (!data.id || !data.title || !data.type || !data.epic || !data.status || !data.size || !data.created) {
       throw new Error('Missing required fields: id, title, type, epic, status, size, created');
+    }
+
+    // Validate title content
+    const titleValidation = validateStoryTitle(data.title);
+    if (!titleValidation.valid) {
+      throw new Error(titleValidation.error);
     }
 
     return {
@@ -44,6 +51,12 @@ export class Parser {
 
     if (!data.id || !data.title || !data.status || !data.created) {
       throw new Error('Missing required fields: id, title, status, created');
+    }
+
+    // Validate title content
+    const titleValidation = validateEpicName(data.title);
+    if (!titleValidation.valid) {
+      throw new Error(titleValidation.error);
     }
 
     return {

@@ -15,6 +15,7 @@ import {
   DevStoriesConfig,
   DEFAULT_TEMPLATES,
 } from './createStoryUtils';
+import { validateStoryTitle } from '../utils/inputValidation';
 
 // Re-export for testing
 export {
@@ -141,12 +142,21 @@ export async function executeQuickCapture(store: Store): Promise<boolean> {
   // Get prefilled value from selection (if any)
   const prefillValue = getSelectedText() || '';
 
-  // Show input box
+  // Show input box with validation
   const rawInput = await vscode.window.showInputBox({
     prompt: 'Quick capture (prefix: bug:|feat:|chore: | pipe: for notes)',
     placeHolder: 'e.g., bug: Fix login | users report 500',
     value: prefillValue,
     valueSelection: prefillValue ? [0, prefillValue.length] : undefined,
+    validateInput: (value) => {
+      if (!value || !value.trim()) {
+        return 'Title is required';
+      }
+      // Parse to extract title, then validate
+      const parsed = parseQuickInput(value);
+      const validation = validateStoryTitle(parsed.title);
+      return validation.valid ? undefined : validation.error;
+    },
   });
 
   if (!rawInput || !rawInput.trim()) {
@@ -155,11 +165,6 @@ export async function executeQuickCapture(store: Store): Promise<boolean> {
 
   // Parse input
   const parsed = parseQuickInput(rawInput);
-
-  if (!parsed.title) {
-    void vscode.window.showWarningMessage('DevStories: Title cannot be empty');
-    return false;
-  }
 
   // Ensure inbox epic exists
   const inboxEpicId = await ensureInboxEpic(workspaceUri, config);

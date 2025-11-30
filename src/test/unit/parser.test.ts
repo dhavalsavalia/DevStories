@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { Parser } from '../../core/parser';
 
+/**
+ * DS-063: Additional tests for input validation in parser
+ */
+
 describe('Parser', () => {
   describe('parseStory', () => {
     it('should parse a valid story', () => {
@@ -136,6 +140,107 @@ created: 2025-01-01
       expect(epic.status).toBe('in_progress');
       expect(epic.created).toBeInstanceOf(Date);
       expect(epic.content.trim()).toBe('# Epic Content');
+    });
+  });
+
+  // DS-063: Content validation tests
+  describe('story content validation', () => {
+    it('should reject story title over 200 characters', () => {
+      const longTitle = 'a'.repeat(201);
+      const content = `---
+id: DS-001
+title: "${longTitle}"
+type: task
+epic: EPIC-001
+status: todo
+size: M
+created: 2025-01-01
+---
+Content`;
+      expect(() => Parser.parseStory(content)).toThrow('200');
+    });
+
+    it('should accept story title at exactly 200 characters', () => {
+      const title = 'a'.repeat(200);
+      const content = `---
+id: DS-001
+title: "${title}"
+type: task
+epic: EPIC-001
+status: todo
+size: M
+created: 2025-01-01
+---
+Content`;
+      const story = Parser.parseStory(content);
+      expect(story.title).toBe(title);
+    });
+
+    it('should reject story with control characters in title', () => {
+      const content = `---
+id: DS-001
+title: "Bad\\x00Title"
+type: task
+epic: EPIC-001
+status: todo
+size: M
+created: 2025-01-01
+---
+Content`;
+      expect(() => Parser.parseStory(content)).toThrow('control character');
+    });
+
+    it('should accept story with UTF-8 characters in title', () => {
+      const content = `---
+id: DS-001
+title: "修复登录问题 🐛"
+type: task
+epic: EPIC-001
+status: todo
+size: M
+created: 2025-01-01
+---
+Content`;
+      const story = Parser.parseStory(content);
+      expect(story.title).toBe('修复登录问题 🐛');
+    });
+  });
+
+  describe('epic content validation', () => {
+    it('should reject epic title over 100 characters', () => {
+      const longTitle = 'b'.repeat(101);
+      const content = `---
+id: EPIC-001
+title: "${longTitle}"
+status: active
+created: 2025-01-01
+---
+Content`;
+      expect(() => Parser.parseEpic(content)).toThrow('100');
+    });
+
+    it('should accept epic title at exactly 100 characters', () => {
+      const title = 'b'.repeat(100);
+      const content = `---
+id: EPIC-001
+title: "${title}"
+status: active
+created: 2025-01-01
+---
+Content`;
+      const epic = Parser.parseEpic(content);
+      expect(epic.title).toBe(title);
+    });
+
+    it('should reject epic with control characters in title', () => {
+      const content = `---
+id: EPIC-001
+title: "Epic\\nTitle"
+status: active
+created: 2025-01-01
+---
+Content`;
+      expect(() => Parser.parseEpic(content)).toThrow('control character');
     });
   });
 });

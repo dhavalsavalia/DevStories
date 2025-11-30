@@ -7,6 +7,7 @@ import {
   generateEpicMarkdown,
   DevStoriesConfig,
 } from './createEpicUtils';
+import { validateEpicName } from '../utils/inputValidation';
 
 // Re-export for convenience
 export { parseConfigYaml, findNextEpicId, generateEpicMarkdown } from './createEpicUtils';
@@ -66,13 +67,11 @@ export async function executeCreateEpic(store: Store): Promise<boolean> {
 
   // Prompt for title
   const title = await vscode.window.showInputBox({
-    prompt: 'Epic title',
+    prompt: 'Epic title (max 100 chars)',
     placeHolder: 'e.g., User Authentication System',
     validateInput: (value) => {
-      if (!value || value.trim() === '') {
-        return 'Epic title is required';
-      }
-      return undefined;
+      const validation = validateEpicName(value);
+      return validation.valid ? undefined : validation.error;
     },
   });
 

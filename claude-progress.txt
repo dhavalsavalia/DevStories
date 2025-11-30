@@ -678,3 +678,37 @@ Files changed (6):
 - .devstories/stories/DS-101.md (status→done)
 
 EPIC-019 marked done - all housekeeping complete.
+
+=== Session: 2025-11-29 21:01 ===
+Task: Epic click behavior (single-click expand, double-click open)
+Status: done
+
+Implemented tree view UX improvement:
+- Single-click on epic now expands/collapses (was opening file)
+- Added "Open Epic File" context menu command
+- Set resourceUri on epics for file theming integration
+
+Key changes:
+1. Removed `command` from epic TreeItems in storiesProvider.ts
+   - Single-click now naturally triggers expand/collapse behavior
+   - Set `resourceUri` for file-related operations
+
+2. Added `devstories.openEpic` command:
+   - package.json: command + context menu entry
+   - extension.ts: command handler opens epic file via vscode.open
+
+3. Added 2 integration tests:
+   - Epic should NOT have command (for expand behavior)
+   - Epic should have resourceUri set
+
+Files changed (4):
+- src/view/storiesProvider.ts (removed command, added resourceUri)
+- package.json (added openEpic command and menu)
+- src/extension.ts (registered openEpic command)
+- src/test/suite/storiesProvider.test.ts (+2 tests)
+
+Tests: 444 unit + 131 integration = 575 total passing (+2 new)
+
+Reference: VS Code API doesn't support separate single/double-click handlers.
+Workaround: Remove command from collapsible items for native expand behavior.
+Sources: github.com/microsoft/vscode/issues/85636, stackoverflow.com

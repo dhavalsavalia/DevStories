@@ -131,7 +131,8 @@ export class StoriesProvider implements vscode.TreeDataProvider<Epic | Story> {
     const label = `${element.id}: ${element.title}`;
 
     if (!this.isStory(element)) {
-      // Epic item
+      // Epic item - no command set so single-click expands/collapses naturally
+      // Use "Open Epic" context menu or double-click (with workbench.list.openMode: doubleClick)
       const item = new vscode.TreeItem(label, vscode.TreeItemCollapsibleState.Collapsed);
       item.contextValue = 'epic';
       item.id = element.id;
@@ -139,12 +140,9 @@ export class StoriesProvider implements vscode.TreeDataProvider<Epic | Story> {
       item.description = `${this.getStatusIndicator(element.status)} ${element.status}`;
       item.tooltip = new vscode.MarkdownString(`**${element.id}**: ${element.title}\n\nStatus: ${element.status}`);
 
+      // Set resourceUri for file-related operations (enables proper theming and file associations)
       if (element.filePath) {
-        item.command = {
-          command: 'vscode.open',
-          title: 'Open Epic',
-          arguments: [vscode.Uri.file(element.filePath)]
-        };
+        item.resourceUri = vscode.Uri.file(element.filePath);
       }
 
       return item;

@@ -916,3 +916,30 @@ Files changed (3):
 - .devstories/stories/DS-062.md (updated)
 
 Tests: 500 unit + 131 integration = 631 total (+25 new)
+
+=== Session: 2025-11-30 00:14 ===
+Story: DS-063 (Validate user input in command handlers)
+Status: done
+
+Implementation:
+- Created centralized input validation module (src/utils/inputValidation.ts)
+- Added validators for story titles (max 200 chars), epic names (max 100 chars), sprint names (alphanumeric + hyphens)
+- Integrated validation into Parser.parseStory() and Parser.parseEpic()
+- Updated command handlers to use VS Code input box validation:
+  - createStory.ts: validates title before accepting input
+  - createEpic.ts: validates epic name before accepting input
+  - quickCapture.ts: validates parsed title before accepting input
+- All validators allow UTF-8, reject control characters
+- Helpful error messages shown inline in input boxes
+
+Files changed (8):
+- src/utils/inputValidation.ts (new - validation utilities)
+- src/test/unit/inputValidation.test.ts (new - 32 tests)
+- src/core/parser.ts (added validation on parse)
+- src/test/unit/parser.test.ts (added 7 content validation tests)
+- src/commands/createStory.ts (added input validation)
+- src/commands/createEpic.ts (added input validation)
+- src/commands/quickCapture.ts (added input validation)
+- .devstories/stories/DS-063.md (updated)
+
+Tests: 539 unit + 131 integration = 670 total (+39 new)

@@ -15,6 +15,7 @@ import {
   parseCustomTemplate,
   CustomTemplate,
 } from './createStoryUtils';
+import { validateStoryTitle, validateSprintName } from '../utils/inputValidation';
 
 // Re-export for convenience
 export {
@@ -168,13 +169,11 @@ export async function executeCreateStory(store: Store): Promise<boolean> {
 
   // Story title
   const title = await vscode.window.showInputBox({
-    prompt: 'Story title',
+    prompt: 'Story title (max 200 chars)',
     placeHolder: 'e.g., Add dark mode toggle',
     validateInput: (value) => {
-      if (!value || value.trim() === '') {
-        return 'Story title is required';
-      }
-      return undefined;
+      const validation = validateStoryTitle(value);
+      return validation.valid ? undefined : validation.error;
     },
   });
 

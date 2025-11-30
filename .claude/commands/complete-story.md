@@ -75,3 +75,4 @@ Report:
 - NEVER merge if story file is incomplete
 - ALWAYS use `--no-gpg-sign` for merge commits
 - ALWAYS delete the feature branch after successful merge
+- MUST keep all stories that are modified outside your implementation, as I may have changed them

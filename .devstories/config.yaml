@@ -26,7 +26,7 @@ statuses:
 
 # Sprint configuration
 sprints:
-  current: "polish-3"
+  current: "polish-4"
   sequence:
     - phase-1       # Foundation (historical)
     - phase-2       # Tree View (historical)

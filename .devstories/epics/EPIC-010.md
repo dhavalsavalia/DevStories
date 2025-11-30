@@ -1,9 +1,9 @@
 ---
 id: EPIC-010
 title: "Production Polish"
-status: todo
+status: in_progress
 created: 2025-11-29
-updated: 2025-11-29
+updated: 2025-11-30
 ---
 
 # Production Polish

@@ -26,6 +26,7 @@ export function parseStatusesFromConfig(content: string): string[] {
 
     return statuses.map((s: { id: string }) => s.id);
   } catch {
+    // Invalid YAML config - use defaults
     return DEFAULT_STATUSES;
   }
 }

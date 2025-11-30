@@ -35,7 +35,8 @@ async function readConfig(workspaceUri: vscode.Uri): Promise<DevStoriesConfig | 
   try {
     const content = await vscode.workspace.fs.readFile(configUri);
     return parseConfigYaml(Buffer.from(content).toString('utf8'));
-  } catch {
+  } catch (error) {
+    getLogger().debug('Config not found or unreadable', error);
     return undefined;
   }
 }
@@ -56,8 +57,9 @@ async function loadCustomTemplates(workspaceUri: vscode.Uri): Promise<CustomTemp
         templates.push(parseCustomTemplate(filename, content));
       }
     }
-  } catch {
-    // Templates folder doesn't exist or not readable - return empty
+  } catch (error) {
+    // Templates folder doesn't exist or not readable - expected scenario
+    getLogger().debug('Templates folder not found', error);
   }
 
   return templates;

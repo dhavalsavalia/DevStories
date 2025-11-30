@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { getLogger } from '../core/logger';
 import { Story } from '../types/story';
 import { extractTemplateContent, generateTemplateFileName } from './saveAsTemplateUtils';
 
@@ -42,7 +43,8 @@ export async function executeSaveAsTemplate(storyArg?: Story): Promise<boolean> 
     const storyUri = vscode.Uri.file(storyFilePath);
     const content = await vscode.workspace.fs.readFile(storyUri);
     fileContent = Buffer.from(content).toString('utf8');
-  } catch {
+  } catch (error) {
+    getLogger().warn('Failed to read story file', error);
     vscode.window.showErrorMessage('DevStories: Failed to read story file');
     return false;
   }
@@ -79,7 +81,7 @@ export async function executeSaveAsTemplate(storyArg?: Story): Promise<boolean> 
   try {
     await vscode.workspace.fs.createDirectory(templatesDir);
   } catch {
-    // Directory might already exist, that's fine
+    // Directory already exists - expected scenario
   }
 
   // Generate filename
@@ -98,7 +100,7 @@ export async function executeSaveAsTemplate(storyArg?: Story): Promise<boolean> 
       return false;
     }
   } catch {
-    // File doesn't exist, proceed
+    // Template doesn't exist - expected scenario, proceed
   }
 
   // Write template file

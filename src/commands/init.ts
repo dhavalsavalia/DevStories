@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { getLogger } from '../core/logger';
 import {
   detectProjectName,
   generateConfigYaml,
@@ -23,7 +24,7 @@ async function readProjectFiles(workspaceUri: vscode.Uri): Promise<Map<string, s
       const content = await vscode.workspace.fs.readFile(fileUri);
       files.set(fileName, Buffer.from(content).toString('utf8'));
     } catch {
-      // File doesn't exist, continue
+      // Project file doesn't exist - expected scenario, continue checking others
     }
   }
 
@@ -60,7 +61,7 @@ export async function executeInit(options: InitOptions = {}): Promise<boolean> {
       return false;
     }
   } catch {
-    // Directory doesn't exist, proceed
+    // .devstories doesn't exist - expected scenario, proceed with init
   }
 
   // Detect project name
@@ -190,8 +191,9 @@ export async function executeInit(options: InitOptions = {}): Promise<boolean> {
         try {
           await repo.add(['.devstories']);
           vscode.window.showInformationMessage('DevStories: Staged .devstories/ for commit');
-        } catch {
-          // Git staging failed, not critical
+        } catch (error) {
+          // Git staging failed - non-critical, just log
+          getLogger().debug('Git staging failed', error);
         }
       }
     }

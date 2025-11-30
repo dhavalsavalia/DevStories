@@ -6,6 +6,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { ConfigService } from '../core/configService';
 import { Store } from '../core/store';
+import { getLogger } from '../core/logger';
 import { Story } from '../types/story';
 import { Epic } from '../types/epic';
 import {
@@ -33,7 +34,8 @@ async function readConfigYaml(): Promise<string | undefined> {
     const configUri = vscode.Uri.file(configPath);
     const bytes = await vscode.workspace.fs.readFile(configUri);
     return new TextDecoder().decode(bytes);
-  } catch {
+  } catch (error) {
+    getLogger().debug('Config not found or unreadable', error);
     return undefined;
   }
 }

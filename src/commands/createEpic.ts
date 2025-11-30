@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { Store } from '../core/store';
+import { getLogger } from '../core/logger';
 import {
   parseConfigYaml,
   findNextEpicId,
@@ -18,7 +19,8 @@ async function readConfig(workspaceUri: vscode.Uri): Promise<DevStoriesConfig | 
   try {
     const content = await vscode.workspace.fs.readFile(configUri);
     return parseConfigYaml(Buffer.from(content).toString('utf8'));
-  } catch {
+  } catch (error) {
+    getLogger().debug('Config not found or unreadable', error);
     return undefined;
   }
 }

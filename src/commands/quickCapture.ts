@@ -32,7 +32,8 @@ async function readConfig(workspaceUri: vscode.Uri): Promise<DevStoriesConfig | 
   try {
     const content = await vscode.workspace.fs.readFile(configUri);
     return parseConfigYaml(Buffer.from(content).toString('utf8'));
-  } catch {
+  } catch (error) {
+    getLogger().debug('Config not found or unreadable', error);
     return undefined;
   }
 }
@@ -80,7 +81,8 @@ async function ensureInboxEpic(
     // File exists
     return inboxId;
   } catch {
-    // Create inbox epic
+    // Inbox epic doesn't exist - create it (expected scenario)
+    getLogger().debug('Creating inbox epic');
     const markdown = generateInboxEpicMarkdown(config.epicPrefix);
     await vscode.workspace.fs.writeFile(epicUri, Buffer.from(markdown));
     return inboxId;

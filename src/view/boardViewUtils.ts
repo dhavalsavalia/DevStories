@@ -483,6 +483,45 @@ export function shouldShowPriorityBadge(priority: number): boolean {
   return priority !== 500;
 }
 
+// === DS-062: HTML Escaping for XSS Prevention ===
+
+/**
+ * HTML entity mapping for XSS prevention
+ * Note: The webview uses DOM-based escaping (textContent → innerHTML) which
+ * is the most bulletproof method. This server-side function mirrors that behavior
+ * for unit testing and any server-side HTML generation.
+ *
+ * Characters escaped:
+ * - < and > (prevent tag injection)
+ * - & (prevent entity injection)
+ * - " and ' (prevent attribute breakout)
+ *
+ * Note: Backticks (`) are NOT HTML special characters. They are only dangerous
+ * in JavaScript template literals. Since this function is for HTML context,
+ * backticks don't need escaping.
+ */
+const HTML_ENTITIES: Record<string, string> = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+};
+
+/**
+ * Escape HTML special characters to prevent XSS attacks
+ * This mirrors the webview's DOM-based escaping for testability
+ */
+export function escapeHtml(str: string | null | undefined): string {
+  if (str === null || str === undefined) {
+    return '';
+  }
+  if (typeof str !== 'string') {
+    return '';
+  }
+  return str.replace(/[&<>"']/g, (char) => HTML_ENTITIES[char] || char);
+}
+
 // === DS-083: Drag-Drop Reorder Priority Calculation ===
 
 /**

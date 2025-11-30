@@ -893,3 +893,26 @@ Files changed (1):
 - .devstories/stories/DS-059.md
 
 Tests: 475 unit + 131 integration = 606 total (unchanged)
+
+=== Session: 2025-11-30 00:05 ===
+Story: DS-062 (Audit and harden all innerHTML assignments)
+Status: done
+
+Implementation:
+- Audited all innerHTML in board.js: 1 innerHTML assignment at line 274
+- All 12 dynamic values (story titles, epic names, IDs, etc.) are already escaped with escapeHtml()
+- Added server-side escapeHtml() function to boardViewUtils.ts for unit testing
+- Created 25 comprehensive XSS tests covering:
+  - Basic character escaping (<, >, &, ", ')
+  - XSS attack vectors (script, img onerror, SVG onload, event handlers, etc.)
+  - Edge cases (null, undefined, unicode, long strings)
+  - Attribute context safety (double/single quote breakout)
+- CSP was already fully implemented in boardView.ts (verified existing code)
+- Documented why backticks don't need escaping in HTML context
+
+Files changed (3):
+- src/view/boardViewUtils.ts (added escapeHtml function)
+- src/test/unit/boardView.test.ts (added 25 XSS tests)
+- .devstories/stories/DS-062.md (updated)
+
+Tests: 500 unit + 131 integration = 631 total (+25 new)

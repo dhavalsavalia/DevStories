@@ -6,6 +6,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { Store } from '../core/store';
+import { getLogger } from '../core/logger';
 import { ConfigService } from '../core/configService';
 import { SprintFilterService } from '../core/sprintFilterService';
 import { ExtensionMessage, WebviewMessage, InitPayload, StatusConfig } from '../types/webviewMessages';
@@ -180,7 +181,7 @@ export class BoardViewProvider implements vscode.WebviewViewProvider {
   private handleMessage(message: WebviewMessage): void {
     switch (message.type) {
       case 'ready':
-        console.log('Board webview ready');
+        getLogger().debug('Board webview ready');
         break;
       case 'openStory':
         this.openStory(message.payload.id);
@@ -195,7 +196,7 @@ export class BoardViewProvider implements vscode.WebviewViewProvider {
         break;
       case 'filterChanged':
         // Will be implemented in DS-023
-        console.log('filterChanged:', message.payload);
+        getLogger().debug('filterChanged:', message.payload);
         break;
       case 'error':
         vscode.window.showErrorMessage(`Board error: ${message.payload.message}`);

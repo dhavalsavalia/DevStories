@@ -732,3 +732,26 @@ Files changed (3):
 - src/extension.ts (integrated logger)
 
 Tests: 458 unit + 131 integration = 589 total (+14 new)
+
+=== Session: 2025-11-29 21:30 ===
+Story: DS-053 (Replace all console.log with logger service)
+Status: done
+
+Replaced all console.log/error instances with logger service:
+- createStory.ts: console.log → getLogger().warn() for non-critical epic auto-link failure
+- quickCapture.ts: console.log → getLogger().warn() for inbox auto-link failure
+- boardView.ts: console.log → getLogger().debug() for webview ready and filter messages
+- store.ts: console.error → getLogger().error() for parse failures
+- webview/board.js: console.error → postMessage({ type: 'error', ... })
+
+Note: extension.ts acceptance criteria was N/A - no console.log existed there.
+
+Files changed (6):
+- src/commands/createStory.ts
+- src/commands/quickCapture.ts
+- src/view/boardView.ts
+- src/core/store.ts
+- webview/board.js
+- .devstories/stories/DS-053.md
+
+Tests: 458 unit + 131 integration = 589 total (unchanged)

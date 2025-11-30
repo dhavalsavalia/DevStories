@@ -7,9 +7,7 @@ import { executeInit } from './commands/init';
 import { executePickSprint } from './commands/pickSprint';
 import { executeQuickCapture } from './commands/quickCapture';
 import { executeSaveAsTemplate } from './commands/saveAsTemplate';
-import { executeStartRitual } from './commands/startRitual';
 import { AutoTimestamp } from './core/autoTimestamp';
-import { CadenceService } from './core/cadenceService';
 import { ConfigService } from './core/configService';
 import { initializeLogger, disposeLogger } from './core/logger';
 import { SprintFilterService } from './core/sprintFilterService';
@@ -17,7 +15,6 @@ import { Store } from './core/store';
 import { Watcher } from './core/watcher';
 import { StoryHoverProvider } from './providers/storyHoverProvider';
 import { StoryLinkProvider } from './providers/storyLinkProvider';
-import { RitualStatusBarController } from './view/ritualStatusBar';
 import { StatusBarController } from './view/statusBar';
 import { StoriesProvider } from './view/storiesProvider';
 
@@ -31,10 +28,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	const store = new Store(watcher);
 	const configService = new ConfigService();
 	const sprintFilterService = new SprintFilterService();
-	const cadenceService = new CadenceService(configService);
 	const storiesProvider = new StoriesProvider(store, context.extensionPath, configService, sprintFilterService);
 	const statusBarController = new StatusBarController(store, configService, sprintFilterService);
-	const ritualStatusBarController = new RitualStatusBarController(cadenceService);
 	const autoTimestamp = new AutoTimestamp();
 
 	// Initialize config service (loads config and starts watching)
@@ -115,12 +110,6 @@ export async function activate(context: vscode.ExtensionContext) {
 		})
 	);
 
-	const startRitualCommand = vscode.commands.registerCommand('devstories.startRitual',
-		wrapCommand('startRitual', async () => {
-			await executeStartRitual(store);
-		})
-	);
-
 	const openEpicCommand = vscode.commands.registerCommand('devstories.openEpic',
 		wrapCommand('openEpic', async (item) => {
 			if (item) {
@@ -136,10 +125,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		watcher,
 		configService,
 		sprintFilterService,
-		cadenceService,
 		autoTimestamp,
 		statusBarController,
-		ritualStatusBarController,
 		linkProviderDisposable,
 		hoverProviderDisposable,
 		initCommand,
@@ -149,7 +136,6 @@ export async function activate(context: vscode.ExtensionContext) {
 		saveAsTemplateCommand,
 		changeStatusCommand,
 		pickSprintCommand,
-		startRitualCommand,
 		openEpicCommand
 	);
 }

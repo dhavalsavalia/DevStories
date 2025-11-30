@@ -63,10 +63,6 @@
         "title": "DevStories: Pick Sprint"
       },
       {
-        "command": "devstories.startRitual",
-        "title": "DevStories: Start Weekly Ritual"
-      },
-      {
         "command": "devstories.openEpic",
         "title": "Open Epic File"
       }

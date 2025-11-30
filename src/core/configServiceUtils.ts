@@ -4,12 +4,9 @@
  */
 
 import { StoryType, StorySize } from '../types/story';
-import { CadenceConfig, parseCadenceConfig, DEFAULT_CADENCE_CONFIG } from './cadenceServiceUtils';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const matter = require('gray-matter');
-
-export { CadenceConfig };
 
 /**
  * Status definition from config.yaml
@@ -41,7 +38,6 @@ export interface ConfigData {
   statuses: StatusDef[];
   sizes: StorySize[];
   inlineTemplates?: Partial<Record<StoryType, string>>;
-  cadence: CadenceConfig;
 }
 
 /**
@@ -58,7 +54,6 @@ export const DEFAULT_CONFIG: ConfigData = {
     { id: 'done', label: 'Done' },
   ],
   sizes: ['XS', 'S', 'M', 'L', 'XL'] as StorySize[],
-  cadence: DEFAULT_CADENCE_CONFIG,
 };
 
 /**
@@ -117,11 +112,6 @@ export function parseConfigYamlContent(content: string): Partial<ConfigData> {
       };
     }
 
-    // Cadence reminders
-    if (parsed.cadence) {
-      result.cadence = parseCadenceConfig(parsed);
-    }
-
     return result;
   } catch {
     // Invalid YAML config - return empty to use defaults
@@ -157,7 +147,6 @@ export function mergeConfigWithDefaults(parsed: Partial<ConfigData>): ConfigData
     statuses: parsed.statuses ?? DEFAULT_CONFIG.statuses,
     sizes: parsed.sizes ?? DEFAULT_CONFIG.sizes,
     inlineTemplates: parsed.inlineTemplates,
-    cadence: parsed.cadence ?? DEFAULT_CONFIG.cadence,
   };
 }
 

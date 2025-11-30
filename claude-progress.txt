@@ -978,3 +978,30 @@ Files changed (2):
 - .devstories/stories/DS-109.md (updated status)
 
 Tests: 395 unit + 135 integration = 530 total (unchanged)
+
+=== Session: 2025-11-30 16:10 ===
+Story: DS-110 (Remove ritual/cadence code)
+Status: done
+
+Removed all ritual and cadence related code to simplify extension for 1.0.0 release.
+
+Deleted files:
+- src/commands/startRitual.ts
+- src/core/cadenceService.ts
+- src/core/cadenceServiceUtils.ts
+- src/view/ritualStatusBar.ts
+- src/test/suite/cadenceService.test.ts
+- src/test/suite/startRitual.test.ts
+- src/test/unit/cadenceService.test.ts
+- src/test/unit/cadenceServiceIntegration.test.ts
+- src/test/unit/startRitual.test.ts
+
+Modified files:
+- package.json (removed startRitual command)
+- src/extension.ts (removed CadenceService, RitualStatusBar, startRitual command)
+- src/core/configServiceUtils.ts (removed cadence from ConfigData interface)
+- src/test/unit/configService.test.ts (removed cadence tests)
+
+Gap found: Story checklist didn't include configServiceUtils.ts cleanup (cadence config parsing).
+
+Tests: 357 unit + 129 integration = 486 total (-44 removed)

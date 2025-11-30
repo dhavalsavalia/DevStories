@@ -45,7 +45,15 @@
       "Bash(! grep -q \"^## Bug Description\" \"$f\")",
       "Bash(! grep -q \"^## Task Description\" \"$f\")",
       "Bash(! grep -q \"^## Problem\" \"$f\")",
-      "Bash(then)"
+      "Bash(then)",
+      "Bash(shuf:*)",
+      "Bash(if ! grep -q \"^id:\" \"$f\")",
+      "Bash(! grep -q \"^title:\" \"$f\")",
+      "Bash(! grep -q \"^status:\" \"$f\")",
+      "Bash(! grep -q \"^created:\" \"$f\")",
+      "Bash(! grep -q \"^updated:\" \"$f\")",
+      "Bash(echo:*)",
+      "Bash(xargs:*)"
     ],
     "deny": [],
     "ask": [],

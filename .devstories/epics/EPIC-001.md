@@ -3,6 +3,7 @@ id: EPIC-001
 title: Foundation
 status: done
 created: 2025-11-26
+updated: 2025-11-26
 ---
 
 # Foundation

@@ -3,6 +3,7 @@ id: EPIC-018
 title: Language Features (Intellisense, Diagnostics, Navigation)
 status: todo
 created: 2025-11-29
+updated: 2025-11-29
 ---
 
 # Language Features (Intellisense, Diagnostics, Navigation)

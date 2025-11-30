@@ -36,6 +36,7 @@
     sprints: [],  // DS-023
     theme: 'dark',
     currentSprint: null,
+    configCurrentSprint: null,  // Config's current sprint for ★ indicator
     scrollPosition: 0,
     columnScrollPositions: {},
     // DS-021: Focus state
@@ -106,6 +107,7 @@
       sprints: payload.sprints || [],  // DS-023
       theme: payload.theme || 'dark',
       currentSprint: payload.currentSprint || null,
+      configCurrentSprint: payload.configCurrentSprint || null,  // Config's current sprint
       filters: {
         ...state.filters,
         sprint: extensionSprintFilter,  // DS-034: Sync sprint filter
@@ -368,13 +370,22 @@
   function renderSprintFilter() {
     const options = state.sprints.map((sprint) => {
       const selected = state.filters.sprint === sprint ? 'selected' : '';
-      return `<option value="${escapeHtml(sprint)}" ${selected}>${escapeHtml(sprint)}</option>`;
+      const isCurrent = sprint === state.configCurrentSprint;
+      const label = isCurrent ? `★ ${sprint}` : sprint;
+      return `<option value="${escapeHtml(sprint)}" ${selected}>${escapeHtml(label)}</option>`;
     }).join('');
+
+    // Check if there are backlog stories
+    const hasBacklogStories = state.stories.some(s => !s.sprint || s.sprint === '' || s.sprint === 'backlog');
+    const backlogOption = hasBacklogStories
+      ? `<option value="backlog" ${state.filters.sprint === 'backlog' ? 'selected' : ''}>Backlog</option>`
+      : '';
 
     return `
       <select class="filter-select" id="filter-sprint">
         <option value="">All Sprints</option>
         ${options}
+        ${backlogOption}
       </select>
     `;
   }
@@ -538,9 +549,16 @@
    */
   function filterStories(stories, filters) {
     return stories.filter((story) => {
-      // Sprint filter
-      if (filters.sprint !== null && story.sprint !== filters.sprint) {
-        return false;
+      // Sprint filter (special handling for backlog)
+      if (filters.sprint !== null) {
+        if (filters.sprint === 'backlog') {
+          // Backlog matches stories with empty, undefined, or 'backlog' sprint
+          if (story.sprint && story.sprint !== '' && story.sprint !== 'backlog') {
+            return false;
+          }
+        } else if (story.sprint !== filters.sprint) {
+          return false;
+        }
       }
 
       // Epic filter

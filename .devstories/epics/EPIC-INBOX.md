@@ -13,7 +13,6 @@ Quick captures and ideas to triage later.
 
 ## Stories
 
-- [[DS-102]] new feature
 - [[DS-103]] Fix Keyboard Navigation in Board
 - [[DS-104]] Add quick add stories to backlog by default
-
+- [[DS-105]] move board from sidebar to tab/buffer

@@ -1,9 +1,9 @@
 ---
 id: EPIC-012
-title: "Accessibility & Security"
-status: todo
-created: 2025-11-29
-updated: 2025-11-29
+title: Accessibility & Security
+status: in_progress
+created: 2025-11-29T00:00:00.000Z
+updated: '2025-11-30'
 ---
 
 # Accessibility & Security

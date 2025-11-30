@@ -801,3 +801,20 @@ Files changed (1):
 - .devstories/stories/DS-055.md
 
 Tests: 458 unit + 131 integration = 589 total (unchanged)
+
+=== Session: 2025-11-29 22:50 ===
+Story: DS-056 (Add error handling to all command registrations)
+Status: done
+
+Implementation:
+- Created src/commands/errorHandler.ts with wrapCommand() helper
+- wrapCommand catches errors, logs with stack trace, shows user-friendly message
+- Added CommandError class for custom user-facing error messages
+- Wrapped all 9 command handlers in extension.ts with wrapCommand()
+
+Files changed (3):
+- src/commands/errorHandler.ts (new - error handling utility)
+- src/test/unit/commandErrorHandling.test.ts (new - 12 tests)
+- src/extension.ts (wrapped all commands)
+
+Tests: 470 unit + 131 integration = 601 total (+12 new)

@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { executeChangeStatus } from './commands/changeStatus';
 import { executeCreateEpic } from './commands/createEpic';
 import { executeCreateStory } from './commands/createStory';
+import { wrapCommand } from './commands/errorHandler';
 import { executeInit } from './commands/init';
 import { executePickSprint } from './commands/pickSprint';
 import { executeQuickCapture } from './commands/quickCapture';
@@ -67,59 +68,77 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Load initial data and wait for completion
 	await store.load();
 
-	// Register Commands
-	const initCommand = vscode.commands.registerCommand('devstories.init', async () => {
-		const success = await executeInit();
-		if (success) {
-			// Reload store to pick up new files
-			await store.load();
-		}
-	});
-
-	const createEpicCommand = vscode.commands.registerCommand('devstories.createEpic', async () => {
-		await executeCreateEpic(store);
-	});
-
-	const createStoryCommand = vscode.commands.registerCommand('devstories.createStory', async () => {
-		await executeCreateStory(store);
-	});
-
-	const quickCaptureCommand = vscode.commands.registerCommand('devstories.quickCapture', async () => {
-		await executeQuickCapture(store);
-	});
-
-	const saveAsTemplateCommand = vscode.commands.registerCommand('devstories.saveAsTemplate', async (story) => {
-		await executeSaveAsTemplate(story);
-	});
-
-	const changeStatusCommand = vscode.commands.registerCommand('devstories.changeStatus', async (item) => {
-		if (item) {
-			// Called from context menu with tree item
-			const story = store.getStory(item.id);
-			const epic = store.getEpic(item.id);
-			const target = story || epic;
-			if (target) {
-				await executeChangeStatus(store, target, configService);
+	// Register Commands with error handling
+	const initCommand = vscode.commands.registerCommand('devstories.init',
+		wrapCommand('init', async () => {
+			const success = await executeInit();
+			if (success) {
+				// Reload store to pick up new files
+				await store.load();
 			}
-		}
-	});
+		})
+	);
 
-	const pickSprintCommand = vscode.commands.registerCommand('devstories.pickSprint', async () => {
-		await executePickSprint(store, sprintFilterService, configService);
-	});
+	const createEpicCommand = vscode.commands.registerCommand('devstories.createEpic',
+		wrapCommand('createEpic', async () => {
+			await executeCreateEpic(store);
+		})
+	);
 
-	const startRitualCommand = vscode.commands.registerCommand('devstories.startRitual', async () => {
-		await executeStartRitual(store);
-	});
+	const createStoryCommand = vscode.commands.registerCommand('devstories.createStory',
+		wrapCommand('createStory', async () => {
+			await executeCreateStory(store);
+		})
+	);
 
-	const openEpicCommand = vscode.commands.registerCommand('devstories.openEpic', async (item) => {
-		if (item) {
-			const epic = store.getEpic(item.id);
-			if (epic?.filePath) {
-				await vscode.commands.executeCommand('vscode.open', vscode.Uri.file(epic.filePath));
+	const quickCaptureCommand = vscode.commands.registerCommand('devstories.quickCapture',
+		wrapCommand('quickCapture', async () => {
+			await executeQuickCapture(store);
+		})
+	);
+
+	const saveAsTemplateCommand = vscode.commands.registerCommand('devstories.saveAsTemplate',
+		wrapCommand('saveAsTemplate', async (story) => {
+			await executeSaveAsTemplate(story);
+		})
+	);
+
+	const changeStatusCommand = vscode.commands.registerCommand('devstories.changeStatus',
+		wrapCommand('changeStatus', async (item) => {
+			if (item) {
+				// Called from context menu with tree item
+				const story = store.getStory(item.id);
+				const epic = store.getEpic(item.id);
+				const target = story || epic;
+				if (target) {
+					await executeChangeStatus(store, target, configService);
+				}
 			}
-		}
-	});
+		})
+	);
+
+	const pickSprintCommand = vscode.commands.registerCommand('devstories.pickSprint',
+		wrapCommand('pickSprint', async () => {
+			await executePickSprint(store, sprintFilterService, configService);
+		})
+	);
+
+	const startRitualCommand = vscode.commands.registerCommand('devstories.startRitual',
+		wrapCommand('startRitual', async () => {
+			await executeStartRitual(store);
+		})
+	);
+
+	const openEpicCommand = vscode.commands.registerCommand('devstories.openEpic',
+		wrapCommand('openEpic', async (item) => {
+			if (item) {
+				const epic = store.getEpic(item.id);
+				if (epic?.filePath) {
+					await vscode.commands.executeCommand('vscode.open', vscode.Uri.file(epic.filePath));
+				}
+			}
+		})
+	);
 
 	context.subscriptions.push(
 		watcher,

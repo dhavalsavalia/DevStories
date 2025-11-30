@@ -13,7 +13,7 @@ export { extractTemplateContent, generateTemplateFileName } from './saveAsTempla
 export async function executeSaveAsTemplate(storyArg?: Story): Promise<boolean> {
   const workspaceFolders = vscode.workspace.workspaceFolders;
   if (!workspaceFolders || workspaceFolders.length === 0) {
-    vscode.window.showErrorMessage('DevStories: No workspace folder open');
+    void vscode.window.showErrorMessage('DevStories: No workspace folder open');
     return false;
   }
 
@@ -33,7 +33,7 @@ export async function executeSaveAsTemplate(storyArg?: Story): Promise<boolean> 
   }
 
   if (!storyFilePath) {
-    vscode.window.showErrorMessage('DevStories: No story file selected. Open a story file or use context menu.');
+    void vscode.window.showErrorMessage('DevStories: No story file selected. Open a story file or use context menu.');
     return false;
   }
 
@@ -45,7 +45,7 @@ export async function executeSaveAsTemplate(storyArg?: Story): Promise<boolean> 
     fileContent = Buffer.from(content).toString('utf8');
   } catch (error) {
     getLogger().warn('Failed to read story file', error);
-    vscode.window.showErrorMessage('DevStories: Failed to read story file');
+    void vscode.window.showErrorMessage('DevStories: Failed to read story file');
     return false;
   }
 
@@ -53,7 +53,7 @@ export async function executeSaveAsTemplate(storyArg?: Story): Promise<boolean> 
   const templateContent = extractTemplateContent(fileContent);
 
   if (!templateContent) {
-    vscode.window.showWarningMessage('DevStories: Story has no content to save as template');
+    void vscode.window.showWarningMessage('DevStories: Story has no content to save as template');
     return false;
   }
 

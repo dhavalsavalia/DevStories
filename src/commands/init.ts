@@ -42,7 +42,7 @@ export async function executeInit(options: InitOptions = {}): Promise<boolean> {
   // Check for workspace
   const workspaceFolders = vscode.workspace.workspaceFolders;
   if (!workspaceFolders || workspaceFolders.length === 0) {
-    vscode.window.showErrorMessage('DevStories: No workspace folder open');
+    void vscode.window.showErrorMessage('DevStories: No workspace folder open');
     return false;
   }
 
@@ -190,7 +190,7 @@ export async function executeInit(options: InitOptions = {}): Promise<boolean> {
       if (stageChoice?.label === 'Yes') {
         try {
           await repo.add(['.devstories']);
-          vscode.window.showInformationMessage('DevStories: Staged .devstories/ for commit');
+          void vscode.window.showInformationMessage('DevStories: Staged .devstories/ for commit');
         } catch (error) {
           // Git staging failed - non-critical, just log
           getLogger().debug('Git staging failed', error);
@@ -211,7 +211,7 @@ export async function executeInit(options: InitOptions = {}): Promise<boolean> {
     await vscode.window.showTextDocument(doc);
   } else if (action === 'Create Epic') {
     // This will be implemented in DS-011
-    vscode.commands.executeCommand('devstories.createEpic');
+    void vscode.commands.executeCommand('devstories.createEpic');
   }
 
   return true;

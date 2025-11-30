@@ -202,7 +202,7 @@ export class ConfigService implements vscode.Disposable {
       if (Object.keys(parsed).length === 0 && contentStr.trim().length > 0) {
         const error = new Error('Failed to parse config.yaml');
         this._onParseError.fire(error);
-        vscode.window.showWarningMessage(
+        void vscode.window.showWarningMessage(
           'DevStories: config.yaml parse error - using last known good config'
         );
         return;

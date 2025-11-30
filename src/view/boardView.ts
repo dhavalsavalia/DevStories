@@ -184,22 +184,22 @@ export class BoardViewProvider implements vscode.WebviewViewProvider {
         getLogger().debug('Board webview ready');
         break;
       case 'openStory':
-        this.openStory(message.payload.id);
+        void this.openStory(message.payload.id);
         break;
       case 'updateStatus':
         // DS-021: Handle status update from drag-drop or keyboard
-        this.updateStoryStatus(message.payload.storyId, message.payload.newStatus);
+        void this.updateStoryStatus(message.payload.storyId, message.payload.newStatus);
         break;
       case 'updatePriority':
         // DS-083: Handle priority update from vertical reorder
-        this.updateStoryPriority(message.payload.storyId, message.payload.newPriority);
+        void this.updateStoryPriority(message.payload.storyId, message.payload.newPriority);
         break;
       case 'filterChanged':
         // Will be implemented in DS-023
         getLogger().debug('filterChanged:', message.payload);
         break;
       case 'error':
-        vscode.window.showErrorMessage(`Board error: ${message.payload.message}`);
+        void vscode.window.showErrorMessage(`Board error: ${message.payload.message}`);
         break;
     }
   }
@@ -210,7 +210,7 @@ export class BoardViewProvider implements vscode.WebviewViewProvider {
     const target = story || epic;
 
     if (target?.filePath) {
-      vscode.commands.executeCommand('vscode.open', vscode.Uri.file(target.filePath));
+      void vscode.commands.executeCommand('vscode.open', vscode.Uri.file(target.filePath));
     }
   }
 
@@ -301,7 +301,7 @@ export class BoardViewProvider implements vscode.WebviewViewProvider {
   }
 
   private postMessage(message: ExtensionMessage): void {
-    this._view?.webview.postMessage(message);
+    void this._view?.webview.postMessage(message);
   }
 
   dispose(): void {

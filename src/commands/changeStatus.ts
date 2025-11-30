@@ -87,7 +87,7 @@ export async function executeChangeStatus(
 
   // Update the file
   if (!item.filePath) {
-    vscode.window.showErrorMessage('Cannot update: file path unknown');
+    void vscode.window.showErrorMessage('Cannot update: file path unknown');
     return false;
   }
 
@@ -108,13 +108,13 @@ export async function executeChangeStatus(
       new TextEncoder().encode(updatedContent)
     );
 
-    vscode.window.showInformationMessage(
+    void vscode.window.showInformationMessage(
       `Updated ${item.id} status to "${newStatus}"`
     );
 
     return true;
   } catch (err) {
-    vscode.window.showErrorMessage(`Failed to update status: ${err}`);
+    void vscode.window.showErrorMessage(`Failed to update status: ${err}`);
     return false;
   }
 }

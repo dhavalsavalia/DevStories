@@ -59,7 +59,7 @@ export function wrapCommand<T extends unknown[], R>(
 			});
 
 			// Show user-friendly message
-			vscode.window.showErrorMessage(`DevStories: ${userMessage}`);
+			void vscode.window.showErrorMessage(`DevStories: ${userMessage}`);
 
 			return undefined;
 		}

@@ -65,15 +65,17 @@ export async function executePickSprint(
     });
   }
 
-  // Other sprints (excluding current sprint to avoid duplication)
+  // All sprints in sequence order (including current sprint for context)
   for (const sprint of availableSprints) {
-    if (sprint !== currentSprint) {
-      items.push({
-        label: `$(milestone) ${sprint}`,
-        description: selectedSprint === sprint ? '(selected)' : undefined,
-        value: sprint,
-      });
-    }
+    const isCurrentSprint = sprint === currentSprint;
+    const isSelected = selectedSprint === sprint;
+    items.push({
+      label: `$(milestone) ${sprint}`,
+      description: isCurrentSprint
+        ? isSelected ? 'Current Sprint · (selected)' : 'Current Sprint'
+        : isSelected ? '(selected)' : undefined,
+      value: sprint,
+    });
   }
 
   const selected = await vscode.window.showQuickPick(items, {

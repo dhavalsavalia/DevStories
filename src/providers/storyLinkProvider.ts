@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 import { Store } from '../core/store';
 import { findLinksInDocument, createDocumentLink } from './storyLinkProviderUtils';
 

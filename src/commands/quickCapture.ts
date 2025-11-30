@@ -5,7 +5,6 @@ import {
   parseQuickInput,
   truncateForTitle,
   cleanSelectionText,
-  INBOX_EPIC_ID,
 } from './quickCaptureUtils';
 import {
   parseConfigYaml,

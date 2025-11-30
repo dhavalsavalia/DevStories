@@ -1,7 +1,7 @@
 ---
 id: EPIC-009
 title: "Phase 9: Onboarding & Docs"
-status: todo
+status: in_progress
 created: 2025-11-29
 updated: 2025-11-29
 ---

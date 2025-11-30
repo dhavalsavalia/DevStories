@@ -1,12 +1,12 @@
 ---
 id: EPIC-003
-title: "Phase 3: Commands"
+title: Commands
 status: done
 created: 2025-11-26
 updated: 2025-11-28
 ---
 
-# Phase 3: Commands
+# Commands
 
 ## Description
 Interactive commands for creating and managing stories with smart defaults, quick capture workflows, and intuitive status transitions. Focus on reducing friction in the story creation and management flow.

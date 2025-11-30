@@ -1,11 +1,11 @@
 ---
 id: EPIC-001
-title: "Phase 1: Foundation"
+title: Foundation
 status: done
 created: 2025-11-26
 ---
 
-# Phase 1: Foundation
+# Foundation
 
 ## Description
 Establish the core architecture of the extension, including project scaffolding, markdown parsing, file watching, and the in-memory store. This phase lays the groundwork for all UI components.

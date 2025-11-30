@@ -621,3 +621,24 @@ Files changed (5):
 - src/test/suite/store.test.ts (added 1 test)
 
 Tests: 454 unit + 129 integration = 583 total passing (+18 new)
+
+=== Session: 2025-11-29 19:55 ===
+Story: DS-099 (Standardize epic titles)
+Status: done
+
+Removed "Phase X:" prefixes from EPIC-001 through EPIC-005 titles.
+
+Changes:
+- EPIC-001: "Phase 1: Foundation" → "Foundation"
+- EPIC-002: "Phase 2: Tree View" → "Tree View"
+- EPIC-003: "Phase 3: Commands" → "Commands"
+- EPIC-004: "Phase 4: Links" → "Links"
+- EPIC-005: "Phase 5: Board View" → "Board View"
+
+Files changed (6):
+- .devstories/epics/EPIC-001.md
+- .devstories/epics/EPIC-002.md
+- .devstories/epics/EPIC-003.md
+- .devstories/epics/EPIC-004.md
+- .devstories/epics/EPIC-005.md
+- .devstories/stories/DS-099.md

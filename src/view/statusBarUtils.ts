@@ -3,6 +3,7 @@
  * These can be unit tested with Vitest
  */
 
+import { sortSprintsBySequence } from '../core/configServiceUtils';
 import { Story } from '../types/story';
 
 export interface StatusBarStats {
@@ -78,9 +79,14 @@ export function getFormattedStatusBarText(done: number, total: number, sprint: s
  * Collect available sprints from stories and config
  * @param stories - All stories
  * @param currentSprint - Current sprint from config (may be undefined)
+ * @param sprintSequence - Sprint sequence from config for ordering
  * @returns Sorted array of unique sprint names (excludes backlog/empty)
  */
-export function collectAvailableSprints(stories: Story[], currentSprint: string | undefined): string[] {
+export function collectAvailableSprints(
+  stories: Story[],
+  currentSprint: string | undefined,
+  sprintSequence: string[] = []
+): string[] {
   const sprints = new Set<string>();
 
   // Add sprints from stories
@@ -95,6 +101,6 @@ export function collectAvailableSprints(stories: Story[], currentSprint: string 
     sprints.add(currentSprint);
   }
 
-  // Return sorted array
-  return Array.from(sprints).sort();
+  // Return sorted by sequence (sprints in sequence first, then alphabetical)
+  return sortSprintsBySequence(Array.from(sprints), sprintSequence);
 }

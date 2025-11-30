@@ -173,6 +173,30 @@ export function getSprintIndex(sprintName: string | undefined, sequence: string[
 }
 
 /**
+ * Sort sprints by sequence order.
+ * Sprints in sequence appear first (in sequence order).
+ * Sprints NOT in sequence appear after, sorted alphabetically.
+ */
+export function sortSprintsBySequence(sprints: string[], sprintSequence: string[]): string[] {
+  return [...sprints].sort((a, b) => {
+    const indexA = getSprintIndex(a, sprintSequence);
+    const indexB = getSprintIndex(b, sprintSequence);
+
+    // Both in sequence: sort by sequence order
+    if (indexA !== Infinity && indexB !== Infinity) {
+      return indexA - indexB;
+    }
+
+    // One in sequence, one not: sequence first
+    if (indexA !== Infinity) { return -1; }
+    if (indexB !== Infinity) { return 1; }
+
+    // Neither in sequence: sort alphabetically
+    return a.localeCompare(b);
+  });
+}
+
+/**
  * Generic debounce function
  */
 export function debounce<T extends (...args: unknown[]) => void>(

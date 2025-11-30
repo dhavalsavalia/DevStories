@@ -22,7 +22,8 @@ export async function executePickSprint(
 ): Promise<void> {
   const stories = store.getStories();
   const currentSprint = configService?.config.currentSprint;
-  const availableSprints = collectAvailableSprints(stories, currentSprint);
+  const sprintSequence = configService?.config.sprintSequence ?? [];
+  const availableSprints = collectAvailableSprints(stories, currentSprint, sprintSequence);
   const selectedSprint = sprintFilterService.currentSprint;
 
   // Build QuickPick items

@@ -4,6 +4,7 @@
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const matter = require('gray-matter');
+import { sortSprintsBySequence } from '../core/configServiceUtils';
 import { Story } from '../types/story';
 import { Epic } from '../types/epic';
 import { StatusConfig, WebviewStory, WebviewEpic, ThemeKind, FilterState } from '../types/webviewMessages';
@@ -305,8 +306,10 @@ export const DEFAULT_FILTER_STATE: FilterState = {
 /**
  * Extract unique sprints from stories
  * Note: Epics don't have sprints - sprints are story-level only
+ * @param stories - Webview stories
+ * @param sprintSequence - Sprint sequence from config for ordering
  */
-export function extractSprints(stories: WebviewStory[]): string[] {
+export function extractSprints(stories: WebviewStory[], sprintSequence: string[] = []): string[] {
   const sprintSet = new Set<string>();
 
   for (const story of stories) {
@@ -315,8 +318,8 @@ export function extractSprints(stories: WebviewStory[]): string[] {
     }
   }
 
-  // Sort alphabetically
-  return Array.from(sprintSet).sort();
+  // Sort by sequence (sprints in sequence first, then alphabetical)
+  return sortSprintsBySequence(Array.from(sprintSet), sprintSequence);
 }
 
 /**

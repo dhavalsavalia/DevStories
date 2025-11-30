@@ -10,6 +10,7 @@ import { executeStartRitual } from './commands/startRitual';
 import { AutoTimestamp } from './core/autoTimestamp';
 import { CadenceService } from './core/cadenceService';
 import { ConfigService } from './core/configService';
+import { initializeLogger, disposeLogger, getLogger } from './core/logger';
 import { SprintFilterService } from './core/sprintFilterService';
 import { Store } from './core/store';
 import { Watcher } from './core/watcher';
@@ -21,7 +22,9 @@ import { StatusBarController } from './view/statusBar';
 import { StoriesProvider } from './view/storiesProvider';
 
 export async function activate(context: vscode.ExtensionContext) {
-	console.log('DevStories is now active!');
+	// Initialize logger first
+	const logger = initializeLogger();
+	logger.info('DevStories is now active!');
 
 	// Initialize Core Components
 	const watcher = new Watcher();
@@ -141,4 +144,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	);
 }
 
-export function deactivate() {}
+export function deactivate() {
+	disposeLogger();
+}

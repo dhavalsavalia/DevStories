@@ -1,7 +1,7 @@
 ---
 id: EPIC-008
 title: "Phase 8: Cadence Kit"
-status: todo
+status: in_progress
 created: 2025-11-29
 updated: 2025-11-29
 ---

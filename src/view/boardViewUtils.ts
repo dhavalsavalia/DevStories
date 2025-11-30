@@ -40,6 +40,7 @@ export function parseStatuses(configContent: string): StatusConfig[] {
       color: s.color,
     }));
   } catch {
+    // Invalid YAML config - use defaults
     return DEFAULT_STATUSES;
   }
 }

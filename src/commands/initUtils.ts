@@ -55,7 +55,7 @@ export function detectProjectName(files: Map<string, string>): string | undefine
         return parsed.name;
       }
     } catch {
-      // Invalid JSON, continue to next
+      // Invalid JSON in package.json - continue to next detection method
     }
   }
 

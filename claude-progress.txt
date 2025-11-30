@@ -818,3 +818,30 @@ Files changed (3):
 - src/extension.ts (wrapped all commands)
 
 Tests: 470 unit + 131 integration = 601 total (+12 new)
+
+=== Session: 2025-11-29 22:57 ===
+Story: DS-057 (Replace empty catch blocks with proper error handling)
+Status: done
+
+Fixed 19 empty catch blocks across 10 files:
+- Added getLogger().debug() for config/file read failures
+- Added getLogger().warn() for non-critical failures that show user errors
+- Added descriptive comments for expected scenarios (file doesn't exist checks)
+- Created new test file to verify no empty catch blocks remain
+
+Files changed (11):
+- src/commands/createStory.ts (2 catch blocks)
+- src/commands/quickCapture.ts (2 catch blocks)
+- src/commands/createEpic.ts (1 catch block + logger import)
+- src/commands/changeStatus.ts (1 catch block + logger import)
+- src/commands/init.ts (3 catch blocks + logger import)
+- src/commands/saveAsTemplate.ts (3 catch blocks + logger import)
+- src/core/configService.ts (2 catch blocks + logger import)
+- src/view/boardViewUtils.ts (1 catch block)
+- src/commands/changeStatusUtils.ts (1 catch block)
+- src/core/configServiceUtils.ts (1 catch block)
+- src/commands/initUtils.ts (1 catch block)
+- src/test/unit/emptyCatchBlocks.test.ts (new - 5 tests)
+
+Tests: 475 unit + 131 integration = 606 total (+5 new)
+

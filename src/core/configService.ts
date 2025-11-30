@@ -6,6 +6,7 @@
  */
 
 import * as vscode from 'vscode';
+import { getLogger } from './logger';
 import {
   ConfigData,
   TemplateData,
@@ -116,15 +117,16 @@ export class ConfigService implements vscode.Disposable {
               await vscode.workspace.fs.readFile(fileUri)
             );
             templates.push(parseTemplateFile(filename, content));
-          } catch {
-            // Skip unreadable template files
+          } catch (error) {
+            // Template file unreadable - skip and log
+            getLogger().debug(`Skipping unreadable template: ${filename}`, error);
           }
         }
       }
 
       this._templates = templates;
     } catch {
-      // Templates folder doesn't exist - use empty list
+      // Templates folder doesn't exist - expected scenario, use empty list
       this._templates = [];
     }
   }

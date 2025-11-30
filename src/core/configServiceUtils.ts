@@ -124,6 +124,7 @@ export function parseConfigYamlContent(content: string): Partial<ConfigData> {
 
     return result;
   } catch {
+    // Invalid YAML config - return empty to use defaults
     return {};
   }
 }

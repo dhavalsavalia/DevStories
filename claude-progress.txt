@@ -845,3 +845,32 @@ Files changed (11):
 
 Tests: 475 unit + 131 integration = 606 total (+5 new)
 
+
+=== Session: 2025-11-29 23:04 ===
+Story: DS-058 (Add production ESLint rules)
+Status: done
+
+Implementation:
+- Added 3 strict ESLint rules: no-console, no-explicit-any, no-floating-promises
+- Configured parserOptions.project for typed linting
+- Added webview/ to ignorePatterns
+- Fixed 33 floating promise violations with void operator
+- Fixed 2 no-console violations with eslint-disable comments
+
+Files changed (14):
+- .eslintrc.json (new rules)
+- src/commands/changeStatus.ts
+- src/commands/createEpic.ts
+- src/commands/createStory.ts
+- src/commands/errorHandler.ts
+- src/commands/init.ts
+- src/commands/quickCapture.ts
+- src/commands/saveAsTemplate.ts
+- src/core/cadenceService.ts
+- src/core/configService.ts
+- src/view/boardView.ts
+- src/test/runTest.ts
+- src/test/suite/index.ts
+- src/test/suite/extension.test.ts
+
+Tests: 475 unit + 131 integration = 606 total (unchanged)

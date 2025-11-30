@@ -45,7 +45,7 @@ export async function executeCreateEpic(store: Store): Promise<boolean> {
   // Check for workspace
   const workspaceFolders = vscode.workspace.workspaceFolders;
   if (!workspaceFolders || workspaceFolders.length === 0) {
-    vscode.window.showErrorMessage('DevStories: No workspace folder open');
+    void vscode.window.showErrorMessage('DevStories: No workspace folder open');
     return false;
   }
 
@@ -59,7 +59,7 @@ export async function executeCreateEpic(store: Store): Promise<boolean> {
       'Initialize'
     );
     if (action === 'Initialize') {
-      vscode.commands.executeCommand('devstories.init');
+      void vscode.commands.executeCommand('devstories.init');
     }
     return false;
   }
@@ -125,7 +125,7 @@ export async function executeCreateEpic(store: Store): Promise<boolean> {
   const doc = await vscode.workspace.openTextDocument(epicUri);
   await vscode.window.showTextDocument(doc);
 
-  vscode.window.showInformationMessage(`Created epic: ${epicId}`);
+  void vscode.window.showInformationMessage(`Created epic: ${epicId}`);
 
   return true;
 }

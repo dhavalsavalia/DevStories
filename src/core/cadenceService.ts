@@ -48,7 +48,7 @@ export class CadenceService implements vscode.Disposable {
     }
 
     this.reminderCheckInterval = setInterval(() => {
-      this.checkAndShowReminder();
+      void this.checkAndShowReminder();
     }, this.reminderCheckMs);
   }
 

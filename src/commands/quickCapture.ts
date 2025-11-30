@@ -119,7 +119,7 @@ export async function executeQuickCapture(store: Store): Promise<boolean> {
   // Check for workspace
   const workspaceFolders = vscode.workspace.workspaceFolders;
   if (!workspaceFolders || workspaceFolders.length === 0) {
-    vscode.window.showErrorMessage('DevStories: No workspace folder open');
+    void vscode.window.showErrorMessage('DevStories: No workspace folder open');
     return false;
   }
 
@@ -133,7 +133,7 @@ export async function executeQuickCapture(store: Store): Promise<boolean> {
       'Initialize'
     );
     if (action === 'Initialize') {
-      vscode.commands.executeCommand('devstories.init');
+      void vscode.commands.executeCommand('devstories.init');
     }
     return false;
   }
@@ -157,7 +157,7 @@ export async function executeQuickCapture(store: Store): Promise<boolean> {
   const parsed = parseQuickInput(rawInput);
 
   if (!parsed.title) {
-    vscode.window.showWarningMessage('DevStories: Title cannot be empty');
+    void vscode.window.showWarningMessage('DevStories: Title cannot be empty');
     return false;
   }
 
@@ -221,7 +221,7 @@ export async function executeQuickCapture(store: Store): Promise<boolean> {
   }
 
   // Show notification (NOT opening file - quick capture should not switch context)
-  vscode.window.showInformationMessage(`Created ${storyId}: ${parsed.title}`);
+  void vscode.window.showInformationMessage(`Created ${storyId}: ${parsed.title}`);
 
   return true;
 }

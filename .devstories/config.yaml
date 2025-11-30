@@ -9,20 +9,16 @@ id_prefix:
   epic: "EPIC"
   story: "DS"
 
-# Board columns (status workflow)
+# Status workflow
 statuses:
   - id: todo
     label: "To Do"
-    color: "#3B82F6"
   - id: in_progress
     label: "In Progress"
-    color: "#F59E0B"
   - id: review
     label: "Review"
-    color: "#8B5CF6"
   - id: done
     label: "Done"
-    color: "#10B981"
 
 # Sprint configuration
 sprints:

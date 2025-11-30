@@ -76,7 +76,8 @@
       "Bash(npx ts-prune:*)",
       "Bash(npx ts-prune)",
       "Bash(npx depcheck:*)",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "Bash(git restore:*)"
     ],
     "deny": [],
     "ask": [],

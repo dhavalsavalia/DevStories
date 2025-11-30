@@ -39,6 +39,8 @@ import {
   calculatePriorityBetween,
   calculatePriorityForPosition,
   getDropTargetIndex,
+  // DS-062: XSS Prevention
+  escapeHtml,
 } from '../../view/boardViewUtils';
 import { Story } from '../../types/story';
 import { Epic } from '../../types/epic';
@@ -1027,6 +1029,163 @@ statuses:
       const columnTop = 100;
       const cardCount = 4;
       expect(getDropTargetIndex(dropY, columnTop, cardCount, 80)).toBe(0);
+    });
+  });
+
+  // === DS-062: XSS Prevention Tests ===
+
+  describe('escapeHtml', () => {
+    describe('basic character escaping', () => {
+      it('should escape less-than sign', () => {
+        expect(escapeHtml('<')).toBe('&lt;');
+      });
+
+      it('should escape greater-than sign', () => {
+        expect(escapeHtml('>')).toBe('&gt;');
+      });
+
+      it('should escape ampersand', () => {
+        expect(escapeHtml('&')).toBe('&amp;');
+      });
+
+      it('should escape double quote', () => {
+        expect(escapeHtml('"')).toBe('&quot;');
+      });
+
+      it('should escape single quote', () => {
+        expect(escapeHtml("'")).toBe('&#39;');
+      });
+
+      it('should escape all special characters in one string', () => {
+        expect(escapeHtml('<script>"alert(\'xss\')"&test</script>')).toBe(
+          '&lt;script&gt;&quot;alert(&#39;xss&#39;)&quot;&amp;test&lt;/script&gt;'
+        );
+      });
+    });
+
+    describe('XSS attack vector prevention', () => {
+      it('should prevent script tag injection', () => {
+        const attack = '<script>alert("xss")</script>';
+        const escaped = escapeHtml(attack);
+        expect(escaped).not.toContain('<script>');
+        expect(escaped).toBe('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;');
+      });
+
+      it('should prevent img onerror injection', () => {
+        const attack = '<img src=x onerror="alert(\'xss\')">';
+        const escaped = escapeHtml(attack);
+        expect(escaped).not.toContain('<img');
+        expect(escaped).toBe('&lt;img src=x onerror=&quot;alert(&#39;xss&#39;)&quot;&gt;');
+      });
+
+      it('should prevent SVG onload injection', () => {
+        const attack = '<svg onload="alert(\'xss\')">';
+        const escaped = escapeHtml(attack);
+        expect(escaped).not.toContain('<svg');
+        expect(escaped).toBe('&lt;svg onload=&quot;alert(&#39;xss&#39;)&quot;&gt;');
+      });
+
+      it('should prevent anchor href javascript injection', () => {
+        const attack = '<a href="javascript:alert(\'xss\')">click</a>';
+        const escaped = escapeHtml(attack);
+        expect(escaped).not.toContain('<a');
+        expect(escaped).toBe('&lt;a href=&quot;javascript:alert(&#39;xss&#39;)&quot;&gt;click&lt;/a&gt;');
+      });
+
+      it('should prevent nested script tags', () => {
+        const attack = '<<script>script>alert("xss")<</script>/script>';
+        const escaped = escapeHtml(attack);
+        expect(escaped).not.toContain('<script>');
+        expect(escaped).toBe('&lt;&lt;script&gt;script&gt;alert(&quot;xss&quot;)&lt;&lt;/script&gt;/script&gt;');
+      });
+
+      it('should prevent event handler injection', () => {
+        const attack = '<div onmouseover="alert(\'xss\')">hover me</div>';
+        const escaped = escapeHtml(attack);
+        // The < is escaped so browser won't treat this as HTML element
+        expect(escaped).not.toContain('<div');
+        expect(escaped).toBe('&lt;div onmouseover=&quot;alert(&#39;xss&#39;)&quot;&gt;hover me&lt;/div&gt;');
+      });
+
+      it('should prevent style tag injection', () => {
+        const attack = '<style>body{background:url("javascript:alert(\'xss\')")}</style>';
+        const escaped = escapeHtml(attack);
+        expect(escaped).not.toContain('<style>');
+        expect(escaped).toBe('&lt;style&gt;body{background:url(&quot;javascript:alert(&#39;xss&#39;)&quot;)}&lt;/style&gt;');
+      });
+
+      it('should prevent iframe injection', () => {
+        const attack = '<iframe src="javascript:alert(\'xss\')"></iframe>';
+        const escaped = escapeHtml(attack);
+        expect(escaped).not.toContain('<iframe');
+        expect(escaped).toBe('&lt;iframe src=&quot;javascript:alert(&#39;xss&#39;)&quot;&gt;&lt;/iframe&gt;');
+      });
+    });
+
+    describe('edge cases and boundary conditions', () => {
+      it('should handle null', () => {
+        expect(escapeHtml(null)).toBe('');
+      });
+
+      it('should handle undefined', () => {
+        expect(escapeHtml(undefined)).toBe('');
+      });
+
+      it('should handle empty string', () => {
+        expect(escapeHtml('')).toBe('');
+      });
+
+      it('should preserve normal text without special characters', () => {
+        const normal = 'Hello World! This is a normal title.';
+        expect(escapeHtml(normal)).toBe(normal);
+      });
+
+      it('should preserve unicode characters', () => {
+        const unicode = '日本語 中文 한국어 émoji 🎉';
+        expect(escapeHtml(unicode)).toBe(unicode);
+      });
+
+      it('should handle very long strings', () => {
+        const longString = '<script>'.repeat(1000);
+        const escaped = escapeHtml(longString);
+        expect(escaped).not.toContain('<script>');
+        expect(escaped).toBe('&lt;script&gt;'.repeat(1000));
+      });
+
+      it('should handle mixed content (normal text with XSS)', () => {
+        const mixed = 'Normal title <script>alert("xss")</script> more text';
+        expect(escapeHtml(mixed)).toBe(
+          'Normal title &lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt; more text'
+        );
+      });
+
+      it('should handle numeric HTML entities', () => {
+        // These should pass through since & is escaped
+        const entities = '&#60;&#62;&#34;';
+        expect(escapeHtml(entities)).toBe('&amp;#60;&amp;#62;&amp;#34;');
+      });
+
+      it('should handle named HTML entities', () => {
+        // These should pass through since & is escaped
+        const entities = '&lt;&gt;&quot;';
+        expect(escapeHtml(entities)).toBe('&amp;lt;&amp;gt;&amp;quot;');
+      });
+    });
+
+    describe('attribute context safety', () => {
+      it('should prevent attribute value breakout with double quotes', () => {
+        // Simulates: value="${escapeHtml(userInput)}"
+        const attack = 'test" onclick="alert(1)" data-x="';
+        const escaped = escapeHtml(attack);
+        expect(escaped).toBe('test&quot; onclick=&quot;alert(1)&quot; data-x=&quot;');
+      });
+
+      it('should prevent attribute value breakout with single quotes', () => {
+        // Simulates: value='${escapeHtml(userInput)}'
+        const attack = "test' onclick='alert(1)' data-x='";
+        const escaped = escapeHtml(attack);
+        expect(escaped).toBe('test&#39; onclick=&#39;alert(1)&#39; data-x=&#39;');
+      });
     });
   });
 });

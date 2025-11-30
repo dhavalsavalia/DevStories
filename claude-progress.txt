@@ -963,3 +963,18 @@ Files changed (4):
 - .devstories/stories/DS-064.md (updated)
 
 Tests: 545 unit + 135 integration = 680 total (+10 new)
+
+=== Session: 2025-11-30 16:08 ===
+Story: DS-109 (Remove board view code)
+Status: done
+
+Implementation:
+- Board view files were already deleted in prior cleanup
+- Removed dangling import and usage of BoardViewProvider from extension.ts
+- Removed boardViewDisposable from subscriptions array
+
+Files changed (2):
+- src/extension.ts (removed BoardViewProvider import and usage)
+- .devstories/stories/DS-109.md (updated status)
+
+Tests: 395 unit + 135 integration = 530 total (unchanged)

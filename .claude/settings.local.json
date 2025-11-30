@@ -72,7 +72,11 @@
       "Bash(/Users/dhavalsavalia/projects/devstories/webview/welcome.css )",
       "Bash(/Users/dhavalsavalia/projects/devstories/webview/welcome.js )",
       "Bash(/Users/dhavalsavalia/projects/devstories/webview/tutorial.css )",
-      "Bash(/Users/dhavalsavalia/projects/devstories/webview/tutorial.js)"
+      "Bash(/Users/dhavalsavalia/projects/devstories/webview/tutorial.js)",
+      "Bash(npx ts-prune:*)",
+      "Bash(npx ts-prune)",
+      "Bash(npx depcheck:*)",
+      "Bash(npx eslint:*)"
     ],
     "deny": [],
     "ask": [],

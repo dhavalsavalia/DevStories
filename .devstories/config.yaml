@@ -26,9 +26,15 @@ statuses:
 
 # Sprint configuration
 sprints:
-  current: "foundation-1"
+  current: "housekeeping"
   sequence:
+    - phase-1       # Foundation (historical)
+    - phase-2       # Tree View (historical)
+    - phase-3       # Commands (historical)
+    - phase-4       # Links (historical)
+    - phase-5       # Board View (historical)
     - foundation-1  # Priority/ordering system
+    - housekeeping  # EPIC-019: Cleanup & standards
     - polish-1      # Dead code + Logging
     - polish-2      # Error handling + ESLint
     - polish-3      # Accessibility + Security

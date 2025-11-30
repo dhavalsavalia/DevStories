@@ -712,3 +712,23 @@ Tests: 444 unit + 131 integration = 575 total passing (+2 new)
 Reference: VS Code API doesn't support separate single/double-click handlers.
 Workaround: Remove command from collapsible items for native expand behavior.
 Sources: github.com/microsoft/vscode/issues/85636, stackoverflow.com
+
+=== Session: 2025-11-29 21:20 ===
+Story: DS-052 (Create OutputChannel-based logger service)
+Status: done
+
+Created centralized logging service using VS Code OutputChannel API.
+
+Implementation:
+- Logger with info(), warn(), error(), debug() methods
+- Formats messages as [LEVEL] message
+- debug() respects devstories.debug setting
+- Singleton pattern with initializeLogger(), getLogger(), disposeLogger()
+- Initialized in extension activation, disposed in deactivate
+
+Files changed (3):
+- src/core/logger.ts (new - logger service)
+- src/test/unit/logger.test.ts (new - 14 tests)
+- src/extension.ts (integrated logger)
+
+Tests: 458 unit + 131 integration = 589 total (+14 new)

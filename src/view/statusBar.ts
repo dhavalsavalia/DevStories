@@ -8,6 +8,7 @@ import {
   getFormattedStatusBarText,
   buildProgressBar,
   collectAvailableSprints,
+  formatTooltipLines,
 } from './statusBarUtils';
 
 export { StatusBarStats };
@@ -15,6 +16,7 @@ export { StatusBarStats };
 export class StatusBarController implements vscode.Disposable {
   private statusBarItem: vscode.StatusBarItem;
   private disposables: vscode.Disposable[] = [];
+  private visible: boolean = false;
 
   constructor(
     private store: Store,
@@ -48,7 +50,7 @@ export class StatusBarController implements vscode.Disposable {
     }
 
     this.update();
-    this.statusBarItem.show();
+    this.show();
   }
 
   /**
@@ -100,28 +102,7 @@ export class StatusBarController implements vscode.Disposable {
   private getTooltip(): vscode.MarkdownString {
     const sprint = this.getCurrentSprintFilter();
     const stats = getStatsFromStories(this.store.getStories(), sprint);
-    const remaining = stats.total - stats.done;
-
-    const lines: string[] = [
-      '**DevStories: Sprint Progress**',
-      '',
-    ];
-
-    if (sprint === null) {
-      lines.push('📊 Showing: All Sprints');
-    } else if (sprint === 'backlog') {
-      lines.push('📊 Showing: Backlog');
-    } else {
-      lines.push(`📊 Showing: ${sprint}`);
-    }
-
-    lines.push('');
-    lines.push(`✅ Done: ${stats.done}`);
-    lines.push(`📝 Remaining: ${remaining}`);
-    lines.push(`📦 Total: ${stats.total}`);
-    lines.push('');
-    lines.push('*Click to change sprint filter*');
-
+    const lines = formatTooltipLines(stats.done, stats.total, sprint);
     const md = new vscode.MarkdownString(lines.join('\n'));
     md.isTrusted = true;
     return md;
@@ -130,6 +111,36 @@ export class StatusBarController implements vscode.Disposable {
   private update(): void {
     this.statusBarItem.text = this.getFormattedText();
     this.statusBarItem.tooltip = this.getTooltip();
+  }
+
+  /**
+   * Get the command registered for click handler
+   */
+  getCommand(): string | undefined {
+    return this.statusBarItem.command as string | undefined;
+  }
+
+  /**
+   * Check if status bar is visible
+   */
+  isVisible(): boolean {
+    return this.visible;
+  }
+
+  /**
+   * Show the status bar
+   */
+  show(): void {
+    this.statusBarItem.show();
+    this.visible = true;
+  }
+
+  /**
+   * Hide the status bar
+   */
+  hide(): void {
+    this.statusBarItem.hide();
+    this.visible = false;
   }
 
   dispose(): void {

@@ -1,7 +1,7 @@
 ---
 id: EPIC-011
 title: "Error Handling & Lint"
-status: todo
+status: done
 created: 2025-11-29
 updated: 2025-11-29
 ---

@@ -27,3 +27,5 @@ Fill test coverage gaps for status bar components and extension lifecycle to ens
 - [[DS-064]] Add unit tests for statusBar.ts
 - [[DS-065]] Add unit tests for ritualStatusBar.ts
 - [[DS-066]] Add integration tests for extension lifecycle
+- [[DS-102]] Clean up, lint and fix tests
+

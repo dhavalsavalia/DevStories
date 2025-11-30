@@ -755,3 +755,32 @@ Files changed (6):
 - .devstories/stories/DS-053.md
 
 Tests: 458 unit + 131 integration = 589 total (unchanged)
+
+=== Session: 2025-11-29 22:38 ===
+Story: DS-054 (Identify and remove unused exports/dependencies)
+Status: done
+
+Static analysis findings:
+- ts-prune: No unused exports (activate/deactivate are VS Code entry points)
+- depcheck: No unused dependencies (vscode module false positive)
+- eslint no-unused-vars: Fixed 6 unused imports/variables
+
+Removed dead code:
+- src/commands/createStory.ts: Removed unused BUNDLED_TEMPLATES import
+- src/extension.ts: Removed unused getLogger import
+- src/providers/storyLinkProvider.ts: Removed unused path import
+- src/providers/storyLinkProviderUtils.ts: Removed unused isEpicId import
+- src/commands/quickCapture.ts: Removed duplicate INBOX_EPIC_ID import
+- src/commands/startRitual.ts: Removed unused CadenceService import, cadenceService param, lines array, epics variable
+
+Files changed (7):
+- src/commands/createStory.ts
+- src/commands/quickCapture.ts
+- src/commands/startRitual.ts
+- src/extension.ts
+- src/providers/storyLinkProvider.ts
+- src/providers/storyLinkProviderUtils.ts
+- .devstories/stories/DS-054.md
+
+Tests: 458 unit + 131 integration = 589 total (unchanged)
+

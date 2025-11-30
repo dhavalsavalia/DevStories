@@ -2,7 +2,6 @@
  * Start Weekly Ritual command - multi-step walkthrough for planning, retro, grooming
  */
 import * as vscode from 'vscode';
-import { CadenceService } from '../core/cadenceService';
 import { Store } from '../core/store';
 
 export type RitualStep = 'planning' | 'retro' | 'grooming';
@@ -36,8 +35,7 @@ const RITUAL_OPTIONS: RitualOption[] = [
  * Shows multi-step walkthrough based on selected ritual type
  */
 export async function executeStartRitual(
-  store: Store,
-  cadenceService: CadenceService
+  store: Store
 ): Promise<void> {
   // Show ritual picker
   const selected = await vscode.window.showQuickPick(
@@ -76,20 +74,6 @@ async function runPlanningRitual(store: Store): Promise<void> {
   const stories = store.getStories();
   const backlogStories = stories.filter(s => !s.sprint || s.sprint === 'backlog');
   const todoStories = stories.filter(s => s.status === 'todo');
-
-  const lines = [
-    '## Sprint Planning',
-    '',
-    `📋 **Backlog stories:** ${backlogStories.length}`,
-    `📝 **To-do stories:** ${todoStories.length}`,
-    '',
-    '### Steps:',
-    '1. Review the backlog for unassigned stories',
-    '2. Select stories for the upcoming sprint',
-    '3. Update story sprints via the board or tree view',
-    '',
-    '*Open the Board view to drag stories into the sprint*',
-  ];
 
   const action = await vscode.window.showInformationMessage(
     `Sprint Planning: ${backlogStories.length} backlog stories, ${todoStories.length} to-do`,
@@ -146,7 +130,6 @@ async function runRetroRitual(store: Store): Promise<void> {
  */
 async function runGroomingRitual(store: Store): Promise<void> {
   const stories = store.getStories();
-  const epics = store.getEpics();
   const unsizedStories = stories.filter(s => !s.size);
   const inboxStories = stories.filter(s => s.epic === 'EPIC-INBOX');
 

@@ -1,4 +1,4 @@
-import { LINK_PATTERN, resolveLinkPath, isEpicId } from '../utils/linkResolver';
+import { LINK_PATTERN, resolveLinkPath } from '../utils/linkResolver';
 
 /**
  * Represents a link match with position info

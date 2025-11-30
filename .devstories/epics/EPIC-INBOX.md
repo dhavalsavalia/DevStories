@@ -14,4 +14,5 @@ Quick captures and ideas to triage later.
 ## Stories
 
 - [[DS-102]] new feature
+- [[DS-103]] Fix Keyboard Navigation in Board
 

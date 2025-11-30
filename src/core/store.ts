@@ -3,6 +3,7 @@ import { Epic } from '../types/epic';
 import { Story } from '../types/story';
 import { Parser } from './parser';
 import { Watcher } from './watcher';
+import { sortEpicsBySprintOrder } from '../view/storiesProviderUtils';
 
 export class Store {
   private stories = new Map<string, Story>();
@@ -49,6 +50,19 @@ export class Store {
 
   getStories(): Story[] {
     return Array.from(this.stories.values());
+  }
+
+  /**
+   * Get epics sorted by their earliest story's sprint position.
+   * Epics with earlier sprints appear first.
+   */
+  getEpicsBySprintOrder(sprintSequence: string[]): Epic[] {
+    const allEpics = this.getEpics();
+    return sortEpicsBySprintOrder(
+      allEpics,
+      sprintSequence,
+      (epicId) => this.getStoriesByEpic(epicId)
+    );
   }
 
   private async onFileChanged(uri: vscode.Uri) {

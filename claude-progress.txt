@@ -589,3 +589,35 @@ Files changed (7):
 - src/test/unit/changeStatus.test.ts (+5 tests)
 
 Tests: 437 unit + 128 integration = 565 total passing (+24 new)
+
+=== Session: 2025-11-29 19:00 ===
+Story: DS-082 (Tree view sorting)
+Status: done
+
+Implemented tree view sorting for epics and stories.
+
+Key changes:
+1. Created `storiesProviderUtils.ts` with pure sorting functions:
+   - `sortStoriesForTreeView()` - sorts by sprint sequence → priority → created
+   - `getEarliestStorySprintIndex()` - finds earliest sprint for an epic
+   - `sortEpicsBySprintOrder()` - sorts epics by their earliest story's sprint
+
+2. Updated `storiesProvider.ts`:
+   - `getChildren()` now applies sorting via utility functions
+   - Epics sorted by earliest story's sprint position
+   - Stories sorted within each epic
+
+3. Added `getEpicsBySprintOrder()` helper to `store.ts`
+
+4. Tests:
+   - Added 17 unit tests in `treeViewSorting.test.ts`
+   - Added 1 integration test in `store.test.ts`
+
+Files changed (5):
+- src/view/storiesProviderUtils.ts (new)
+- src/view/storiesProvider.ts (updated getChildren)
+- src/core/store.ts (added getEpicsBySprintOrder)
+- src/test/unit/treeViewSorting.test.ts (new, 17 tests)
+- src/test/suite/store.test.ts (added 1 test)
+
+Tests: 454 unit + 129 integration = 583 total passing (+18 new)

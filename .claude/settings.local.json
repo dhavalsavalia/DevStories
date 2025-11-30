@@ -77,7 +77,11 @@
       "Bash(npx ts-prune)",
       "Bash(npx depcheck:*)",
       "Bash(npx eslint:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(do if head -20 \"$f\")",
+      "Bash(then echo \"$f\")",
+      "Bash(while read f)",
+      "Bash(do if head -20 $f)"
     ],
     "deny": [],
     "ask": [],

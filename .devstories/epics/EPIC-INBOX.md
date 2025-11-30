@@ -13,8 +13,4 @@ Quick captures and ideas to triage later.
 
 ## Stories
 
-- [[DS-103]] Fix Keyboard Navigation in Board
-- [[DS-104]] Add quick add stories to backlog by default
-- [[DS-105]] move board from sidebar to tab/buffer
-- [[DS-106]] Epic auto status transition based on children stories
-
+(Empty - fresh start for 1.0.0)

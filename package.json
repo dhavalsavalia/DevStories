@@ -30,11 +30,6 @@
         {
           "id": "devstories.views.explorer",
           "name": "Stories"
-        },
-        {
-          "type": "webview",
-          "id": "devstories.views.board",
-          "name": "Board"
         }
       ]
     },

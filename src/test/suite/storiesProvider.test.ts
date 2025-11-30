@@ -113,6 +113,27 @@ created: 2025-01-01
     }
   });
 
+  test('epic tree item should NOT have command (single-click expands)', async () => {
+    const epics = await provider.getChildren();
+    const epic = epics.find(c => c.id === 'EPIC-VIEW');
+
+    if (epic) {
+      const treeItem = provider.getTreeItem(epic);
+      assert.strictEqual(treeItem.command, undefined, 'Epic should not have a command so single-click expands/collapses');
+    }
+  });
+
+  test('epic tree item should have resourceUri set', async () => {
+    const epics = await provider.getChildren();
+    const epic = epics.find(c => c.id === 'EPIC-VIEW');
+
+    if (epic) {
+      const treeItem = provider.getTreeItem(epic);
+      assert.ok(treeItem.resourceUri, 'Epic should have resourceUri for file operations');
+      assert.ok(treeItem.resourceUri!.fsPath.endsWith('EPIC-VIEW.md'), 'resourceUri should point to epic file');
+    }
+  });
+
   test('should return correct tree item for story', async () => {
     const epics = await provider.getChildren();
     const epic = epics.find(c => c.id === 'EPIC-VIEW');

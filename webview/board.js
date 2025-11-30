@@ -196,8 +196,8 @@
     saveState();
     renderBoard();
 
-    // Log error for debugging
-    console.error('Status update failed:', error);
+    // Send error to extension for logging
+    vscode.postMessage({ type: 'error', payload: { message: `Status update failed: ${error}` } });
   }
 
   /**

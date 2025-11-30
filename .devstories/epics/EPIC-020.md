@@ -1,7 +1,7 @@
 ---
 id: EPIC-020
 title: "Code Cleanup"
-status: in_progress
+status: done
 created: 2025-11-30
 updated: 2025-11-30
 ---

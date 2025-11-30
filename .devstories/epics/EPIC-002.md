@@ -1,11 +1,11 @@
 ---
 id: EPIC-002
-title: "Phase 2: Tree View"
+title: Tree View
 status: done
 created: 2025-11-26
 ---
 
-# Phase 2: Tree View
+# Tree View
 
 ## Description
 Implement the primary navigation interface in the VS Code sidebar. This includes the TreeDataProvider to display epics and stories hierarchically, along with status icons and a progress bar.

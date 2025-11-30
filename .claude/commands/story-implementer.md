@@ -17,6 +17,13 @@ You MUST implement story `$ARGUMENTS` following ALL phases below. Do NOT skip an
    - Otherwise → `feature/$ARGUMENTS-kebab-title`
 4. Create the feature branch: `git checkout -b <branch-name>`
 
+## Phase 2.5: Story Gap Detention
+
+1. Find any and all gaps that might be in the story
+2. Suggestion what can we do to improve
+3. Do not suggest overly ambitius for a story kind of suggestion just for the sake of it.
+4. Real meaningful ones only
+
 ## Phase 3: Implementation (TDD - MUST FOLLOW)
 
 For each acceptance criterion:

@@ -37,7 +37,15 @@
       "Bash(if [ ! -f \"$testfile\" ])",
       "Bash(then echo \"$file\")",
       "Bash(fi)",
-      "WebFetch(domain:code.visualstudio.com)"
+      "WebFetch(domain:code.visualstudio.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(do)",
+      "Bash(if ! grep -q \"^## Description\" \"$f\")",
+      "Bash(! grep -q \"^## Bug Description\" \"$f\")",
+      "Bash(! grep -q \"^## Task Description\" \"$f\")",
+      "Bash(! grep -q \"^## Problem\" \"$f\")",
+      "Bash(then)"
     ],
     "deny": [],
     "ask": [],

@@ -15,7 +15,6 @@ import {
   parseCustomTemplate,
   CustomTemplate,
 } from './createStoryUtils';
-import { BUNDLED_TEMPLATES } from './templateUtils';
 
 // Re-export for convenience
 export {

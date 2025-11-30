@@ -10,7 +10,7 @@ import { executeStartRitual } from './commands/startRitual';
 import { AutoTimestamp } from './core/autoTimestamp';
 import { CadenceService } from './core/cadenceService';
 import { ConfigService } from './core/configService';
-import { initializeLogger, disposeLogger, getLogger } from './core/logger';
+import { initializeLogger, disposeLogger } from './core/logger';
 import { SprintFilterService } from './core/sprintFilterService';
 import { Store } from './core/store';
 import { Watcher } from './core/watcher';
@@ -109,7 +109,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	});
 
 	const startRitualCommand = vscode.commands.registerCommand('devstories.startRitual', async () => {
-		await executeStartRitual(store, cadenceService);
+		await executeStartRitual(store);
 	});
 
 	const openEpicCommand = vscode.commands.registerCommand('devstories.openEpic', async (item) => {

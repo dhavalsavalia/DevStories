@@ -5,6 +5,7 @@ import { SprintFilterService } from '../core/sprintFilterService';
 import { Store } from '../core/store';
 import { Epic } from '../types/epic';
 import { Story, StoryType } from '../types/story';
+import { sortStoriesForTreeView, sortEpicsBySprintOrder } from './storiesProviderUtils';
 
 // Default status indicators using unicode symbols for clarity
 const DEFAULT_STATUS_INDICATORS: Record<string, string> = {
@@ -40,36 +41,47 @@ export class StoriesProvider implements vscode.TreeDataProvider<Epic | Story> {
   }
 
   getChildren(element?: Epic | Story): Thenable<(Epic | Story)[]> {
+    const sprintSequence = this.configService?.config.sprintSequence ?? [];
+
     if (!element) {
       // Root level: return epics that have visible stories (based on sprint filter)
       const sprintFilter = this.sprintFilterService?.currentSprint ?? null;
       const allEpics = this.store.getEpics();
 
-      if (sprintFilter === null) {
-        // No filter - show all epics
-        return Promise.resolve(allEpics);
+      // Filter epics to only those with visible stories (if filter active)
+      let visibleEpics = allEpics;
+      if (sprintFilter !== null) {
+        visibleEpics = allEpics.filter(epic => {
+          const stories = this.store.getStoriesByEpic(epic.id);
+          return stories.some(s => this.matchesSprintFilter(s, sprintFilter));
+        });
       }
 
-      // Filter epics to only those with stories matching the sprint filter
-      const visibleEpics = allEpics.filter(epic => {
-        const stories = this.store.getStoriesByEpic(epic.id);
-        return stories.some(s => this.matchesSprintFilter(s, sprintFilter));
-      });
+      // Sort epics by earliest story's sprint position
+      const sortedEpics = sortEpicsBySprintOrder(
+        visibleEpics,
+        sprintSequence,
+        (epicId) => this.store.getStoriesByEpic(epicId)
+      );
 
-      return Promise.resolve(visibleEpics);
+      return Promise.resolve(sortedEpics);
     }
 
     if (!this.isStory(element)) {
-      // Epic: return filtered stories
+      // Epic: return filtered and sorted stories
       const sprintFilter = this.sprintFilterService?.currentSprint ?? null;
       const stories = this.store.getStoriesByEpic(element.id);
 
-      if (sprintFilter === null) {
-        return Promise.resolve(stories);
+      // Apply sprint filter if active
+      let filtered = stories;
+      if (sprintFilter !== null) {
+        filtered = stories.filter(s => this.matchesSprintFilter(s, sprintFilter));
       }
 
-      const filtered = stories.filter(s => this.matchesSprintFilter(s, sprintFilter));
-      return Promise.resolve(filtered);
+      // Sort stories by sprint → priority → created
+      const sorted = sortStoriesForTreeView(filtered, sprintSequence);
+
+      return Promise.resolve(sorted);
     }
 
     return Promise.resolve([]);

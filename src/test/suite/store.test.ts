@@ -131,4 +131,70 @@ created: 2025-01-01
 		const story = store.getStory('STORY-TEST');
 		assert.strictEqual(story?.title, 'Updated Story');
 	});
+
+	test('getEpicsBySprintOrder should sort epics by earliest story sprint', async () => {
+		// Create additional files for sprint ordering test
+		const epicAFile = path.join(epicsDir, 'EPIC-A.md');
+		const epicBFile = path.join(epicsDir, 'EPIC-B.md');
+		const storyAFile = path.join(storiesDir, 'STORY-A.md');
+		const storyBFile = path.join(storiesDir, 'STORY-B.md');
+
+		fs.writeFileSync(epicAFile, `---
+id: EPIC-A
+title: Epic A
+status: todo
+created: 2025-01-15
+---
+# Epic A`);
+
+		fs.writeFileSync(epicBFile, `---
+id: EPIC-B
+title: Epic B
+status: todo
+created: 2025-01-10
+---
+# Epic B`);
+
+		fs.writeFileSync(storyAFile, `---
+id: STORY-A
+title: Story A
+type: feature
+epic: EPIC-A
+status: todo
+size: S
+sprint: polish-1
+created: 2025-01-01
+---
+# Story A`);
+
+		fs.writeFileSync(storyBFile, `---
+id: STORY-B
+title: Story B
+type: feature
+epic: EPIC-B
+status: todo
+size: S
+sprint: foundation-1
+created: 2025-01-01
+---
+# Story B`);
+
+		try {
+			await store.load();
+
+			const sprintSequence = ['foundation-1', 'polish-1', 'launch-1'];
+			const sortedEpics = store.getEpicsBySprintOrder(sprintSequence);
+
+			// EPIC-B should be first (foundation-1 is before polish-1)
+			const epicBIndex = sortedEpics.findIndex(e => e.id === 'EPIC-B');
+			const epicAIndex = sortedEpics.findIndex(e => e.id === 'EPIC-A');
+			assert.ok(epicBIndex < epicAIndex, 'EPIC-B (foundation-1) should come before EPIC-A (polish-1)');
+		} finally {
+			// Clean up test files
+			if (fs.existsSync(epicAFile)) fs.unlinkSync(epicAFile);
+			if (fs.existsSync(epicBFile)) fs.unlinkSync(epicBFile);
+			if (fs.existsSync(storyAFile)) fs.unlinkSync(storyAFile);
+			if (fs.existsSync(storyBFile)) fs.unlinkSync(storyBFile);
+		}
+	});
 });

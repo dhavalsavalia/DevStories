@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { Store } from '../core/store';
+import { getLogger } from '../core/logger';
 import {
   parseQuickInput,
   truncateForTitle,
@@ -215,7 +216,7 @@ export async function executeQuickCapture(store: Store): Promise<boolean> {
     await vscode.workspace.fs.writeFile(inboxEpicUri, Buffer.from(updatedEpic));
   } catch {
     // Non-critical: epic auto-link failed
-    console.log('Failed to auto-link story to inbox epic');
+    getLogger().warn('Failed to auto-link story to inbox epic');
   }
 
   // Show notification (NOT opening file - quick capture should not switch context)

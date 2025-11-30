@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { Store } from '../core/store';
+import { getLogger } from '../core/logger';
 import { StoryType, StorySize } from '../types/story';
 import {
   parseConfigYaml,
@@ -396,7 +397,7 @@ export async function executeCreateStory(store: Store): Promise<boolean> {
       await vscode.workspace.fs.writeFile(epicUri, Buffer.from(updatedEpic));
     } catch {
       // Non-critical: epic auto-link failed
-      console.log('Failed to auto-link story to epic');
+      getLogger().warn('Failed to auto-link story to epic');
     }
   }
 

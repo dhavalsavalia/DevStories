@@ -3,6 +3,7 @@ import { Epic } from '../types/epic';
 import { Story } from '../types/story';
 import { Parser } from './parser';
 import { Watcher } from './watcher';
+import { getLogger } from './logger';
 import { sortEpicsBySprintOrder } from '../view/storiesProviderUtils';
 
 export class Store {
@@ -102,7 +103,7 @@ export class Store {
       const story = Parser.parseStory(content, uri.fsPath);
       this.stories.set(story.id, story);
     } catch (e) {
-      console.error(`Failed to parse story ${uri.fsPath}:`, e);
+      getLogger().error(`Failed to parse story ${uri.fsPath}:`, e);
     }
   }
 
@@ -112,7 +113,7 @@ export class Store {
       const epic = Parser.parseEpic(content, uri.fsPath);
       this.epics.set(epic.id, epic);
     } catch (e) {
-      console.error(`Failed to parse epic ${uri.fsPath}:`, e);
+      getLogger().error(`Failed to parse epic ${uri.fsPath}:`, e);
     }
   }
 

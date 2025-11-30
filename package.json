@@ -70,6 +70,10 @@
       {
         "command": "devstories.startRitual",
         "title": "DevStories: Start Weekly Ritual"
+      },
+      {
+        "command": "devstories.openEpic",
+        "title": "Open Epic File"
       }
     ],
     "menus": {
@@ -83,6 +87,11 @@
           "command": "devstories.changeStatus",
           "when": "view == devstories.views.explorer && viewItem == epic",
           "group": "devstories@1"
+        },
+        {
+          "command": "devstories.openEpic",
+          "when": "view == devstories.views.explorer && viewItem == epic",
+          "group": "navigation"
         },
         {
           "command": "devstories.saveAsTemplate",

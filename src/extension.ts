@@ -109,6 +109,15 @@ export async function activate(context: vscode.ExtensionContext) {
 		await executeStartRitual(store, cadenceService);
 	});
 
+	const openEpicCommand = vscode.commands.registerCommand('devstories.openEpic', async (item) => {
+		if (item) {
+			const epic = store.getEpic(item.id);
+			if (epic?.filePath) {
+				await vscode.commands.executeCommand('vscode.open', vscode.Uri.file(epic.filePath));
+			}
+		}
+	});
+
 	context.subscriptions.push(
 		watcher,
 		configService,
@@ -127,7 +136,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		saveAsTemplateCommand,
 		changeStatusCommand,
 		pickSprintCommand,
-		startRitualCommand
+		startRitualCommand,
+		openEpicCommand
 	);
 }
 

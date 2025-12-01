@@ -63,11 +63,35 @@ describe('Tree View Sorting Utils', () => {
       expect(sorted.map(s => s.id)).toEqual(['S-2', 'S-1', 'S-3']);
     });
 
-    it('should sort by created date within same sprint and priority', () => {
+    it('should sort alphabetically by title within same sprint and priority', () => {
       const stories = [
-        createMockStory({ id: 'S-1', sprint: 'polish-1', priority: 500, created: new Date('2025-01-20') }),
-        createMockStory({ id: 'S-2', sprint: 'polish-1', priority: 500, created: new Date('2025-01-15') }),
-        createMockStory({ id: 'S-3', sprint: 'polish-1', priority: 500, created: new Date('2025-01-18') }),
+        createMockStory({ id: 'S-1', sprint: 'polish-1', priority: 500, title: 'Zebra feature' }),
+        createMockStory({ id: 'S-2', sprint: 'polish-1', priority: 500, title: 'Apple feature' }),
+        createMockStory({ id: 'S-3', sprint: 'polish-1', priority: 500, title: 'Mango feature' }),
+      ];
+
+      const sorted = sortStoriesForTreeView(stories, sprintSequence);
+
+      expect(sorted.map(s => s.id)).toEqual(['S-2', 'S-3', 'S-1']);
+    });
+
+    it('should sort case-insensitively by title', () => {
+      const stories = [
+        createMockStory({ id: 'S-1', sprint: 'polish-1', priority: 500, title: 'zebra feature' }),
+        createMockStory({ id: 'S-2', sprint: 'polish-1', priority: 500, title: 'Apple feature' }),
+        createMockStory({ id: 'S-3', sprint: 'polish-1', priority: 500, title: 'mango feature' }),
+      ];
+
+      const sorted = sortStoriesForTreeView(stories, sprintSequence);
+
+      expect(sorted.map(s => s.id)).toEqual(['S-2', 'S-3', 'S-1']);
+    });
+
+    it('should sort by title for same non-default priority', () => {
+      const stories = [
+        createMockStory({ id: 'S-1', sprint: 'polish-1', priority: 100, title: 'Update API' }),
+        createMockStory({ id: 'S-2', sprint: 'polish-1', priority: 100, title: 'Add tests' }),
+        createMockStory({ id: 'S-3', sprint: 'polish-1', priority: 100, title: 'Fix bug' }),
       ];
 
       const sorted = sortStoriesForTreeView(stories, sprintSequence);
@@ -104,19 +128,19 @@ describe('Tree View Sorting Utils', () => {
       expect(sorted).toEqual([]);
     });
 
-    it('should apply full sorting chain: sprint → priority → created', () => {
+    it('should apply full sorting chain: sprint → priority → title', () => {
       const stories = [
-        createMockStory({ id: 'S-1', sprint: 'polish-1', priority: 100, created: new Date('2025-01-20') }),
-        createMockStory({ id: 'S-2', sprint: 'foundation-1', priority: 500, created: new Date('2025-01-15') }),
-        createMockStory({ id: 'S-3', sprint: 'polish-1', priority: 100, created: new Date('2025-01-10') }),
-        createMockStory({ id: 'S-4', sprint: 'foundation-1', priority: 100, created: new Date('2025-01-15') }),
+        createMockStory({ id: 'S-1', sprint: 'polish-1', priority: 100, title: 'Zebra task' }),
+        createMockStory({ id: 'S-2', sprint: 'foundation-1', priority: 500, title: 'Beta feature' }),
+        createMockStory({ id: 'S-3', sprint: 'polish-1', priority: 100, title: 'Alpha task' }),
+        createMockStory({ id: 'S-4', sprint: 'foundation-1', priority: 100, title: 'Alpha feature' }),
       ];
 
       const sorted = sortStoriesForTreeView(stories, sprintSequence);
 
       // foundation-1 first (index 0), then polish-1 (index 1)
       // Within foundation-1: S-4 (priority 100) before S-2 (priority 500)
-      // Within polish-1 and priority 100: S-3 (Jan 10) before S-1 (Jan 20)
+      // Within polish-1 and priority 100: S-3 (Alpha) before S-1 (Zebra)
       expect(sorted.map(s => s.id)).toEqual(['S-4', 'S-2', 'S-3', 'S-1']);
     });
   });

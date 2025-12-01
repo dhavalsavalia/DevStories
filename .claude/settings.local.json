@@ -86,7 +86,11 @@
       "Bash(if [ -f \".devstories/epics/$epic.md\" ])",
       "Bash(else)",
       "Bash(npm run lint)",
-      "Bash(npx vitest:*)"
+      "Bash(npx vitest:*)",
+      "Bash(npm run vscode:prepublish:*)",
+      "Bash(ls:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": [],

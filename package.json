@@ -4,11 +4,34 @@
   "description": "Lightweight story management for VS Code using markdown files",
   "version": "0.0.1",
   "publisher": "devstories",
+  "author": {
+    "name": "Dhaval Savalia",
+    "email": "hello@dhavalsavalia.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dhavalsavalia/DevStories.git"
+  },
+  "homepage": "https://github.com/dhavalsavalia/DevStories#readme",
+  "bugs": {
+    "url": "https://github.com/dhavalsavalia/DevStories/issues"
+  },
+  "keywords": [
+    "stories",
+    "project-management",
+    "markdown",
+    "agile",
+    "kanban",
+    "productivity",
+    "task-management"
+  ],
   "engines": {
     "vscode": "^1.90.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Notebooks"
   ],
   "activationEvents": [
     "workspaceContains:.devstories",

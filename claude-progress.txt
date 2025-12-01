@@ -1106,3 +1106,19 @@ Files changed (1):
 - .devstories/stories/DS-149.md (marked complete)
 
 Tests: 366 unit + 111 integration = 477 total (all passing)
+
+=== Session: 2025-12-01 16:13 ===
+Story: DS-135 (Update package.json metadata)
+Status: done
+
+Added marketplace metadata to package.json:
+- repository, homepage, bugs fields pointing to GitHub
+- license: MIT
+- keywords array (7 terms)
+- categories: ["Other", "Notebooks"]
+
+Files changed (2):
+- package.json (added metadata)
+- .devstories/stories/DS-135.md (marked complete)
+
+Tests: 366 unit + 111 integration = 477 total (all passing)

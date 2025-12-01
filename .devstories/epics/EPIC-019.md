@@ -1,7 +1,7 @@
 ---
 id: EPIC-019
 title: Housekeeping
-status: done
+status: active
 created: 2025-11-30
 updated: 2025-11-29
 ---
@@ -28,3 +28,4 @@ DevStories manages its own development. If we can't maintain our own backlog cle
 - [[DS-099]] Standardize epic titles
 - [[DS-100]] Update config with complete sprint sequence
 - [[DS-101]] Final audit and verification
+- [[DS-118]] Fix init.sh npm test linting

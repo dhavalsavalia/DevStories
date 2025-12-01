@@ -12,7 +12,9 @@ async function main() {
 		const extensionTestsPath = path.resolve(__dirname, './suite/index');
 
 		const launchArgs = [
-			path.resolve(__dirname, '../../test-workspace')
+			path.resolve(__dirname, '../../test-workspace'),
+			'--disable-gpu',
+			'--headless=new'
 		];
 
 		// Download VS Code, unzip it and run the integration test

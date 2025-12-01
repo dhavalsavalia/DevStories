@@ -3,7 +3,7 @@ import { Store } from '../core/store';
 import { getLogger } from '../core/logger';
 import { StoryType, StorySize } from '../types/story';
 import {
-  parseConfigYaml,
+  parseConfigJson,
   findNextStoryId,
   getSuggestedSize,
   calculateTitleSimilarity,
@@ -19,7 +19,7 @@ import { validateStoryTitle, validateSprintName } from '../utils/inputValidation
 
 // Re-export for convenience
 export {
-  parseConfigYaml,
+  parseConfigJson,
   findNextStoryId,
   getSuggestedSize,
   calculateTitleSimilarity,
@@ -29,13 +29,13 @@ export {
 } from './createStoryUtils';
 
 /**
- * Read and parse config.yaml from workspace
+ * Read and parse config.json from workspace
  */
 async function readConfig(workspaceUri: vscode.Uri): Promise<DevStoriesConfig | undefined> {
-  const configUri = vscode.Uri.joinPath(workspaceUri, '.devstories', 'config.yaml');
+  const configUri = vscode.Uri.joinPath(workspaceUri, '.devstories', 'config.json');
   try {
     const content = await vscode.workspace.fs.readFile(configUri);
-    return parseConfigYaml(Buffer.from(content).toString('utf8'));
+    return parseConfigJson(Buffer.from(content).toString('utf8'));
   } catch (error) {
     getLogger().debug('Config not found or unreadable', error);
     return undefined;
@@ -130,7 +130,7 @@ export async function executeCreateStory(store: Store): Promise<boolean> {
   const config = await readConfig(workspaceUri);
   if (!config) {
     const action = await vscode.window.showErrorMessage(
-      'DevStories: No config.yaml found. Initialize DevStories first.',
+      'DevStories: No config.json found. Initialize DevStories first.',
       'Initialize'
     );
     if (action === 'Initialize') {
@@ -356,10 +356,9 @@ export async function executeCreateStory(store: Store): Promise<boolean> {
   const nextNum = findNextStoryId(existingIds, config.storyPrefix);
   const storyId = `${config.storyPrefix}-${String(nextNum).padStart(3, '0')}`;
 
-  // Get template - custom content > library reference > config template > default
+  // Get template - custom content > library reference > default
   const template = selectedCustomContent
     ?? selectedTemplateRef
-    ?? config.templates[selectedType.value]
     ?? DEFAULT_TEMPLATES[selectedType.value];
 
   // Generate markdown

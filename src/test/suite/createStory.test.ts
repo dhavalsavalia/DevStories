@@ -10,26 +10,25 @@ suite('CreateStory Command Integration Test', () => {
 		assert.ok(commands.includes('devstories.createStory'), 'devstories.createStory command should be registered');
 	});
 
-	test('parseConfigYaml should parse templates', async () => {
-		const { parseConfigYaml } = await import('../../commands/createStoryUtils');
+	test('parseConfigJson should parse config', async () => {
+		const { parseConfigJson } = await import('../../commands/createStoryUtils');
 
-		const yaml = `
-version: 1
-project: "TestProject"
-id_prefix:
-  epic: "PROJ"
-  story: "FEAT"
-templates:
-  feature: |
-    Custom feature template
-  bug: |
-    Custom bug template
-`;
-		const config = parseConfigYaml(yaml);
+		const json = JSON.stringify({
+			version: 1,
+			project: 'TestProject',
+			idPrefix: {
+				epic: 'PROJ',
+				story: 'FEAT',
+			},
+			statuses: [
+				{ id: 'todo', label: 'To Do' },
+				{ id: 'done', label: 'Done' },
+			],
+		});
+		const config = parseConfigJson(json);
 
 		assert.strictEqual(config.storyPrefix, 'FEAT');
-		assert.ok(config.templates.feature.includes('Custom feature template'));
-		assert.ok(config.templates.bug.includes('Custom bug template'));
+		assert.strictEqual(config.epicPrefix, 'PROJ');
 	});
 
 	test('findNextStoryId should find correct next ID', async () => {

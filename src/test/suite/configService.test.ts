@@ -7,7 +7,7 @@ import { ConfigService } from '../../core/configService';
 suite('ConfigService Integration Test', () => {
 	const workspaceRoot = vscode.workspace.workspaceFolders![0].uri.fsPath;
 	const devstoriesDir = path.join(workspaceRoot, '.devstories');
-	const configFile = path.join(devstoriesDir, 'config.yaml');
+	const configFile = path.join(devstoriesDir, 'config.json');
 	const templatesDir = path.join(devstoriesDir, 'templates');
 	const templateFile = path.join(templatesDir, 'test-template.md');
 
@@ -29,23 +29,23 @@ suite('ConfigService Integration Test', () => {
 		}
 
 		// Write test config
-		const testConfig = `
-version: 1
-project: "Test Project"
-id_prefix:
-  epic: "EPIC"
-  story: "STORY"
-statuses:
-  - id: todo
-    label: "To Do"
-  - id: in_progress
-    label: "In Progress"
-  - id: done
-    label: "Done"
-sprints:
-  current: "sprint-1"
-sizes: ["XS", "S", "M", "L", "XL"]
-`;
+		const testConfig = JSON.stringify({
+			version: 1,
+			project: 'Test Project',
+			idPrefix: {
+				epic: 'EPIC',
+				story: 'STORY',
+			},
+			statuses: [
+				{ id: 'todo', label: 'To Do' },
+				{ id: 'in_progress', label: 'In Progress' },
+				{ id: 'done', label: 'Done' },
+			],
+			sprints: {
+				current: 'sprint-1',
+			},
+			sizes: ['XS', 'S', 'M', 'L', 'XL'],
+		}, null, 2);
 		fs.writeFileSync(configFile, testConfig);
 
 		configService = new ConfigService();
@@ -90,25 +90,24 @@ sizes: ["XS", "S", "M", "L", "XL"]
 		});
 
 		// Update config with new status
-		const updatedConfig = `
-version: 1
-project: "Updated Project"
-id_prefix:
-  epic: "EPIC"
-  story: "STORY"
-statuses:
-  - id: todo
-    label: "To Do"
-  - id: in_progress
-    label: "In Progress"
-  - id: review
-    label: "Review"
-  - id: done
-    label: "Done"
-sprints:
-  current: "sprint-2"
-sizes: ["XS", "S", "M", "L", "XL"]
-`;
+		const updatedConfig = JSON.stringify({
+			version: 1,
+			project: 'Updated Project',
+			idPrefix: {
+				epic: 'EPIC',
+				story: 'STORY',
+			},
+			statuses: [
+				{ id: 'todo', label: 'To Do' },
+				{ id: 'in_progress', label: 'In Progress' },
+				{ id: 'review', label: 'Review' },
+				{ id: 'done', label: 'Done' },
+			],
+			sprints: {
+				current: 'sprint-2',
+			},
+			sizes: ['XS', 'S', 'M', 'L', 'XL'],
+		}, null, 2);
 		fs.writeFileSync(configFile, updatedConfig);
 
 		await changePromise;
@@ -147,7 +146,7 @@ types: [feature, task]
 		assert.ok(testTemplate?.content.includes('Step 1'), 'Content should include template body');
 	});
 
-	test('should use defaults when config has invalid YAML', async () => {
+	test('should use defaults when config has invalid JSON', async () => {
 		// Wait for initial setup
 		await new Promise(resolve => setTimeout(resolve, 200));
 
@@ -158,8 +157,8 @@ types: [feature, task]
 			});
 		});
 
-		// Write invalid YAML
-		fs.writeFileSync(configFile, '{ invalid yaml [');
+		// Write invalid JSON
+		fs.writeFileSync(configFile, '{ invalid json [');
 
 		await errorPromise;
 
@@ -184,10 +183,10 @@ types: [feature, task]
 		assert.strictEqual(OPEN_CONFIG_ACTION, 'Open Config');
 	});
 
-	test('getConfigFilePath should return config.yaml path', () => {
+	test('getConfigFilePath should return config.json path', () => {
 		const { getConfigFilePath } = require('../../core/configServiceNotifications');
 		const workspaceFolder = vscode.workspace.workspaceFolders![0];
 		const path = getConfigFilePath(workspaceFolder);
-		assert.ok(path.fsPath.endsWith('.devstories/config.yaml'));
+		assert.ok(path.fsPath.endsWith('.devstories/config.json'));
 	});
 });

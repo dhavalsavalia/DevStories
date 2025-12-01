@@ -14,18 +14,15 @@ import {
 
 describe('changeStatusUtils', () => {
   describe('parseStatusesFromConfig', () => {
-    it('should parse statuses from config.yaml content', () => {
-      const configContent = `
-statuses:
-  - id: todo
-    label: To Do
-  - id: in_progress
-    label: In Progress
-  - id: review
-    label: Review
-  - id: done
-    label: Done
-`;
+    it('should parse statuses from config.json content', () => {
+      const configContent = JSON.stringify({
+        statuses: [
+          { id: 'todo', label: 'To Do' },
+          { id: 'in_progress', label: 'In Progress' },
+          { id: 'review', label: 'Review' },
+          { id: 'done', label: 'Done' },
+        ],
+      });
       const statuses = parseStatusesFromConfig(configContent);
       expect(statuses).toEqual(['todo', 'in_progress', 'review', 'done']);
     });
@@ -36,12 +33,18 @@ statuses:
     });
 
     it('should return default statuses if statuses section is missing', () => {
-      const configContent = `
-id_prefix:
-  story: DS
-  epic: EPIC
-`;
+      const configContent = JSON.stringify({
+        idPrefix: {
+          story: 'DS',
+          epic: 'EPIC',
+        },
+      });
       const statuses = parseStatusesFromConfig(configContent);
+      expect(statuses).toEqual(['todo', 'in_progress', 'review', 'done']);
+    });
+
+    it('should return default statuses for invalid JSON', () => {
+      const statuses = parseStatusesFromConfig('{ invalid json');
       expect(statuses).toEqual(['todo', 'in_progress', 'review', 'done']);
     });
   });

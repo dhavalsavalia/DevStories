@@ -1158,3 +1158,32 @@ Files changed (3):
 Tests: 380 unit + 116 integration = 496 total (+2 new)
 
 Also created DS-152 story for config.json migration with JSON Schema.
+
+## Session: 2025-12-01 (continued)
+
+### DS-152: Migrate config.yaml to config.json with JSON Schema
+**Status:** Done
+
+**Changes:**
+- Created `schemas/devstories.schema.json` with full JSON Schema for config validation
+- Added `contributes.jsonValidation` to `package.json` for VS Code integration
+- Updated `configServiceUtils.ts`: `parseConfigJsonContent()`, `validateSprintConfig()`, removed `inlineTemplates`
+- Updated `configService.ts`: Changed watcher pattern and load path to `config.json`, added sprint validation
+- Updated `configServiceNotifications.ts`: Changed path reference
+- Updated `initUtils.ts`: `generateConfigJson()` replaces YAML generation
+- Updated `init.ts`: Writes `config.json`
+- Updated `createStory.ts`, `createStoryUtils.ts`: JSON parsing
+- Updated `createEpic.ts`, `createEpicUtils.ts`: JSON parsing
+- Updated `quickCapture.ts`: JSON parsing
+- Updated `changeStatus.ts`, `changeStatusUtils.ts`: JSON parsing
+- Updated all unit tests (19 files, 387 tests passing)
+- Updated all integration tests (116 tests passing)
+- Migrated `.devstories/config.yaml` → `.devstories/config.json`
+- Migrated `devstories_test/.devstories/config.yaml` → `config.json`
+- Deleted old YAML config files
+
+**Files Changed:** ~30 files including schema, package.json, core services, commands, and tests
+
+**Test Results:**
+- Unit tests: 387 passing
+- Integration tests: 116 passing

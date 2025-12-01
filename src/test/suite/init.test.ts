@@ -6,7 +6,7 @@ import * as vscode from 'vscode';
 suite('Init Command Integration Test', () => {
 	const workspaceRoot = vscode.workspace.workspaceFolders![0].uri.fsPath;
 	const devstoriesDir = path.join(workspaceRoot, '.devstories');
-	const configPath = path.join(devstoriesDir, 'config.yaml');
+	const configPath = path.join(devstoriesDir, 'config.json');
 	const storiesDir = path.join(devstoriesDir, 'stories');
 	const epicsDir = path.join(devstoriesDir, 'epics');
 
@@ -18,9 +18,9 @@ suite('Init Command Integration Test', () => {
 		assert.ok(commands.includes('devstories.init'), 'devstories.init command should be registered');
 	});
 
-	test('generateConfigYaml should produce valid yaml structure', async () => {
+	test('generateConfigJson should produce valid json structure', async () => {
 		// Import the utility function
-		const { generateConfigYaml } = await import('../../commands/initUtils');
+		const { generateConfigJson } = await import('../../commands/initUtils');
 
 		const config = {
 			projectName: 'test-project',
@@ -29,19 +29,20 @@ suite('Init Command Integration Test', () => {
 			sprint: 'sprint-1',
 		};
 
-		const yaml = generateConfigYaml(config);
+		const jsonStr = generateConfigJson(config);
+		const parsed = JSON.parse(jsonStr);
 
 		// Verify structure
-		assert.ok(yaml.includes('version: 1'), 'Should include version');
-		assert.ok(yaml.includes('project: "test-project"'), 'Should include project name');
-		assert.ok(yaml.includes('epic: "EPIC"'), 'Should include epic prefix');
-		assert.ok(yaml.includes('story: "DS"'), 'Should include story prefix');
-		assert.ok(yaml.includes('id: todo'), 'Should include todo status');
-		assert.ok(yaml.includes('id: in_progress'), 'Should include in_progress status');
-		assert.ok(yaml.includes('id: review'), 'Should include review status');
-		assert.ok(yaml.includes('id: done'), 'Should include done status');
-		assert.ok(yaml.includes('current: "sprint-1"'), 'Should include sprint');
-		assert.ok(yaml.includes('sizes: ["XS", "S", "M", "L", "XL"]'), 'Should include sizes');
+		assert.strictEqual(parsed.version, 1, 'Should include version');
+		assert.strictEqual(parsed.project, 'test-project', 'Should include project name');
+		assert.strictEqual(parsed.idPrefix.epic, 'EPIC', 'Should include epic prefix');
+		assert.strictEqual(parsed.idPrefix.story, 'DS', 'Should include story prefix');
+		assert.strictEqual(parsed.statuses[0].id, 'todo', 'Should include todo status');
+		assert.strictEqual(parsed.statuses[1].id, 'in_progress', 'Should include in_progress status');
+		assert.strictEqual(parsed.statuses[2].id, 'review', 'Should include review status');
+		assert.strictEqual(parsed.statuses[3].id, 'done', 'Should include done status');
+		assert.strictEqual(parsed.sprints.current, 'sprint-1', 'Should include sprint');
+		assert.deepStrictEqual(parsed.sizes, ['XS', 'S', 'M', 'L', 'XL'], 'Should include sizes');
 	});
 
 	test('detectProjectName should work with package.json', async () => {

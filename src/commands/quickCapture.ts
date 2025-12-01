@@ -8,7 +8,7 @@ import {
   OPEN_STORY_ACTION,
 } from './quickCaptureUtils';
 import {
-  parseConfigYaml,
+  parseConfigJson,
   findNextStoryId,
   generateStoryMarkdown,
   generateStoryLink,
@@ -28,13 +28,13 @@ export {
 } from './quickCaptureUtils';
 
 /**
- * Read and parse config.yaml from workspace
+ * Read and parse config.json from workspace
  */
 async function readConfig(workspaceUri: vscode.Uri): Promise<DevStoriesConfig | undefined> {
-  const configUri = vscode.Uri.joinPath(workspaceUri, '.devstories', 'config.yaml');
+  const configUri = vscode.Uri.joinPath(workspaceUri, '.devstories', 'config.json');
   try {
     const content = await vscode.workspace.fs.readFile(configUri);
-    return parseConfigYaml(Buffer.from(content).toString('utf8'));
+    return parseConfigJson(Buffer.from(content).toString('utf8'));
   } catch (error) {
     getLogger().debug('Config not found or unreadable', error);
     return undefined;
@@ -132,7 +132,7 @@ export async function executeQuickCapture(store: Store): Promise<boolean> {
   const config = await readConfig(workspaceUri);
   if (!config) {
     const action = await vscode.window.showErrorMessage(
-      'DevStories: No config.yaml found. Initialize DevStories first.',
+      'DevStories: No config.json found. Initialize DevStories first.',
       'Initialize'
     );
     if (action === 'Initialize') {
@@ -182,7 +182,7 @@ export async function executeQuickCapture(store: Store): Promise<boolean> {
     : 'backlog';
 
   // Get template and add notes if provided
-  let template = config.templates[parsed.type] || DEFAULT_TEMPLATES[parsed.type];
+  let template = DEFAULT_TEMPLATES[parsed.type];
   if (parsed.notes) {
     // Prepend notes to template
     template = `## Notes\n${parsed.notes}\n\n${template}`;

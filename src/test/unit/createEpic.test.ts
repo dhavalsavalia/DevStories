@@ -2,66 +2,75 @@ import { describe, it, expect } from 'vitest';
 import {
   generateEpicMarkdown,
   findNextEpicId,
-  parseConfigYaml,
+  parseConfigJson,
 } from '../../commands/createEpicUtils';
 
 describe('createEpic utilities', () => {
-  describe('parseConfigYaml', () => {
+  describe('parseConfigJson', () => {
     it('should parse epic prefix from config', () => {
-      const yaml = `
-version: 1
-project: "TestProject"
-id_prefix:
-  epic: "EPIC"
-  story: "STORY"
-`;
-      const config = parseConfigYaml(yaml);
+      const json = JSON.stringify({
+        version: 1,
+        project: 'TestProject',
+        idPrefix: {
+          epic: 'EPIC',
+          story: 'STORY',
+        },
+      });
+      const config = parseConfigJson(json);
       expect(config.epicPrefix).toBe('EPIC');
     });
 
     it('should parse custom epic prefix', () => {
-      const yaml = `
-version: 1
-project: "TestProject"
-id_prefix:
-  epic: "PROJ"
-  story: "FEAT"
-`;
-      const config = parseConfigYaml(yaml);
+      const json = JSON.stringify({
+        version: 1,
+        project: 'TestProject',
+        idPrefix: {
+          epic: 'PROJ',
+          story: 'FEAT',
+        },
+      });
+      const config = parseConfigJson(json);
       expect(config.epicPrefix).toBe('PROJ');
     });
 
     it('should parse current sprint', () => {
-      const yaml = `
-version: 1
-project: "TestProject"
-id_prefix:
-  epic: "EPIC"
-  story: "STORY"
-sprints:
-  current: "sprint-5"
-`;
-      const config = parseConfigYaml(yaml);
+      const json = JSON.stringify({
+        version: 1,
+        project: 'TestProject',
+        idPrefix: {
+          epic: 'EPIC',
+          story: 'STORY',
+        },
+        sprints: {
+          current: 'sprint-5',
+        },
+      });
+      const config = parseConfigJson(json);
       expect(config.currentSprint).toBe('sprint-5');
     });
 
     it('should parse statuses list', () => {
-      const yaml = `
-version: 1
-project: "TestProject"
-id_prefix:
-  epic: "EPIC"
-  story: "STORY"
-statuses:
-  - id: todo
-    label: "To Do"
-  - id: in_progress
-    label: "In Progress"
-  - id: done
-    label: "Done"
-`;
-      const config = parseConfigYaml(yaml);
+      const json = JSON.stringify({
+        version: 1,
+        project: 'TestProject',
+        idPrefix: {
+          epic: 'EPIC',
+          story: 'STORY',
+        },
+        statuses: [
+          { id: 'todo', label: 'To Do' },
+          { id: 'in_progress', label: 'In Progress' },
+          { id: 'done', label: 'Done' },
+        ],
+      });
+      const config = parseConfigJson(json);
       expect(config.statuses).toEqual(['todo', 'in_progress', 'done']);
+    });
+
+    it('should handle invalid JSON', () => {
+      const config = parseConfigJson('{ invalid json');
+      expect(config.epicPrefix).toBe('EPIC');
+      expect(config.storyPrefix).toBe('STORY');
     });
   });
 

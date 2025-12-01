@@ -2,14 +2,14 @@ import * as vscode from 'vscode';
 import { getLogger } from '../core/logger';
 import {
   detectProjectName,
-  generateConfigYaml,
+  generateConfigJson,
   generateSampleEpic,
   generateSampleStory,
   InitConfig,
 } from './initUtils';
 
 // Re-export for convenience
-export { InitConfig, generateConfigYaml, detectProjectName } from './initUtils';
+export { InitConfig, generateConfigJson, detectProjectName } from './initUtils';
 
 /**
  * Read project files from workspace to detect project name
@@ -156,9 +156,9 @@ export async function executeInit(options: InitOptions = {}): Promise<boolean> {
   await vscode.workspace.fs.createDirectory(storiesUri);
   await vscode.workspace.fs.createDirectory(epicsUri);
 
-  // Write config.yaml
-  const configUri = vscode.Uri.joinPath(devstoriesUri, 'config.yaml');
-  const configContent = generateConfigYaml(config);
+  // Write config.json
+  const configUri = vscode.Uri.joinPath(devstoriesUri, 'config.json');
+  const configContent = generateConfigJson(config);
   await vscode.workspace.fs.writeFile(configUri, Buffer.from(configContent));
 
   // Create sample content if requested

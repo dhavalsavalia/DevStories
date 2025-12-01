@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { Store } from '../core/store';
 import { getLogger } from '../core/logger';
 import {
-  parseConfigYaml,
+  parseConfigJson,
   findNextEpicId,
   generateEpicMarkdown,
   DevStoriesConfig,
@@ -10,16 +10,16 @@ import {
 import { validateEpicName } from '../utils/inputValidation';
 
 // Re-export for convenience
-export { parseConfigYaml, findNextEpicId, generateEpicMarkdown } from './createEpicUtils';
+export { parseConfigJson, findNextEpicId, generateEpicMarkdown } from './createEpicUtils';
 
 /**
- * Read and parse config.yaml from workspace
+ * Read and parse config.json from workspace
  */
 async function readConfig(workspaceUri: vscode.Uri): Promise<DevStoriesConfig | undefined> {
-  const configUri = vscode.Uri.joinPath(workspaceUri, '.devstories', 'config.yaml');
+  const configUri = vscode.Uri.joinPath(workspaceUri, '.devstories', 'config.json');
   try {
     const content = await vscode.workspace.fs.readFile(configUri);
-    return parseConfigYaml(Buffer.from(content).toString('utf8'));
+    return parseConfigJson(Buffer.from(content).toString('utf8'));
   } catch (error) {
     getLogger().debug('Config not found or unreadable', error);
     return undefined;
@@ -56,7 +56,7 @@ export async function executeCreateEpic(store: Store): Promise<boolean> {
   const config = await readConfig(workspaceUri);
   if (!config) {
     const action = await vscode.window.showErrorMessage(
-      'DevStories: No config.yaml found. Initialize DevStories first.',
+      'DevStories: No config.json found. Initialize DevStories first.',
       'Initialize'
     );
     if (action === 'Initialize') {

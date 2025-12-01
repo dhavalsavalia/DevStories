@@ -138,7 +138,13 @@
           "description": "Enable debug logging"
         }
       }
-    }
+    },
+    "jsonValidation": [
+      {
+        "fileMatch": ".devstories/config.json",
+        "url": "./schemas/devstories.schema.json"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run package",

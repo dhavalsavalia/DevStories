@@ -27,15 +27,13 @@ suite('ChangeStatus Command Integration Test', () => {
 	test('parseStatusesFromConfig should return statuses from config', async () => {
 		const { parseStatusesFromConfig } = await import('../../commands/changeStatusUtils');
 
-		const configContent = `
-statuses:
-  - id: backlog
-    label: Backlog
-  - id: active
-    label: Active
-  - id: complete
-    label: Complete
-`;
+		const configContent = JSON.stringify({
+			statuses: [
+				{ id: 'backlog', label: 'Backlog' },
+				{ id: 'active', label: 'Active' },
+				{ id: 'complete', label: 'Complete' },
+			],
+		});
 		const statuses = parseStatusesFromConfig(configContent);
 		assert.deepStrictEqual(statuses, ['backlog', 'active', 'complete']);
 	});

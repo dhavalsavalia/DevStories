@@ -15,6 +15,7 @@ import {
   mergeConfigWithDefaults,
   DEFAULT_CONFIG,
 } from './configServiceUtils';
+import { showConfigErrorNotification } from './configServiceNotifications';
 
 const CONFIG_DEBOUNCE_MS = 100;
 const TEMPLATE_DEBOUNCE_MS = 100;
@@ -202,9 +203,7 @@ export class ConfigService implements vscode.Disposable {
       if (Object.keys(parsed).length === 0 && contentStr.trim().length > 0) {
         const error = new Error('Failed to parse config.yaml');
         this._onParseError.fire(error);
-        void vscode.window.showWarningMessage(
-          'DevStories: config.yaml parse error - using last known good config'
-        );
+        void showConfigErrorNotification();
         return;
       }
 

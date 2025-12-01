@@ -174,4 +174,20 @@ types: [feature, task]
 		assert.ok(config, 'Config should be available synchronously');
 		assert.ok(config.statuses, 'Statuses should be available');
 	});
+
+	test('CONFIG_ERROR_MESSAGE and OPEN_CONFIG_ACTION should be defined', () => {
+		const { CONFIG_ERROR_MESSAGE, OPEN_CONFIG_ACTION } = require('../../core/configServiceNotifications');
+		assert.strictEqual(
+			CONFIG_ERROR_MESSAGE,
+			'Config has errors, using previous valid config'
+		);
+		assert.strictEqual(OPEN_CONFIG_ACTION, 'Open Config');
+	});
+
+	test('getConfigFilePath should return config.yaml path', () => {
+		const { getConfigFilePath } = require('../../core/configServiceNotifications');
+		const workspaceFolder = vscode.workspace.workspaceFolders![0];
+		const path = getConfigFilePath(workspaceFolder);
+		assert.ok(path.fsPath.endsWith('.devstories/config.yaml'));
+	});
 });

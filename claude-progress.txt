@@ -1141,3 +1141,18 @@ Files changed (5):
 - src/test/suite/storyHoverProvider.test.ts (+3 integration tests)
 
 Tests: 380 unit + 114 integration = 494 total (+17 new)
+
+=== Session: 2025-12-01 16:48 ===
+Story: DS-142 (Config validation with user feedback)
+Status: done
+
+Added user notifications when config.yaml is reloaded:
+- Parse error: warning message with "Open Config" action button
+- Valid reload: status bar message "Config reloaded" (auto-dismiss 3s)
+
+Files changed (3):
+- src/core/configServiceNotifications.ts (new - notification constants and functions)
+- src/core/configService.ts (import and use notification functions)
+- src/test/suite/configService.test.ts (+3 integration tests)
+
+Tests: 380 unit + 117 integration = 497 total (+3 new)

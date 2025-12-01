@@ -11,6 +11,11 @@ import { StoryType } from '../types/story';
 export const INBOX_EPIC_ID = 'EPIC-INBOX';
 
 /**
+ * Action label for the "Open Story" button in quick capture notification
+ */
+export const OPEN_STORY_ACTION = 'Open Story';
+
+/**
  * Parsed quick capture input
  */
 export interface ParsedQuickInput {

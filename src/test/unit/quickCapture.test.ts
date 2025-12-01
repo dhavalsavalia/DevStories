@@ -4,6 +4,7 @@ import {
   truncateForTitle,
   cleanSelectionText,
   INBOX_EPIC_ID,
+  OPEN_STORY_ACTION,
 } from '../../commands/quickCaptureUtils';
 
 describe('quickCaptureUtils', () => {
@@ -161,6 +162,12 @@ describe('quickCaptureUtils', () => {
   describe('INBOX_EPIC_ID', () => {
     it('should be EPIC-INBOX', () => {
       expect(INBOX_EPIC_ID).toBe('EPIC-INBOX');
+    });
+  });
+
+  describe('OPEN_STORY_ACTION', () => {
+    it('should be exported and equal to "Open Story"', () => {
+      expect(OPEN_STORY_ACTION).toBe('Open Story');
     });
   });
 });

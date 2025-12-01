@@ -5,6 +5,7 @@ import {
   truncateForTitle,
   cleanSelectionText,
   INBOX_EPIC_ID,
+  OPEN_STORY_ACTION,
 } from '../../commands/quickCapture';
 
 suite('QuickCapture Command Integration Test', () => {
@@ -64,5 +65,9 @@ suite('QuickCapture Command Integration Test', () => {
 
   test('INBOX_EPIC_ID should be EPIC-INBOX', () => {
     assert.strictEqual(INBOX_EPIC_ID, 'EPIC-INBOX');
+  });
+
+  test('OPEN_STORY_ACTION should be "Open Story"', () => {
+    assert.strictEqual(OPEN_STORY_ACTION, 'Open Story');
   });
 });

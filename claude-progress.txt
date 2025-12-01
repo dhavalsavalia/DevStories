@@ -1072,3 +1072,21 @@ Files changed (6):
 - .devstories/config.yaml (added quickCapture section with comments)
 
 Tests: 365 unit + 110 integration = 475 total (+6 new)
+
+=== Session: 2025-12-01 15:23 ===
+Story: DS-117 (Add Open Story action to quick capture notification)
+Status: done
+
+Added "Open Story" button to quick capture success notification.
+Clicking the button opens the story file in editor.
+Dismissing does nothing (default VS Code behavior).
+
+Files changed (4):
+- src/commands/quickCaptureUtils.ts (added OPEN_STORY_ACTION constant)
+- src/commands/quickCapture.ts (notification with action button, file opening)
+- src/test/unit/quickCapture.test.ts (+1 test for constant)
+- src/test/suite/quickCapture.test.ts (+1 integration test)
+
+Tests: 366 unit + 111 integration = 477 total (+2 new)
+
+Epic EPIC-024 (UX Improvements) marked done - all 3 stories complete.

@@ -9,7 +9,7 @@ import { getSprintIndex } from '../core/configServiceUtils';
 
 /**
  * Sort stories for tree view display.
- * Order: sprint sequence → priority (lower first) → created date (earlier first)
+ * Order: sprint sequence → priority (lower first) → title (alphabetical, case-insensitive)
  */
 export function sortStoriesForTreeView(stories: Story[], sprintSequence: string[]): Story[] {
   return [...stories].sort((a, b) => {
@@ -25,8 +25,8 @@ export function sortStoriesForTreeView(stories: Story[], sprintSequence: string[
       return a.priority - b.priority;
     }
 
-    // 3. Sort by created date (earlier first)
-    return a.created.getTime() - b.created.getTime();
+    // 3. Sort alphabetically by title (case-insensitive)
+    return a.title.localeCompare(b.title, undefined, { sensitivity: 'base' });
   });
 }
 

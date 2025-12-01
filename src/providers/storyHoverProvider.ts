@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { Store } from '../core/store';
-import { findLinkAtPosition, formatHoverCard, EpicProgress } from './storyHoverProviderUtils';
+import { findLinkAtPosition, findBareIdAtPosition, isInFrontmatter, formatHoverCard, EpicProgress, HoverLinkMatch } from './storyHoverProviderUtils';
 
 /**
  * Provides hover previews for [[ID]] links in markdown files
@@ -24,7 +24,20 @@ export class StoryHoverProvider implements vscode.HoverProvider {
     const lineText = line.text;
     const charOffset = position.character;
 
-    const match = findLinkAtPosition(lineText, charOffset);
+    // Check if we're in frontmatter - if so, look for bare IDs
+    const allLines = document.getText().split('\n');
+    const inFrontmatter = isInFrontmatter(allLines, position.line);
+
+    let match: HoverLinkMatch | null = null;
+
+    if (inFrontmatter) {
+      // In frontmatter: look for bare IDs first, then [[ID]] links
+      match = findBareIdAtPosition(lineText, charOffset) || findLinkAtPosition(lineText, charOffset);
+    } else {
+      // In body: only look for [[ID]] links (bare IDs should NOT trigger hover)
+      match = findLinkAtPosition(lineText, charOffset);
+    }
+
     if (!match) {
       return null;
     }

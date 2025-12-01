@@ -1122,3 +1122,22 @@ Files changed (2):
 - .devstories/stories/DS-135.md (marked complete)
 
 Tests: 366 unit + 111 integration = 477 total (all passing)
+
+=== Session: 2025-12-01 16:24 ===
+Story: DS-150 (Hover preview for bare IDs in frontmatter)
+Status: done
+
+Added hover previews for bare IDs (DS-XXX, EPIC-XXX) in YAML frontmatter.
+- `BARE_ID_PATTERN` matches IDs without [[]] wrapper
+- `isInFrontmatter()` detects cursor position in frontmatter vs body
+- `findBareIdAtPosition()` finds bare IDs in frontmatter lines
+- `StoryHoverProvider.provideHover()` now checks frontmatter context
+
+Files changed (5):
+- src/utils/linkResolver.ts (added BARE_ID_PATTERN)
+- src/providers/storyHoverProviderUtils.ts (added findBareIdAtPosition, isInFrontmatter)
+- src/providers/storyHoverProvider.ts (use context-aware matching)
+- src/test/unit/storyHoverProvider.test.ts (+14 new tests)
+- src/test/suite/storyHoverProvider.test.ts (+3 integration tests)
+
+Tests: 380 unit + 114 integration = 494 total (+17 new)

@@ -1141,3 +1141,20 @@ Files changed (5):
 - src/test/suite/storyHoverProvider.test.ts (+3 integration tests)
 
 Tests: 380 unit + 114 integration = 494 total (+17 new)
+
+=== Session: 2025-12-01 16:48 ===
+Story: DS-142 (Config validation with user feedback)
+Status: done
+
+Added warning notification when config.yaml has parse errors:
+- Parse error: warning message with "Open Config" action button
+- Clicking "Open Config" opens the config file for editing
+
+Files changed (3):
+- src/core/configServiceNotifications.ts (new - notification constants and functions)
+- src/core/configService.ts (import and use notification function)
+- src/test/suite/configService.test.ts (+2 integration tests)
+
+Tests: 380 unit + 116 integration = 496 total (+2 new)
+
+Also created DS-152 story for config.json migration with JSON Schema.

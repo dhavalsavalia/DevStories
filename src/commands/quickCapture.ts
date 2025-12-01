@@ -5,6 +5,7 @@ import {
   parseQuickInput,
   truncateForTitle,
   cleanSelectionText,
+  OPEN_STORY_ACTION,
 } from './quickCaptureUtils';
 import {
   parseConfigYaml,
@@ -23,6 +24,7 @@ export {
   truncateForTitle,
   cleanSelectionText,
   INBOX_EPIC_ID,
+  OPEN_STORY_ACTION,
 } from './quickCaptureUtils';
 
 /**
@@ -227,8 +229,17 @@ export async function executeQuickCapture(store: Store): Promise<boolean> {
     getLogger().warn('Failed to auto-link story to inbox epic');
   }
 
-  // Show notification (NOT opening file - quick capture should not switch context)
-  void vscode.window.showInformationMessage(`Created ${storyId}: ${parsed.title}`);
+  // Show notification with "Open Story" action button
+  // Non-blocking: user can dismiss or click later without interrupting workflow
+  void vscode.window.showInformationMessage(
+    `Created ${storyId}: ${parsed.title}`,
+    OPEN_STORY_ACTION
+  ).then(async (action) => {
+    if (action === OPEN_STORY_ACTION) {
+      const doc = await vscode.workspace.openTextDocument(storyUri);
+      await vscode.window.showTextDocument(doc);
+    }
+  });
 
   return true;
 }

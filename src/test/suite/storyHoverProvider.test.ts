@@ -5,6 +5,8 @@ import {
   getTypeIcon,
   formatHoverCard,
   findLinkAtPosition,
+  findBareIdAtPosition,
+  isInFrontmatter,
 } from '../../providers/storyHoverProviderUtils';
 import { Story } from '../../types/story';
 import { Epic } from '../../types/epic';
@@ -114,5 +116,46 @@ suite('StoryHoverProvider Integration Test', () => {
     const second = findLinkAtPosition(text, 20);
     assert.ok(second !== null);
     assert.strictEqual(second!.id, 'EPIC-002');
+  });
+
+  test('findBareIdAtPosition finds bare ID in frontmatter', () => {
+    const text = 'epic: EPIC-001';
+    const match = findBareIdAtPosition(text, 10);
+
+    assert.ok(match !== null);
+    assert.strictEqual(match!.id, 'EPIC-001');
+    assert.strictEqual(match!.start, 6);
+    assert.strictEqual(match!.end, 14);
+  });
+
+  test('findBareIdAtPosition finds ID in dependencies array', () => {
+    const text = '  - DS-005';
+    const match = findBareIdAtPosition(text, 6);
+
+    assert.ok(match !== null);
+    assert.strictEqual(match!.id, 'DS-005');
+    assert.strictEqual(match!.start, 4);
+    assert.strictEqual(match!.end, 10);
+  });
+
+  test('isInFrontmatter detects frontmatter correctly', () => {
+    const lines = [
+      '---',
+      'id: DS-001',
+      'epic: EPIC-001',
+      '---',
+      '# Content',
+    ];
+
+    // Line 1 and 2 are in frontmatter
+    assert.strictEqual(isInFrontmatter(lines, 1), true);
+    assert.strictEqual(isInFrontmatter(lines, 2), true);
+
+    // Line 0 and 3 are delimiters, not in frontmatter
+    assert.strictEqual(isInFrontmatter(lines, 0), false);
+    assert.strictEqual(isInFrontmatter(lines, 3), false);
+
+    // Line 4 is after frontmatter
+    assert.strictEqual(isInFrontmatter(lines, 4), false);
   });
 });

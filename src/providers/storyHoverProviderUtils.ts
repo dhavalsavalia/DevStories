@@ -1,4 +1,4 @@
-import { LINK_PATTERN } from '../utils/linkResolver';
+import { LINK_PATTERN, BARE_ID_PATTERN } from '../utils/linkResolver';
 import { Story, StoryType } from '../types/story';
 import { Epic } from '../types/epic';
 
@@ -142,4 +142,72 @@ export function findLinkAtPosition(text: string, position: number): HoverLinkMat
   }
 
   return null;
+}
+
+/**
+ * Find bare ID (without [[]]) at a given character position in text
+ * Used for frontmatter fields like epic: and dependencies:
+ * Returns match info or null if position is not inside an ID
+ */
+export function findBareIdAtPosition(text: string, position: number): HoverLinkMatch | null {
+  // Create new regex instance to reset lastIndex
+  const regex = new RegExp(BARE_ID_PATTERN.source, 'g');
+
+  let match;
+  while ((match = regex.exec(text)) !== null) {
+    const start = match.index;
+    const end = match.index + match[0].length;
+
+    // Check if position is within this match
+    if (position >= start && position < end) {
+      return {
+        id: match[1],
+        start,
+        end,
+      };
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Check if a line number is within YAML frontmatter
+ * Frontmatter starts with --- on line 0 and ends with --- on a subsequent line
+ * @param lines Array of all lines in the document
+ * @param lineNumber The line number to check (0-indexed)
+ * @returns true if line is inside frontmatter (between delimiters, not on them)
+ */
+export function isInFrontmatter(lines: string[], lineNumber: number): boolean {
+  // Must have at least 2 lines for valid frontmatter
+  if (lines.length < 2) {
+    return false;
+  }
+
+  // First line must be ---
+  if (lines[0].trim() !== '---') {
+    return false;
+  }
+
+  // Can't be on line 0 (the opening delimiter)
+  if (lineNumber === 0) {
+    return false;
+  }
+
+  // Find the closing ---
+  let closingLine = -1;
+  for (let i = 1; i < lines.length; i++) {
+    if (lines[i].trim() === '---') {
+      closingLine = i;
+      break;
+    }
+  }
+
+  // If no closing found, treat everything after line 0 as frontmatter
+  if (closingLine === -1) {
+    return lineNumber > 0;
+  }
+
+  // Line must be between opening (0) and closing, exclusive
+  return lineNumber > 0 && lineNumber < closingLine;
 }

@@ -4,6 +4,8 @@ import {
   getTypeIcon,
   formatHoverCard,
   findLinkAtPosition,
+  findBareIdAtPosition,
+  isInFrontmatter,
 } from '../../providers/storyHoverProviderUtils';
 import { Story, StoryType } from '../../types/story';
 import { Epic } from '../../types/epic';
@@ -268,6 +270,160 @@ describe('storyHoverProviderUtils', () => {
       expect(result).toEqual({
         id: 'EPIC-INBOX',
         start: 4,
+        end: 18,
+      });
+    });
+  });
+
+  describe('isInFrontmatter', () => {
+    it('should return true for line within frontmatter', () => {
+      const lines = [
+        '---',
+        'id: DS-001',
+        'epic: EPIC-001',
+        '---',
+        '# Content',
+      ];
+      expect(isInFrontmatter(lines, 1)).toBe(true);
+      expect(isInFrontmatter(lines, 2)).toBe(true);
+    });
+
+    it('should return false for line after frontmatter', () => {
+      const lines = [
+        '---',
+        'id: DS-001',
+        '---',
+        '# Content',
+        'Body text',
+      ];
+      expect(isInFrontmatter(lines, 3)).toBe(false);
+      expect(isInFrontmatter(lines, 4)).toBe(false);
+    });
+
+    it('should return false if no opening frontmatter', () => {
+      const lines = ['# Just markdown', 'No frontmatter'];
+      expect(isInFrontmatter(lines, 0)).toBe(false);
+      expect(isInFrontmatter(lines, 1)).toBe(false);
+    });
+
+    it('should return false for frontmatter delimiter lines', () => {
+      const lines = [
+        '---',
+        'id: DS-001',
+        '---',
+      ];
+      expect(isInFrontmatter(lines, 0)).toBe(false); // Opening ---
+      expect(isInFrontmatter(lines, 2)).toBe(false); // Closing ---
+    });
+
+    it('should return true for unclosed frontmatter', () => {
+      const lines = [
+        '---',
+        'id: DS-001',
+        'epic: EPIC-001',
+      ];
+      // If frontmatter is never closed, treat content as frontmatter
+      expect(isInFrontmatter(lines, 1)).toBe(true);
+      expect(isInFrontmatter(lines, 2)).toBe(true);
+    });
+  });
+
+  describe('findBareIdAtPosition', () => {
+    it('should find bare story ID in dependencies array', () => {
+      const text = '  - DS-001';
+      const result = findBareIdAtPosition(text, 6);
+
+      expect(result).toEqual({
+        id: 'DS-001',
+        start: 4,
+        end: 10,
+      });
+    });
+
+    it('should find bare epic ID in epic field', () => {
+      const text = 'epic: EPIC-001';
+      const result = findBareIdAtPosition(text, 10);
+
+      expect(result).toEqual({
+        id: 'EPIC-001',
+        start: 6,
+        end: 14,
+      });
+    });
+
+    it('should handle custom prefixes', () => {
+      const text = 'epic: FEAT-123';
+      const result = findBareIdAtPosition(text, 10);
+
+      expect(result).toEqual({
+        id: 'FEAT-123',
+        start: 6,
+        end: 14,
+      });
+    });
+
+    it('should return null when cursor is outside ID', () => {
+      const text = 'epic: EPIC-001';
+      const result = findBareIdAtPosition(text, 2); // On 'ic:'
+
+      expect(result).toBeNull();
+    });
+
+    it('should handle multiple IDs on same line', () => {
+      const text = '  - DS-001 # depends on DS-002';
+
+      // First ID
+      expect(findBareIdAtPosition(text, 6)).toEqual({
+        id: 'DS-001',
+        start: 4,
+        end: 10,
+      });
+
+      // Second ID
+      expect(findBareIdAtPosition(text, 26)).toEqual({
+        id: 'DS-002',
+        start: 24,
+        end: 30,
+      });
+    });
+
+    it('should handle EPIC-INBOX special case', () => {
+      const text = 'epic: EPIC-INBOX';
+      const result = findBareIdAtPosition(text, 10);
+
+      expect(result).toEqual({
+        id: 'EPIC-INBOX',
+        start: 6,
+        end: 16,
+      });
+    });
+
+    it('should not match partial IDs', () => {
+      const text = 'some DS-001X text';
+      const result = findBareIdAtPosition(text, 8);
+
+      // Should not match because DS-001X is not a valid ID pattern
+      expect(result).toBeNull();
+    });
+
+    it('should match ID at start of line', () => {
+      const text = 'DS-001';
+      const result = findBareIdAtPosition(text, 3);
+
+      expect(result).toEqual({
+        id: 'DS-001',
+        start: 0,
+        end: 6,
+      });
+    });
+
+    it('should match ID at end of line', () => {
+      const text = 'dependency: DS-001';
+      const result = findBareIdAtPosition(text, 15);
+
+      expect(result).toEqual({
+        id: 'DS-001',
+        start: 12,
         end: 18,
       });
     });

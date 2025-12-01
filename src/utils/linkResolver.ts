@@ -8,6 +8,14 @@ import * as path from 'path';
 export const LINK_PATTERN = /\[\[([A-Z]+-(?:\d+|INBOX))\]\]/g;
 
 /**
+ * Regex pattern to match bare ID (without brackets) in frontmatter
+ * Matches: PREFIX-NUMBER where PREFIX is uppercase letters and NUMBER is digits
+ * Also matches EPIC-INBOX special case
+ * Uses word boundaries to avoid matching partial IDs like DS-001X
+ */
+export const BARE_ID_PATTERN = /\b([A-Z]+-(?:\d+|INBOX))\b/g;
+
+/**
  * Extract all [[ID]] links from text
  * Returns array of IDs (without brackets)
  */

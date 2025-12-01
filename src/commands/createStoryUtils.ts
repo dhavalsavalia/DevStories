@@ -44,6 +44,7 @@ export interface DevStoriesConfig {
   statuses: string[];
   sizes: StorySize[];
   templates: Record<StoryType, string>;
+  quickCaptureDefaultToCurrentSprint: boolean;
 }
 
 export interface StoryData {
@@ -110,6 +111,7 @@ export function parseConfigYaml(content: string): DevStoriesConfig {
       task: parsed?.templates?.task ?? DEFAULT_TEMPLATES.task,
       chore: parsed?.templates?.chore ?? DEFAULT_TEMPLATES.chore,
     },
+    quickCaptureDefaultToCurrentSprint: parsed?.quickCapture?.defaultToCurrentSprint === true,
   };
 }
 

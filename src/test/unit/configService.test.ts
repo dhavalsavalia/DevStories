@@ -68,6 +68,33 @@ templates:
       const result = parseConfigYamlContent('');
       expect(result).toEqual({});
     });
+
+    it('should parse quickCapture.defaultToCurrentSprint when true', () => {
+      const yaml = `
+version: 1
+quickCapture:
+  defaultToCurrentSprint: true
+`;
+      const result = parseConfigYamlContent(yaml);
+      expect(result.quickCaptureDefaultToCurrentSprint).toBe(true);
+    });
+
+    it('should parse quickCapture.defaultToCurrentSprint when false', () => {
+      const yaml = `
+version: 1
+quickCapture:
+  defaultToCurrentSprint: false
+`;
+      const result = parseConfigYamlContent(yaml);
+      expect(result.quickCaptureDefaultToCurrentSprint).toBe(false);
+    });
+
+    it('should default quickCaptureDefaultToCurrentSprint to false when not specified', () => {
+      const yaml = `version: 1`;
+      const result = parseConfigYamlContent(yaml);
+      const merged = mergeConfigWithDefaults(result);
+      expect(merged.quickCaptureDefaultToCurrentSprint).toBe(false);
+    });
   });
 
   describe('parseTemplateFile', () => {

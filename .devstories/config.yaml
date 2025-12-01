@@ -45,6 +45,12 @@ sprints:
 # Size options
 sizes: ["XS", "S", "M", "L", "XL"]
 
+# Quick capture settings
+quickCapture:
+  # When false (default): stories go to backlog for triage
+  # When true: stories use sprints.current value
+  defaultToCurrentSprint: false
+
 # Story templates per type
 templates:
   feature: |

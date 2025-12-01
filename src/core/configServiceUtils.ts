@@ -38,6 +38,7 @@ export interface ConfigData {
   statuses: StatusDef[];
   sizes: StorySize[];
   inlineTemplates?: Partial<Record<StoryType, string>>;
+  quickCaptureDefaultToCurrentSprint: boolean;
 }
 
 /**
@@ -54,6 +55,7 @@ export const DEFAULT_CONFIG: ConfigData = {
     { id: 'done', label: 'Done' },
   ],
   sizes: ['XS', 'S', 'M', 'L', 'XL'] as StorySize[],
+  quickCaptureDefaultToCurrentSprint: false,
 };
 
 /**
@@ -112,6 +114,11 @@ export function parseConfigYamlContent(content: string): Partial<ConfigData> {
       };
     }
 
+    // Quick capture options
+    if (typeof parsed.quickCapture?.defaultToCurrentSprint === 'boolean') {
+      result.quickCaptureDefaultToCurrentSprint = parsed.quickCapture.defaultToCurrentSprint;
+    }
+
     return result;
   } catch {
     // Invalid YAML config - return empty to use defaults
@@ -147,6 +154,7 @@ export function mergeConfigWithDefaults(parsed: Partial<ConfigData>): ConfigData
     statuses: parsed.statuses ?? DEFAULT_CONFIG.statuses,
     sizes: parsed.sizes ?? DEFAULT_CONFIG.sizes,
     inlineTemplates: parsed.inlineTemplates,
+    quickCaptureDefaultToCurrentSprint: parsed.quickCaptureDefaultToCurrentSprint ?? DEFAULT_CONFIG.quickCaptureDefaultToCurrentSprint,
   };
 }
 

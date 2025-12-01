@@ -174,8 +174,10 @@ export async function executeQuickCapture(store: Store): Promise<boolean> {
   const nextNum = findNextStoryId(existingIds, config.storyPrefix);
   const storyId = `${config.storyPrefix}-${String(nextNum).padStart(3, '0')}`;
 
-  // Determine sprint (current or backlog)
-  const sprint = config.currentSprint || 'backlog';
+  // Determine sprint based on config option (default: backlog for inbox workflow)
+  const sprint = config.quickCaptureDefaultToCurrentSprint && config.currentSprint
+    ? config.currentSprint
+    : 'backlog';
 
   // Get template and add notes if provided
   let template = config.templates[parsed.type] || DEFAULT_TEMPLATES[parsed.type];

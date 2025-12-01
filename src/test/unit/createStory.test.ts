@@ -54,6 +54,32 @@ templates:
       expect(config.templates.feature).toBe(DEFAULT_TEMPLATES.feature);
       expect(config.templates.bug).toBe(DEFAULT_TEMPLATES.bug);
     });
+
+    it('should parse quickCapture.defaultToCurrentSprint option', () => {
+      const yaml = `
+version: 1
+quickCapture:
+  defaultToCurrentSprint: true
+`;
+      const config = parseConfigYaml(yaml);
+      expect(config.quickCaptureDefaultToCurrentSprint).toBe(true);
+    });
+
+    it('should default quickCapture.defaultToCurrentSprint to false when not specified', () => {
+      const yaml = `version: 1`;
+      const config = parseConfigYaml(yaml);
+      expect(config.quickCaptureDefaultToCurrentSprint).toBe(false);
+    });
+
+    it('should handle quickCapture.defaultToCurrentSprint set to false explicitly', () => {
+      const yaml = `
+version: 1
+quickCapture:
+  defaultToCurrentSprint: false
+`;
+      const config = parseConfigYaml(yaml);
+      expect(config.quickCaptureDefaultToCurrentSprint).toBe(false);
+    });
   });
 
   describe('findNextStoryId', () => {

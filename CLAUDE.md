@@ -297,6 +297,7 @@ For long-running development across multiple sessions:
 - Description + acceptance criteria (checkboxes)
 - `## Decisions` section ONLY if non-obvious choices were made
 - NO implementation notes (commit messages cover that)
+- **Use wiki-style links**: When referencing other stories or epics, use `[[DS-XXX]]` or `[[EPIC-XXX]]` syntax for clickable hover-preview links
 
 **Progress file** (`claude-progress.txt`):
 - Session log for continuity between sessions

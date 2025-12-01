@@ -81,7 +81,11 @@
       "Bash(do if head -20 \"$f\")",
       "Bash(then echo \"$f\")",
       "Bash(while read f)",
-      "Bash(do if head -20 $f)"
+      "Bash(do if head -20 $f)",
+      "Bash(do grep -l '^epic: EPIC-005' $f)",
+      "Bash(if [ -f \".devstories/epics/$epic.md\" ])",
+      "Bash(else)",
+      "Bash(npm run lint)"
     ],
     "deny": [],
     "ask": [],

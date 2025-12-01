@@ -26,7 +26,9 @@ describe('DS-057: Empty catch block handling', () => {
 
       for (const file of files) {
         // Skip test files
-        if (file.includes('/test/')) continue;
+        if (file.includes('/test/')) {
+          continue;
+        }
 
         const content = fs.readFileSync(file, 'utf8');
         for (const pattern of emptyPatterns) {
@@ -51,7 +53,9 @@ describe('DS-057: Empty catch block handling', () => {
 
       for (const file of files) {
         // Skip test files and logger itself
-        if (file.includes('/test/') || file.includes('logger.ts')) continue;
+        if (file.includes('/test/') || file.includes('logger.ts')) {
+          continue;
+        }
 
         const content = fs.readFileSync(file, 'utf8');
 

@@ -12,7 +12,9 @@ suite('AutoTimestamp Integration Test', () => {
 	let autoTimestamp: AutoTimestamp;
 
 	setup(async () => {
-		if (!fs.existsSync(storiesDir)) fs.mkdirSync(storiesDir, { recursive: true });
+		if (!fs.existsSync(storiesDir)) {
+			fs.mkdirSync(storiesDir, { recursive: true });
+		}
 
 		fs.writeFileSync(testFile, `---
 id: TIMESTAMP-TEST
@@ -31,7 +33,9 @@ created: 2025-01-01
 	teardown(async () => {
 		autoTimestamp.dispose();
 		await vscode.commands.executeCommand('workbench.action.closeAllEditors');
-		if (fs.existsSync(testFile)) fs.unlinkSync(testFile);
+		if (fs.existsSync(testFile)) {
+			fs.unlinkSync(testFile);
+		}
 	});
 
 	test('should update timestamp on save', async () => {

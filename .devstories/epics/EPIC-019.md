@@ -1,9 +1,9 @@
 ---
 id: EPIC-019
 title: Housekeeping
-status: active
+status: done
 created: 2025-11-30
-updated: 2025-11-29
+updated: 2025-12-01
 ---
 
 # Housekeeping

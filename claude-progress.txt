@@ -1022,3 +1022,22 @@ Files changed (2):
 Tests: 357 unit + 129 integration = 486 total (all passing)
 
 Note: Integration tests failed initially due to leftover files in test-workspace/.devstories/ from previous runs. This is a pre-existing test isolation issue, not related to this story.
+
+=== Session: 2025-12-01 14:17 ===
+Story: DS-118 (fix init.sh npm test linting)
+Status: done
+
+Fixed 20 ESLint warnings and streamlined init.sh:
+- Fixed missing semicolon in autoTimestamp.ts
+- Fixed curly brace warnings in 4 test files
+- Changed init.sh to use `npx vitest run` directly to avoid redundant pretest script
+
+Files changed (5):
+- src/core/autoTimestamp.ts
+- src/test/suite/autoTimestamp.test.ts
+- src/test/suite/store.test.ts
+- src/test/unit/emptyCatchBlocks.test.ts
+- src/test/unit/treeViewSorting.test.ts
+- init.sh
+
+Tests: 357 unit + 129 integration = 486 total (all passing)

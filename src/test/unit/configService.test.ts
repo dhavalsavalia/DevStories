@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
-  parseConfigYamlContent,
+  parseConfigJsonContent,
   parseTemplateFile,
   mergeConfigWithDefaults,
+  validateSprintConfig,
   ConfigData,
   TemplateData,
   DEFAULT_CONFIG,
@@ -11,31 +12,26 @@ import {
 } from '../../core/configServiceUtils';
 
 describe('ConfigService Utils', () => {
-  describe('parseConfigYamlContent', () => {
-    it('should parse complete config.yaml', () => {
-      const yaml = `
-version: 1
-project: "Test Project"
-id_prefix:
-  epic: "EPIC"
-  story: "STORY"
-statuses:
-  - id: todo
-    label: "To Do"
-  - id: in_progress
-    label: "In Progress"
-  - id: done
-    label: "Done"
-sprints:
-  current: "sprint-1"
-sizes: ["XS", "S", "M", "L", "XL"]
-templates:
-  feature: |
-    Custom feature template
-  bug: |
-    Custom bug template
-`;
-      const result = parseConfigYamlContent(yaml);
+  describe('parseConfigJsonContent', () => {
+    it('should parse complete config.json', () => {
+      const json = JSON.stringify({
+        version: 1,
+        project: 'Test Project',
+        idPrefix: {
+          epic: 'EPIC',
+          story: 'STORY',
+        },
+        statuses: [
+          { id: 'todo', label: 'To Do' },
+          { id: 'in_progress', label: 'In Progress' },
+          { id: 'done', label: 'Done' },
+        ],
+        sprints: {
+          current: 'sprint-1',
+        },
+        sizes: ['XS', 'S', 'M', 'L', 'XL'],
+      });
+      const result = parseConfigJsonContent(json);
 
       expect(result.epicPrefix).toBe('EPIC');
       expect(result.storyPrefix).toBe('STORY');
@@ -46,54 +42,138 @@ templates:
         { id: 'done', label: 'Done' },
       ]);
       expect(result.sizes).toEqual(['XS', 'S', 'M', 'L', 'XL']);
-      expect(result.inlineTemplates?.feature).toContain('Custom feature template');
-      expect(result.inlineTemplates?.bug).toContain('Custom bug template');
     });
 
     it('should return partial result for minimal config', () => {
-      const yaml = `version: 1`;
-      const result = parseConfigYamlContent(yaml);
+      const json = JSON.stringify({ version: 1 });
+      const result = parseConfigJsonContent(json);
 
       expect(result.epicPrefix).toBeUndefined();
       expect(result.storyPrefix).toBeUndefined();
       expect(result.statuses).toBeUndefined();
     });
 
-    it('should return empty object for invalid yaml', () => {
-      const result = parseConfigYamlContent('{ invalid yaml [');
+    it('should return empty object for invalid json', () => {
+      const result = parseConfigJsonContent('{ invalid json [');
       expect(result).toEqual({});
     });
 
     it('should return empty object for empty string', () => {
-      const result = parseConfigYamlContent('');
+      const result = parseConfigJsonContent('');
       expect(result).toEqual({});
     });
 
     it('should parse quickCapture.defaultToCurrentSprint when true', () => {
-      const yaml = `
-version: 1
-quickCapture:
-  defaultToCurrentSprint: true
-`;
-      const result = parseConfigYamlContent(yaml);
+      const json = JSON.stringify({
+        version: 1,
+        quickCapture: {
+          defaultToCurrentSprint: true,
+        },
+      });
+      const result = parseConfigJsonContent(json);
       expect(result.quickCaptureDefaultToCurrentSprint).toBe(true);
     });
 
     it('should parse quickCapture.defaultToCurrentSprint when false', () => {
-      const yaml = `
-version: 1
-quickCapture:
-  defaultToCurrentSprint: false
-`;
-      const result = parseConfigYamlContent(yaml);
+      const json = JSON.stringify({
+        version: 1,
+        quickCapture: {
+          defaultToCurrentSprint: false,
+        },
+      });
+      const result = parseConfigJsonContent(json);
       expect(result.quickCaptureDefaultToCurrentSprint).toBe(false);
     });
 
     it('should default quickCaptureDefaultToCurrentSprint to false when not specified', () => {
-      const yaml = `version: 1`;
-      const result = parseConfigYamlContent(yaml);
+      const json = JSON.stringify({ version: 1 });
+      const result = parseConfigJsonContent(json);
       const merged = mergeConfigWithDefaults(result);
       expect(merged.quickCaptureDefaultToCurrentSprint).toBe(false);
+    });
+
+    it('should parse sprint sequence array', () => {
+      const json = JSON.stringify({
+        version: 1,
+        sprints: {
+          current: 'sprint-2',
+          sequence: ['sprint-1', 'sprint-2', 'sprint-3', 'backlog'],
+        },
+      });
+      const result = parseConfigJsonContent(json);
+
+      expect(result.currentSprint).toBe('sprint-2');
+      expect(result.sprintSequence).toEqual(['sprint-1', 'sprint-2', 'sprint-3', 'backlog']);
+    });
+
+    it('should handle missing sequence', () => {
+      const json = JSON.stringify({
+        version: 1,
+        sprints: {
+          current: 'sprint-1',
+        },
+      });
+      const result = parseConfigJsonContent(json);
+      const merged = mergeConfigWithDefaults(result);
+
+      expect(merged.currentSprint).toBe('sprint-1');
+      expect(merged.sprintSequence).toEqual([]);
+    });
+
+    it('should handle empty sequence', () => {
+      const json = JSON.stringify({
+        version: 1,
+        sprints: {
+          current: 'sprint-1',
+          sequence: [],
+        },
+      });
+      const result = parseConfigJsonContent(json);
+
+      expect(result.sprintSequence).toEqual([]);
+    });
+  });
+
+  describe('validateSprintConfig', () => {
+    it('should return valid when currentSprint exists in sequence', () => {
+      const config: ConfigData = {
+        ...DEFAULT_CONFIG,
+        currentSprint: 'sprint-2',
+        sprintSequence: ['sprint-1', 'sprint-2', 'sprint-3'],
+      };
+      const result = validateSprintConfig(config);
+      expect(result.valid).toBe(true);
+    });
+
+    it('should return valid when no currentSprint is set', () => {
+      const config: ConfigData = {
+        ...DEFAULT_CONFIG,
+        currentSprint: undefined,
+        sprintSequence: ['sprint-1', 'sprint-2'],
+      };
+      const result = validateSprintConfig(config);
+      expect(result.valid).toBe(true);
+    });
+
+    it('should return valid when sequence is empty', () => {
+      const config: ConfigData = {
+        ...DEFAULT_CONFIG,
+        currentSprint: 'sprint-1',
+        sprintSequence: [],
+      };
+      const result = validateSprintConfig(config);
+      expect(result.valid).toBe(true);
+    });
+
+    it('should return invalid when currentSprint does not exist in sequence', () => {
+      const config: ConfigData = {
+        ...DEFAULT_CONFIG,
+        currentSprint: 'sprint-99',
+        sprintSequence: ['sprint-1', 'sprint-2', 'sprint-3'],
+      };
+      const result = validateSprintConfig(config);
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('sprint-99');
     });
   });
 
@@ -163,14 +243,6 @@ Some content`;
       expect(result.sizes).toEqual(DEFAULT_CONFIG.sizes);
     });
 
-    it('should preserve templates from parsed', () => {
-      const parsed: Partial<ConfigData> = {
-        inlineTemplates: { feature: 'Custom feature' },
-      };
-      const result = mergeConfigWithDefaults(parsed);
-
-      expect(result.inlineTemplates?.feature).toBe('Custom feature');
-    });
   });
 
   describe('debounce', () => {
@@ -243,50 +315,6 @@ Some content`;
       const statusIds = DEFAULT_CONFIG.statuses.map(s => s.id);
       expect(statusIds).toContain('todo');
       expect(statusIds).toContain('done');
-    });
-  });
-
-  describe('parseConfigYamlContent with sprint sequence', () => {
-    it('should parse sprint sequence array', () => {
-      const yaml = `
-version: 1
-sprints:
-  current: "sprint-2"
-  sequence:
-    - sprint-1
-    - sprint-2
-    - sprint-3
-    - backlog
-`;
-      const result = parseConfigYamlContent(yaml);
-
-      expect(result.currentSprint).toBe('sprint-2');
-      expect(result.sprintSequence).toEqual(['sprint-1', 'sprint-2', 'sprint-3', 'backlog']);
-    });
-
-    it('should handle missing sequence', () => {
-      const yaml = `
-version: 1
-sprints:
-  current: "sprint-1"
-`;
-      const result = parseConfigYamlContent(yaml);
-      const merged = mergeConfigWithDefaults(result);
-
-      expect(merged.currentSprint).toBe('sprint-1');
-      expect(merged.sprintSequence).toEqual([]);
-    });
-
-    it('should handle empty sequence', () => {
-      const yaml = `
-version: 1
-sprints:
-  current: "sprint-1"
-  sequence: []
-`;
-      const result = parseConfigYamlContent(yaml);
-
-      expect(result.sprintSequence).toEqual([]);
     });
   });
 

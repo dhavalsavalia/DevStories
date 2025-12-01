@@ -11,34 +11,30 @@ export interface InitConfig {
 }
 
 /**
- * Generates config.yaml content from InitConfig
+ * Generates config.json content from InitConfig
  */
-export function generateConfigYaml(config: InitConfig): string {
-  const escapedName = config.projectName.replace(/"/g, '\\"');
-
-  return `version: 1
-project: "${escapedName}"
-
-id_mode: auto
-id_prefix:
-  epic: "${config.epicPrefix}"
-  story: "${config.storyPrefix}"
-
-statuses:
-  - id: todo
-    label: "To Do"
-  - id: in_progress
-    label: "In Progress"
-  - id: review
-    label: "Review"
-  - id: done
-    label: "Done"
-
-sprints:
-  current: "${config.sprint}"
-
-sizes: ["XS", "S", "M", "L", "XL"]
-`;
+export function generateConfigJson(config: InitConfig): string {
+  const configObj = {
+    version: 1,
+    project: config.projectName,
+    idMode: 'auto',
+    idPrefix: {
+      epic: config.epicPrefix,
+      story: config.storyPrefix,
+    },
+    statuses: [
+      { id: 'todo', label: 'To Do' },
+      { id: 'in_progress', label: 'In Progress' },
+      { id: 'review', label: 'Review' },
+      { id: 'done', label: 'Done' },
+    ],
+    sprints: {
+      current: config.sprint,
+      sequence: [config.sprint, 'backlog'],
+    },
+    sizes: ['XS', 'S', 'M', 'L', 'XL'],
+  };
+  return JSON.stringify(configObj, null, 2);
 }
 
 /**

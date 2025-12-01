@@ -9,7 +9,7 @@ import { StoryType, StorySize } from '../types/story';
 const matter = require('gray-matter');
 
 /**
- * Status definition from config.yaml
+ * Status definition from config.json
  */
 export interface StatusDef {
   id: string;
@@ -28,7 +28,7 @@ export interface TemplateData {
 }
 
 /**
- * Config data parsed from config.yaml
+ * Config data parsed from config.json
  */
 export interface ConfigData {
   epicPrefix: string;
@@ -37,7 +37,6 @@ export interface ConfigData {
   sprintSequence: string[];
   statuses: StatusDef[];
   sizes: StorySize[];
-  inlineTemplates?: Partial<Record<StoryType, string>>;
   quickCaptureDefaultToCurrentSprint: boolean;
 }
 
@@ -59,28 +58,61 @@ export const DEFAULT_CONFIG: ConfigData = {
 };
 
 /**
- * Parse config.yaml content into ConfigData
+ * Validation result for sprint config
+ */
+export interface SprintValidationResult {
+  valid: boolean;
+  error?: string;
+}
+
+/**
+ * Validate that currentSprint exists in sequence (if both are defined)
+ */
+export function validateSprintConfig(config: ConfigData): SprintValidationResult {
+  // No currentSprint set - valid
+  if (!config.currentSprint) {
+    return { valid: true };
+  }
+
+  // Empty sequence - valid (no constraint)
+  if (config.sprintSequence.length === 0) {
+    return { valid: true };
+  }
+
+  // currentSprint must exist in sequence
+  if (!config.sprintSequence.includes(config.currentSprint)) {
+    return {
+      valid: false,
+      error: `Sprint "${config.currentSprint}" is not in the sequence`,
+    };
+  }
+
+  return { valid: true };
+}
+
+/**
+ * Parse config.json content into ConfigData
  * Returns partial data - use mergeConfigWithDefaults to fill in missing fields
  */
-export function parseConfigYamlContent(content: string): Partial<ConfigData> {
+export function parseConfigJsonContent(content: string): Partial<ConfigData> {
   if (!content.trim()) {
     return {};
   }
 
   try {
-    const parsed = matter.engines.yaml.parse(content);
+    const parsed = JSON.parse(content);
     if (!parsed) {
       return {};
     }
 
     const result: Partial<ConfigData> = {};
 
-    // ID prefixes
-    if (parsed.id_prefix?.epic) {
-      result.epicPrefix = parsed.id_prefix.epic;
+    // ID prefixes (camelCase in JSON)
+    if (parsed.idPrefix?.epic) {
+      result.epicPrefix = parsed.idPrefix.epic;
     }
-    if (parsed.id_prefix?.story) {
-      result.storyPrefix = parsed.id_prefix.story;
+    if (parsed.idPrefix?.story) {
+      result.storyPrefix = parsed.idPrefix.story;
     }
 
     // Sprint
@@ -104,16 +136,6 @@ export function parseConfigYamlContent(content: string): Partial<ConfigData> {
       result.sizes = parsed.sizes;
     }
 
-    // Inline templates
-    if (parsed.templates) {
-      result.inlineTemplates = {
-        feature: parsed.templates.feature,
-        bug: parsed.templates.bug,
-        task: parsed.templates.task,
-        chore: parsed.templates.chore,
-      };
-    }
-
     // Quick capture options
     if (typeof parsed.quickCapture?.defaultToCurrentSprint === 'boolean') {
       result.quickCaptureDefaultToCurrentSprint = parsed.quickCapture.defaultToCurrentSprint;
@@ -121,7 +143,7 @@ export function parseConfigYamlContent(content: string): Partial<ConfigData> {
 
     return result;
   } catch {
-    // Invalid YAML config - return empty to use defaults
+    // Invalid JSON config - return empty to use defaults
     return {};
   }
 }
@@ -153,7 +175,6 @@ export function mergeConfigWithDefaults(parsed: Partial<ConfigData>): ConfigData
     sprintSequence: parsed.sprintSequence ?? DEFAULT_CONFIG.sprintSequence,
     statuses: parsed.statuses ?? DEFAULT_CONFIG.statuses,
     sizes: parsed.sizes ?? DEFAULT_CONFIG.sizes,
-    inlineTemplates: parsed.inlineTemplates,
     quickCaptureDefaultToCurrentSprint: parsed.quickCaptureDefaultToCurrentSprint ?? DEFAULT_CONFIG.quickCaptureDefaultToCurrentSprint,
   };
 }

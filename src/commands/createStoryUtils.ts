@@ -43,7 +43,6 @@ export interface DevStoriesConfig {
   currentSprint?: string;
   statuses: string[];
   sizes: StorySize[];
-  templates: Record<StoryType, string>;
   quickCaptureDefaultToCurrentSprint: boolean;
 }
 
@@ -94,25 +93,30 @@ As a [user], I need [feature] so that [benefit].
 };
 
 /**
- * Parse config.yaml content and extract relevant fields for story creation
+ * Parse config.json content and extract relevant fields for story creation
  */
-export function parseConfigYaml(content: string): DevStoriesConfig {
-  const parsed = matter.engines.yaml.parse(content);
+export function parseConfigJson(content: string): DevStoriesConfig {
+  try {
+    const parsed = JSON.parse(content);
 
-  return {
-    epicPrefix: parsed?.id_prefix?.epic ?? 'EPIC',
-    storyPrefix: parsed?.id_prefix?.story ?? 'STORY',
-    currentSprint: parsed?.sprints?.current,
-    statuses: parsed?.statuses?.map((s: { id: string }) => s.id) ?? ['todo', 'in_progress', 'review', 'done'],
-    sizes: parsed?.sizes ?? ['XS', 'S', 'M', 'L', 'XL'],
-    templates: {
-      feature: parsed?.templates?.feature ?? DEFAULT_TEMPLATES.feature,
-      bug: parsed?.templates?.bug ?? DEFAULT_TEMPLATES.bug,
-      task: parsed?.templates?.task ?? DEFAULT_TEMPLATES.task,
-      chore: parsed?.templates?.chore ?? DEFAULT_TEMPLATES.chore,
-    },
-    quickCaptureDefaultToCurrentSprint: parsed?.quickCapture?.defaultToCurrentSprint === true,
-  };
+    return {
+      epicPrefix: parsed?.idPrefix?.epic ?? 'EPIC',
+      storyPrefix: parsed?.idPrefix?.story ?? 'STORY',
+      currentSprint: parsed?.sprints?.current,
+      statuses: parsed?.statuses?.map((s: { id: string }) => s.id) ?? ['todo', 'in_progress', 'review', 'done'],
+      sizes: parsed?.sizes ?? ['XS', 'S', 'M', 'L', 'XL'],
+      quickCaptureDefaultToCurrentSprint: parsed?.quickCapture?.defaultToCurrentSprint === true,
+    };
+  } catch {
+    return {
+      epicPrefix: 'EPIC',
+      storyPrefix: 'STORY',
+      currentSprint: undefined,
+      statuses: ['todo', 'in_progress', 'review', 'done'],
+      sizes: ['XS', 'S', 'M', 'L', 'XL'],
+      quickCaptureDefaultToCurrentSprint: false,
+    };
+  }
 }
 
 /**

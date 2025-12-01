@@ -9,7 +9,7 @@ const matter = require('gray-matter');
 const DEFAULT_STATUSES = ['todo', 'in_progress', 'review', 'done'];
 
 /**
- * Parse statuses from config.yaml content
+ * Parse statuses from config.json content
  */
 export function parseStatusesFromConfig(content: string): string[] {
   if (!content.trim()) {
@@ -17,7 +17,7 @@ export function parseStatusesFromConfig(content: string): string[] {
   }
 
   try {
-    const parsed = matter.engines.yaml.parse(content);
+    const parsed = JSON.parse(content);
     const statuses = parsed?.statuses;
 
     if (!statuses || !Array.isArray(statuses)) {
@@ -26,7 +26,7 @@ export function parseStatusesFromConfig(content: string): string[] {
 
     return statuses.map((s: { id: string }) => s.id);
   } catch {
-    // Invalid YAML config - use defaults
+    // Invalid JSON config - use defaults
     return DEFAULT_STATUSES;
   }
 }

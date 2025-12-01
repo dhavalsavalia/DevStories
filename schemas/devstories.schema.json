@@ -1,0 +1,108 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://devstories.dev/schemas/config.json",
+  "title": "DevStories Configuration",
+  "description": "Configuration for DevStories VS Code extension",
+  "type": "object",
+  "required": ["version", "project", "idPrefix", "statuses", "sizes"],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1,
+      "description": "Configuration schema version"
+    },
+    "project": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Project name"
+    },
+    "idMode": {
+      "type": "string",
+      "enum": ["auto", "manual"],
+      "default": "auto",
+      "description": "ID generation mode: 'auto' generates sequential IDs, 'manual' requires user input"
+    },
+    "idPrefix": {
+      "type": "object",
+      "required": ["epic", "story"],
+      "properties": {
+        "epic": {
+          "type": "string",
+          "pattern": "^[A-Z]+$",
+          "description": "Prefix for epic IDs (e.g., EPIC)"
+        },
+        "story": {
+          "type": "string",
+          "pattern": "^[A-Z]+$",
+          "description": "Prefix for story IDs (e.g., DS, STORY)"
+        }
+      },
+      "additionalProperties": false,
+      "description": "ID prefixes for epics and stories"
+    },
+    "statuses": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "label"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z_]+$",
+            "description": "Status identifier (lowercase with underscores)"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Display label for the status"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Status workflow definitions"
+    },
+    "sprints": {
+      "type": "object",
+      "properties": {
+        "current": {
+          "type": "string",
+          "description": "Current active sprint name (must exist in sequence if sequence is defined)"
+        },
+        "sequence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true,
+          "description": "Ordered list of sprint names"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Sprint configuration"
+    },
+    "sizes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["XS", "S", "M", "L", "XL"]
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "Available story size options"
+    },
+    "quickCapture": {
+      "type": "object",
+      "properties": {
+        "defaultToCurrentSprint": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, quick captures use current sprint; when false, they go to backlog"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Quick capture settings"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,7 +1,7 @@
 /**
- * ConfigService - Live reload service for config.yaml and templates
+ * ConfigService - Live reload service for config.json and templates
  *
- * Watches .devstories/config.yaml and .devstories/templates/ for changes,
+ * Watches .devstories/config.json and .devstories/templates/ for changes,
  * parses content, and emits events when config updates.
  */
 
@@ -10,12 +10,13 @@ import { getLogger } from './logger';
 import {
   ConfigData,
   TemplateData,
-  parseConfigYamlContent,
+  parseConfigJsonContent,
   parseTemplateFile,
   mergeConfigWithDefaults,
+  validateSprintConfig,
   DEFAULT_CONFIG,
 } from './configServiceUtils';
-import { showConfigErrorNotification } from './configServiceNotifications';
+import { showConfigErrorNotification, showSprintValidationErrorNotification } from './configServiceNotifications';
 
 const CONFIG_DEBOUNCE_MS = 100;
 const TEMPLATE_DEBOUNCE_MS = 100;
@@ -63,7 +64,7 @@ export class ConfigService implements vscode.Disposable {
   }
 
   /**
-   * Load config.yaml from workspace
+   * Load config.json from workspace
    */
   private async loadConfig(): Promise<void> {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
@@ -75,14 +76,22 @@ export class ConfigService implements vscode.Disposable {
     const configUri = vscode.Uri.joinPath(
       workspaceFolder.uri,
       '.devstories',
-      'config.yaml'
+      'config.json'
     );
 
     try {
       const content = await vscode.workspace.fs.readFile(configUri);
       const contentStr = new TextDecoder().decode(content);
-      const parsed = parseConfigYamlContent(contentStr);
-      this._config = mergeConfigWithDefaults(parsed);
+      const parsed = parseConfigJsonContent(contentStr);
+      const merged = mergeConfigWithDefaults(parsed);
+
+      // Validate sprint config
+      const validation = validateSprintConfig(merged);
+      if (!validation.valid) {
+        void showSprintValidationErrorNotification(validation.error || 'Invalid sprint configuration');
+      }
+
+      this._config = merged;
       this._lastGoodConfig = this._config;
     } catch (err) {
       // File doesn't exist or can't be read - use defaults
@@ -133,12 +142,12 @@ export class ConfigService implements vscode.Disposable {
   }
 
   /**
-   * Start watching config.yaml and templates/
+   * Start watching config.json and templates/
    */
   private startWatching(): void {
-    // Watch config.yaml
+    // Watch config.json
     this.configWatcher = vscode.workspace.createFileSystemWatcher(
-      '**/.devstories/config.yaml'
+      '**/.devstories/config.json'
     );
 
     this.configWatcher.onDidCreate(() => this.debouncedConfigReload());
@@ -191,23 +200,31 @@ export class ConfigService implements vscode.Disposable {
     const configUri = vscode.Uri.joinPath(
       workspaceFolder.uri,
       '.devstories',
-      'config.yaml'
+      'config.json'
     );
 
     try {
       const content = await vscode.workspace.fs.readFile(configUri);
       const contentStr = new TextDecoder().decode(content);
-      const parsed = parseConfigYamlContent(contentStr);
+      const parsed = parseConfigJsonContent(contentStr);
 
       // Check for parse errors in critical fields
       if (Object.keys(parsed).length === 0 && contentStr.trim().length > 0) {
-        const error = new Error('Failed to parse config.yaml');
+        const error = new Error('Failed to parse config.json');
         this._onParseError.fire(error);
         void showConfigErrorNotification();
         return;
       }
 
-      this._config = mergeConfigWithDefaults(parsed);
+      const merged = mergeConfigWithDefaults(parsed);
+
+      // Validate sprint config
+      const validation = validateSprintConfig(merged);
+      if (!validation.valid) {
+        void showSprintValidationErrorNotification(validation.error || 'Invalid sprint configuration');
+      }
+
+      this._config = merged;
       this._lastGoodConfig = this._config;
       this._onDidConfigChange.fire(this._config);
     } catch (err) {
@@ -226,7 +243,7 @@ export class ConfigService implements vscode.Disposable {
   }
 
   /**
-   * Handle config.yaml deletion
+   * Handle config.json deletion
    */
   private onConfigDeleted(): void {
     this._config = DEFAULT_CONFIG;

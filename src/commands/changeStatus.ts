@@ -16,9 +16,9 @@ import {
 } from './changeStatusUtils';
 
 /**
- * Read config.yaml from workspace
+ * Read config.json from workspace
  */
-async function readConfigYaml(): Promise<string | undefined> {
+async function readConfigJson(): Promise<string | undefined> {
   const workspaceFolders = vscode.workspace.workspaceFolders;
   if (!workspaceFolders || workspaceFolders.length === 0) {
     return undefined;
@@ -27,7 +27,7 @@ async function readConfigYaml(): Promise<string | undefined> {
   const configPath = path.join(
     workspaceFolders[0].uri.fsPath,
     '.devstories',
-    'config.yaml'
+    'config.json'
   );
 
   try {
@@ -55,7 +55,7 @@ export async function executeChangeStatus(
   if (configService) {
     statuses = configService.config.statuses.map(s => s.id);
   } else {
-    const configContent = await readConfigYaml();
+    const configContent = await readConfigJson();
     statuses = parseStatusesFromConfig(configContent ?? '');
   }
 

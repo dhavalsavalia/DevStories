@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { generateConfigYaml, detectProjectName, InitConfig } from '../../commands/initUtils';
+import { generateConfigJson, detectProjectName, InitConfig } from '../../commands/initUtils';
 
 describe('Init Command', () => {
-  describe('generateConfigYaml', () => {
-    it('should generate valid config yaml with defaults', () => {
+  describe('generateConfigJson', () => {
+    it('should generate valid config json with defaults', () => {
       const config: InitConfig = {
         projectName: 'my-project',
         epicPrefix: 'EPIC',
@@ -11,18 +11,20 @@ describe('Init Command', () => {
         sprint: 'sprint-1',
       };
 
-      const yaml = generateConfigYaml(config);
+      const json = generateConfigJson(config);
+      const parsed = JSON.parse(json);
 
-      expect(yaml).toContain('version: 1');
-      expect(yaml).toContain('project: "my-project"');
-      expect(yaml).toContain('epic: "EPIC"');
-      expect(yaml).toContain('story: "DS"');
-      expect(yaml).toContain('current: "sprint-1"');
-      expect(yaml).toContain('id: todo');
-      expect(yaml).toContain('id: in_progress');
-      expect(yaml).toContain('id: review');
-      expect(yaml).toContain('id: done');
-      expect(yaml).toContain('sizes: ["XS", "S", "M", "L", "XL"]');
+      expect(parsed.version).toBe(1);
+      expect(parsed.project).toBe('my-project');
+      expect(parsed.idPrefix.epic).toBe('EPIC');
+      expect(parsed.idPrefix.story).toBe('DS');
+      expect(parsed.sprints.current).toBe('sprint-1');
+      expect(parsed.statuses).toHaveLength(4);
+      expect(parsed.statuses[0].id).toBe('todo');
+      expect(parsed.statuses[1].id).toBe('in_progress');
+      expect(parsed.statuses[2].id).toBe('review');
+      expect(parsed.statuses[3].id).toBe('done');
+      expect(parsed.sizes).toEqual(['XS', 'S', 'M', 'L', 'XL']);
     });
 
     it('should handle custom prefixes', () => {
@@ -33,14 +35,15 @@ describe('Init Command', () => {
         sprint: 'iteration-1',
       };
 
-      const yaml = generateConfigYaml(config);
+      const json = generateConfigJson(config);
+      const parsed = JSON.parse(json);
 
-      expect(yaml).toContain('epic: "EP"');
-      expect(yaml).toContain('story: "US"');
-      expect(yaml).toContain('current: "iteration-1"');
+      expect(parsed.idPrefix.epic).toBe('EP');
+      expect(parsed.idPrefix.story).toBe('US');
+      expect(parsed.sprints.current).toBe('iteration-1');
     });
 
-    it('should escape quotes in project name', () => {
+    it('should handle special characters in project name', () => {
       const config: InitConfig = {
         projectName: 'my "quoted" project',
         epicPrefix: 'EPIC',
@@ -48,9 +51,25 @@ describe('Init Command', () => {
         sprint: 'sprint-1',
       };
 
-      const yaml = generateConfigYaml(config);
+      const json = generateConfigJson(config);
+      const parsed = JSON.parse(json);
 
-      expect(yaml).toContain('project: "my \\"quoted\\" project"');
+      expect(parsed.project).toBe('my "quoted" project');
+    });
+
+    it('should include sprint in sequence', () => {
+      const config: InitConfig = {
+        projectName: 'my-project',
+        epicPrefix: 'EPIC',
+        storyPrefix: 'DS',
+        sprint: 'sprint-1',
+      };
+
+      const json = generateConfigJson(config);
+      const parsed = JSON.parse(json);
+
+      expect(parsed.sprints.sequence).toContain('sprint-1');
+      expect(parsed.sprints.sequence).toContain('backlog');
     });
   });
 

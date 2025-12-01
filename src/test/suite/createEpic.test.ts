@@ -10,24 +10,25 @@ suite('CreateEpic Command Integration Test', () => {
 		assert.ok(commands.includes('devstories.createEpic'), 'devstories.createEpic command should be registered');
 	});
 
-	test('parseConfigYaml should work in VS Code context', async () => {
-		const { parseConfigYaml } = await import('../../commands/createEpicUtils');
+	test('parseConfigJson should work in VS Code context', async () => {
+		const { parseConfigJson } = await import('../../commands/createEpicUtils');
 
-		const yaml = `
-version: 1
-project: "TestProject"
-id_prefix:
-  epic: "PROJ"
-  story: "FEAT"
-sprints:
-  current: "sprint-5"
-statuses:
-  - id: todo
-    label: "To Do"
-  - id: done
-    label: "Done"
-`;
-		const config = parseConfigYaml(yaml);
+		const json = JSON.stringify({
+			version: 1,
+			project: 'TestProject',
+			idPrefix: {
+				epic: 'PROJ',
+				story: 'FEAT',
+			},
+			sprints: {
+				current: 'sprint-5',
+			},
+			statuses: [
+				{ id: 'todo', label: 'To Do' },
+				{ id: 'done', label: 'Done' },
+			],
+		});
+		const config = parseConfigJson(json);
 
 		assert.strictEqual(config.epicPrefix, 'PROJ');
 		assert.strictEqual(config.storyPrefix, 'FEAT');

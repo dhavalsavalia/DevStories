@@ -20,18 +20,26 @@ export interface EpicData {
 }
 
 /**
- * Parse config.yaml content and extract relevant fields
+ * Parse config.json content and extract relevant fields
  */
-export function parseConfigYaml(content: string): DevStoriesConfig {
-  // gray-matter's engines.yaml can parse plain YAML
-  const parsed = matter.engines.yaml.parse(content);
+export function parseConfigJson(content: string): DevStoriesConfig {
+  try {
+    const parsed = JSON.parse(content);
 
-  return {
-    epicPrefix: parsed?.id_prefix?.epic ?? 'EPIC',
-    storyPrefix: parsed?.id_prefix?.story ?? 'STORY',
-    currentSprint: parsed?.sprints?.current,
-    statuses: parsed?.statuses?.map((s: { id: string }) => s.id) ?? ['todo', 'in_progress', 'review', 'done'],
-  };
+    return {
+      epicPrefix: parsed?.idPrefix?.epic ?? 'EPIC',
+      storyPrefix: parsed?.idPrefix?.story ?? 'STORY',
+      currentSprint: parsed?.sprints?.current,
+      statuses: parsed?.statuses?.map((s: { id: string }) => s.id) ?? ['todo', 'in_progress', 'review', 'done'],
+    };
+  } catch {
+    return {
+      epicPrefix: 'EPIC',
+      storyPrefix: 'STORY',
+      currentSprint: undefined,
+      statuses: ['todo', 'in_progress', 'review', 'done'],
+    };
+  }
 }
 
 /**

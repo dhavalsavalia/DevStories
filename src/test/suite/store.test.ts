@@ -18,8 +18,12 @@ suite('Store Integration Test', () => {
 
 	setup(async () => {
 		// Ensure directories exist
-		if (!fs.existsSync(storiesDir)) fs.mkdirSync(storiesDir, { recursive: true });
-		if (!fs.existsSync(epicsDir)) fs.mkdirSync(epicsDir, { recursive: true });
+		if (!fs.existsSync(storiesDir)) {
+			fs.mkdirSync(storiesDir, { recursive: true });
+		}
+		if (!fs.existsSync(epicsDir)) {
+			fs.mkdirSync(epicsDir, { recursive: true });
+		}
 
 		// Create sample files
 		fs.writeFileSync(epicFile, `---
@@ -47,8 +51,12 @@ created: 2025-01-01
 
 	teardown(() => {
 		watcher.dispose();
-		if (fs.existsSync(epicFile)) fs.unlinkSync(epicFile);
-		if (fs.existsSync(storyFile)) fs.unlinkSync(storyFile);
+		if (fs.existsSync(epicFile)) {
+			fs.unlinkSync(epicFile);
+		}
+		if (fs.existsSync(storyFile)) {
+			fs.unlinkSync(storyFile);
+		}
 	});
 
 	test('should load stories and epics', async () => {
@@ -191,10 +199,18 @@ created: 2025-01-01
 			assert.ok(epicBIndex < epicAIndex, 'EPIC-B (foundation-1) should come before EPIC-A (polish-1)');
 		} finally {
 			// Clean up test files
-			if (fs.existsSync(epicAFile)) fs.unlinkSync(epicAFile);
-			if (fs.existsSync(epicBFile)) fs.unlinkSync(epicBFile);
-			if (fs.existsSync(storyAFile)) fs.unlinkSync(storyAFile);
-			if (fs.existsSync(storyBFile)) fs.unlinkSync(storyBFile);
+			if (fs.existsSync(epicAFile)) {
+				fs.unlinkSync(epicAFile);
+			}
+			if (fs.existsSync(epicBFile)) {
+				fs.unlinkSync(epicBFile);
+			}
+			if (fs.existsSync(storyAFile)) {
+				fs.unlinkSync(storyAFile);
+			}
+			if (fs.existsSync(storyBFile)) {
+				fs.unlinkSync(storyBFile);
+			}
 		}
 	});
 });

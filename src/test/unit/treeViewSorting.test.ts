@@ -178,9 +178,15 @@ describe('Tree View Sorting Utils', () => {
       // E-2 stories start in foundation-1 (index 0)
       // E-3 stories start in launch-1 (index 3)
       const getStoriesByEpic = (epicId: string): Story[] => {
-        if (epicId === 'E-1') return [createMockStory({ sprint: 'polish-1' })];
-        if (epicId === 'E-2') return [createMockStory({ sprint: 'foundation-1' })];
-        if (epicId === 'E-3') return [createMockStory({ sprint: 'launch-1' })];
+        if (epicId === 'E-1') {
+          return [createMockStory({ sprint: 'polish-1' })];
+        }
+        if (epicId === 'E-2') {
+          return [createMockStory({ sprint: 'foundation-1' })];
+        }
+        if (epicId === 'E-3') {
+          return [createMockStory({ sprint: 'launch-1' })];
+        }
         return [];
       };
 
@@ -196,8 +202,12 @@ describe('Tree View Sorting Utils', () => {
       ];
 
       const getStoriesByEpic = (epicId: string): Story[] => {
-        if (epicId === 'E-1') return [];
-        if (epicId === 'E-2') return [createMockStory({ sprint: 'foundation-1' })];
+        if (epicId === 'E-1') {
+          return [];
+        }
+        if (epicId === 'E-2') {
+          return [createMockStory({ sprint: 'foundation-1' })];
+        }
         return [];
       };
 
@@ -237,8 +247,12 @@ describe('Tree View Sorting Utils', () => {
       const originalOrder = [...epics.map(e => e.id)];
 
       const getStoriesByEpic = (epicId: string): Story[] => {
-        if (epicId === 'E-1') return [createMockStory({ sprint: 'foundation-1' })];
-        if (epicId === 'E-2') return [createMockStory({ sprint: 'polish-1' })];
+        if (epicId === 'E-1') {
+          return [createMockStory({ sprint: 'foundation-1' })];
+        }
+        if (epicId === 'E-2') {
+          return [createMockStory({ sprint: 'polish-1' })];
+        }
         return [];
       };
 

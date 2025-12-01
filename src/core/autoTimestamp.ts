@@ -67,5 +67,5 @@ export class AutoTimestamp {
     if (edits.length > 0) {
       e.waitUntil(Promise.resolve(edits));
     }
-  }
+  };
 }

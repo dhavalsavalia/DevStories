@@ -11,9 +11,9 @@ npm install
 echo "Compiling extension..."
 npm run compile
 
-# 3. Run unit tests (Vitest)
+# 3. Run unit tests (Vitest) - directly to avoid redundant pretest
 echo "Running unit tests..."
-npm run test
+npx vitest run
 
 # 4. Compile and run integration tests
 echo "Compiling tests..."

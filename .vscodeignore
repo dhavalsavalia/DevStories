@@ -1,0 +1,37 @@
+# Source files (bundled by esbuild)
+src/**
+*.ts
+tsconfig.json
+esbuild.js
+
+# Test files
+test/**
+**/*.test.ts
+**/*.test.js
+
+# Development files
+.devstories/**
+docs/**
+scripts/**
+claude-progress.txt
+CLAUDE.md
+.claude/**
+
+# Node modules (dependencies bundled)
+node_modules/**
+
+# Git files
+.git/**
+.gitignore
+
+# Editor/IDE
+.vscode/**
+*.code-workspace
+
+# Build artifacts (except out/)
+*.tsbuildinfo
+
+# Misc
+.eslintrc.json
+vitest.config.ts
+init.sh

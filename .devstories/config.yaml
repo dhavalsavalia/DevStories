@@ -22,7 +22,7 @@ statuses:
 
 # Sprint configuration
 sprints:
-  current: "pre-launch"
+  current: "release-1.0.0"
   sequence:
     - phase-1           # Foundation (historical)
     - phase-2           # Tree View (historical)
@@ -36,8 +36,8 @@ sprints:
     - polish-3          # Accessibility + Security (historical)
     - polish-4          # Testing (historical)
     - cleanup-1.0.0     # Remove board, rituals, cleanup stories/epics (historical)
-    - pre-launch        # UX polish before 1.0.0
-    - release-1.0.0     # Final verification + release
+    - pre-launch        # UX polish before 1.0.0 (historical)
+    - release-1.0.0     # Cohesion, docs, marketplace publish
     - 1.1.0-mcp         # MCP server integration
     - 1.2.0-intellisense # Frontmatter validation + autocomplete
     - backlog           # Unscheduled work

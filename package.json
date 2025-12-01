@@ -11,8 +11,8 @@
     "Other"
   ],
   "activationEvents": [
-    "onStartupFinished",
-    "workspaceContains:.devstories"
+    "workspaceContains:.devstories",
+    "onCommand:devstories.init"
   ],
   "main": "./dist/extension.js",
   "contributes": {

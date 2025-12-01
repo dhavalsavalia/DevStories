@@ -1054,3 +1054,21 @@ Files changed (2):
 - src/test/unit/treeViewSorting.test.ts (+3 new tests, updated 2 existing)
 
 Tests: 359 unit + 110 integration = 469 total (+2 new)
+
+=== Session: 2025-12-01 15:09 ===
+Story: DS-116 (Configurable default sprint for quick capture)
+Status: done
+
+Added quickCapture.defaultToCurrentSprint config option:
+- Default: false (stories go to backlog for triage)
+- When true: stories use config.sprints.current
+
+Files changed (6):
+- src/core/configServiceUtils.ts (added field to ConfigData, DEFAULT_CONFIG, parsing)
+- src/commands/createStoryUtils.ts (added field to DevStoriesConfig, parsing)
+- src/commands/quickCapture.ts (use config option for sprint decision)
+- src/test/unit/createStory.test.ts (+3 tests)
+- src/test/unit/configService.test.ts (+3 tests)
+- .devstories/config.yaml (added quickCapture section with comments)
+
+Tests: 365 unit + 110 integration = 475 total (+6 new)

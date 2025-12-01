@@ -85,7 +85,8 @@
       "Bash(do grep -l '^epic: EPIC-005' $f)",
       "Bash(if [ -f \".devstories/epics/$epic.md\" ])",
       "Bash(else)",
-      "Bash(npm run lint)"
+      "Bash(npm run lint)",
+      "Bash(npx vitest:*)"
     ],
     "deny": [],
     "ask": [],

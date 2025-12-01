@@ -1,9 +1,9 @@
 ---
 id: EPIC-024
 title: "UX Improvements"
-status: todo
+status: in_progress
 created: 2025-11-30
-updated: 2025-11-30
+updated: 2025-12-01
 ---
 
 # UX Improvements

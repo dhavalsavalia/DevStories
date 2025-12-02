@@ -1227,3 +1227,23 @@ Files changed (6):
 - src/test/suite/welcomeContext.test.ts (+8 integration tests)
 
 Tests: 396 unit + 128 integration = 524 total (+14 new)
+
+=== Session: 2025-12-01 19:15 ===
+Story: DS-143 (Unify quick capture and create story entry)
+Status: done
+
+Added unified "+" button in tree view title bar for story creation:
+- `view/title` menu with `devstories.createStoryMenu` command
+- QuickPick shows two options: Quick Capture (zap icon) and Full Story (file-add icon)
+- Each option executes the corresponding existing command
+
+Files changed (5):
+- package.json (added command + view/title menu entry)
+- src/commands/createStoryMenuUtils.ts (new - menu options constants)
+- src/commands/createStoryMenu.ts (new - command implementation)
+- src/extension.ts (registered command)
+- src/test/unit/createStoryMenu.test.ts (new - 9 unit tests)
+- src/test/suite/createStoryMenu.test.ts (new - 6 integration tests)
+
+Tests: 405 unit + 134 integration = 539 total (+15 new)
+

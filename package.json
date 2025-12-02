@@ -88,9 +88,21 @@
       {
         "command": "devstories.openEpic",
         "title": "Open Epic File"
+      },
+      {
+        "command": "devstories.createStoryMenu",
+        "title": "DevStories: Create Story...",
+        "icon": "$(add)"
       }
     ],
     "menus": {
+      "view/title": [
+        {
+          "command": "devstories.createStoryMenu",
+          "when": "view == devstories.views.explorer",
+          "group": "navigation"
+        }
+      ],
       "view/item/context": [
         {
           "command": "devstories.changeStatus",

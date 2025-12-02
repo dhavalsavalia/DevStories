@@ -108,7 +108,12 @@
       "WebFetch(domain:www.eliostruyf.com)",
       "Bash(paste:*)",
       "Bash(npm run check-types:*)",
-      "Bash(git remote get-url:*)"
+      "Bash(git remote get-url:*)",
+      "Bash(gh api:*)",
+      "Bash(gh pr review:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr view:*)"
     ],
     "deny": [],
     "ask": [],

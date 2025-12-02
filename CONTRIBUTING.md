@@ -2,31 +2,79 @@
 
 Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
 
-## Development Setup
+## Quick Start
 
-**Requirements:** Node.js 20 or higher (use `nvm use` to switch)
+1. **Fork & Clone**
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/devstories.git
+   cd devstories
+   ```
+
+2. **Node Version** (20+)
+   ```bash
+   nvm use  # or ensure Node 20+
+   ```
+
+3. **Install & Compile**
+   ```bash
+   npm install
+   npm run compile
+   ```
+
+4. **Run Tests**
+   ```bash
+   npm test                  # Unit tests (Vitest)
+   npm run test:integration  # Integration tests
+   ```
+
+5. **Launch Extension**
+   - Open project in VS Code
+   - Press `F5` to launch Extension Development Host
+
+## Branch Naming
+
+Use prefixes that match conventional commits:
+
+| Prefix | Use for |
+|--------|---------|
+| `feat/` | New features |
+| `fix/` | Bug fixes |
+| `docs/` | Documentation |
+| `chore/` | Maintenance, deps |
+
+Examples: `feat/quick-capture`, `fix/tree-view-refresh`, `docs/readme-update`
+
+## Pull Request Process
+
+1. Create a branch from `main`
+2. Make your changes with tests
+3. Ensure CI passes (lint, types, tests)
+4. Open PR with clear description
+5. Add labels for changelog (`feat`, `fix`, `docs`, `chore`)
+6. One approval required to merge
+
+## PR Labels
+
+Labels determine how your PR appears in release notes:
+
+| Label | Changelog Section |
+|-------|-------------------|
+| `feat`, `feature`, `enhancement` | 🚀 Features |
+| `fix`, `bug`, `bugfix` | 🐛 Bug Fixes |
+| `docs`, `documentation` | 📚 Documentation |
+| `chore`, `maintenance`, `deps` | 🔧 Maintenance |
+
+## Testing
+
+- **TDD approach**: Write failing test first, then implement
+- **Unit tests**: Pure logic without VS Code API (Vitest)
+- **Integration tests**: VS Code API interactions (@vscode/test-electron)
 
 ```bash
-# Clone the repo
-git clone https://github.com/dhavalsavalia/devstories.git
-cd devstories
-
-# Install dependencies
-npm install
-
-# Compile
-npm run compile
-
-# Run tests
-npm test                  # Unit tests (Vitest)
-npm run test:integration  # Integration tests (@vscode/test-electron)
+npm test                  # Unit tests
+npm run test:integration  # Integration tests
+./init.sh                 # Full environment check + all tests
 ```
-
-## Running the Extension
-
-1. Open the project in VS Code
-2. Press `F5` to launch Extension Development Host
-3. Use the test workspace at `/path/to/devstories_test` for manual testing
 
 ## Project Structure
 
@@ -45,43 +93,22 @@ devstories/
 └── assets/                    # Icons, screenshots
 ```
 
-## Testing
-
-- **TDD approach**: Write failing test first, then implement
-- **Unit tests**: Pure logic without VS Code API (Vitest)
-- **Integration tests**: VS Code API interactions (@vscode/test-electron)
-
-```bash
-npm test                  # Run unit tests
-npm run test:integration  # Run integration tests
-./init.sh                 # Full environment check + all tests
-```
-
-## Documentation
-
-- `CLAUDE.md` — AI assistant instructions (not for users)
-- `docs/PRD/` — Product requirements and specs
-- `.devstories/` — DevStories manages its own development
-
 ## CI Pipeline
 
-The CI pipeline runs on every push to main and on pull requests:
+Runs on every push to main and on pull requests:
 
-1. **test** - Runs on Node 20.x and 22.x:
-   - Type checking
-   - Linting
-   - Unit tests (Vitest)
+1. **test** - Node 20.x and 22.x:
+   - Type checking, linting, unit tests
 
-2. **integration-test** - Runs after unit tests pass:
+2. **integration-test** - After unit tests pass:
    - Uses `xvfb-run` for headless VS Code tests
    - Skipped for fork PRs (security)
 
 ### Fork PR Security
 
-Fork PRs use a separate workflow (`pr-fork.yml`) that:
-- Runs lint + unit tests only (no integration tests)
-- Has no access to secrets
-- Uses explicit `ref` checkout for safety
+Fork PRs use a separate workflow (`pr-fork.yml`) with limited scope:
+- Lint + unit tests only
+- No secrets access
 - Uses `pull_request` event (not `pull_request_target`)
 
 ## Commit Guidelines
@@ -119,3 +146,13 @@ The workflow will:
 2. User Settings → Personal Access Tokens
 3. Create token with Marketplace → Manage scope
 4. Add to repo: Settings → Secrets → Actions → `VSCE_PAT`
+
+## Documentation
+
+- `docs/PRD/` — Product requirements and specs
+- `.devstories/` — DevStories manages its own development
+
+## Other Resources
+
+- [Security Policy](SECURITY.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)

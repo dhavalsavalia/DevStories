@@ -1516,3 +1516,27 @@ Files changed (3):
 Tests: skipped (configuration only)
 
 Note: Manual step - add VSCE_PAT secret to GitHub repo settings
+
+=== Session: 2025-12-02 14:50 ===
+Stories: DS-165 (Changelog automation), DS-167 (CONTRIBUTING.md update)
+Status: done
+
+Changes:
+- Created .github/release.yml for auto-generated release notes
+  - Maps PR labels to changelog sections (feat→Features, fix→Bug Fixes, etc.)
+- Updated CHANGELOG.md with note pointing to GitHub Releases
+- Rewrote CONTRIBUTING.md:
+  - Quick Start numbered steps
+  - Branch naming convention (feat/, fix/, docs/, chore/)
+  - PR process + labeling guide
+  - Links to SECURITY.md and CODE_OF_CONDUCT.md
+  - Kept concise
+
+Files changed (5):
+- .github/release.yml (new)
+- CHANGELOG.md (updated)
+- CONTRIBUTING.md (rewritten)
+- .devstories/stories/DS-165.md (marked done)
+- .devstories/stories/DS-167.md (marked done)
+
+Tests: skipped (configuration/docs only)

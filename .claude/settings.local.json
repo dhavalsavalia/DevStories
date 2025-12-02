@@ -91,7 +91,12 @@
       "Bash(ls:*)",
       "Bash(git remote add:*)",
       "Bash(git push:*)",
-      "Bash(do grep \"^status:\" \"$f\")"
+      "Bash(do grep \"^status:\" \"$f\")",
+      "WebFetch(domain:stackoverflow.com)",
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(do sed -i '' 's/TEST-/TASK-/g' \"$f\")",
+      "Bash(do grep -E \"^(id|title|status):\" \"$f\")",
+      "Bash(do grep -E \"^(id|title|status|sprint):\" \"$f\")"
     ],
     "deny": [],
     "ask": [],

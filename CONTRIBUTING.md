@@ -63,6 +63,19 @@ npm run test:integration  # Run integration tests
 - `docs/PRD/` — Product requirements and specs
 - `.devstories/` — DevStories manages its own development
 
+## CI Pipeline
+
+The CI pipeline runs on every push to main and on pull requests:
+
+1. **test** - Runs on Node 20.x and 22.x:
+   - Type checking
+   - Linting
+   - Unit tests (Vitest)
+
+2. **integration-test** - Runs after unit tests pass:
+   - Uses `xvfb-run` for headless VS Code tests
+   - Skipped for fork PRs (security)
+
 ## Commit Guidelines
 
 - Use conventional commits: `feat:`, `fix:`, `docs:`, `chore:`

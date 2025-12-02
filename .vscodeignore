@@ -35,3 +35,4 @@ node_modules/**
 .eslintrc.json
 vitest.config.ts
 init.sh
+claude-progress-archive.txt

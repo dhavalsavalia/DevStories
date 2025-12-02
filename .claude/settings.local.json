@@ -113,7 +113,10 @@
       "Bash(gh pr review:*)",
       "Bash(gh pr merge:*)",
       "Bash(gh pr list:*)",
-      "Bash(gh pr view:*)"
+      "Bash(gh pr view:*)",
+      "Bash(gh pr create:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run lint:*)"
     ],
     "deny": [],
     "ask": [],

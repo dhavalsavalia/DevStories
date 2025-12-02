@@ -3,7 +3,7 @@
  * These can be unit tested with Vitest
  */
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+ 
 const matter = require('gray-matter');
 
 const DEFAULT_STATUSES = ['todo', 'in_progress', 'review', 'done'];

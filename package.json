@@ -1,7 +1,7 @@
 {
   "name": "devstories",
   "displayName": "DevStories",
-  "description": "Lightweight story management for VS Code using markdown files",
+  "description": "Stories as markdown files, version-controlled with your code. AI-readable. Git-tracked.",
   "version": "0.0.1",
   "publisher": "devstories",
   "author": {

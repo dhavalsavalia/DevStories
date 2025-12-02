@@ -1206,3 +1206,24 @@ Files changed (4):
 - src/test/suite/storiesProvider.test.ts (+4 integration tests)
 
 Tests: 390 unit + 120 integration = 510 total (+7 new)
+
+=== Session: 2025-12-01 19:03 ===
+Story: DS-138 (Tree view welcome content)
+Status: done
+
+Added welcome content to tree view when empty:
+- `viewsWelcome` contribution in package.json with two states
+- Context keys: `devstories:hasDevstoriesFolder`, `devstories:hasEpics`
+- No folder state: "Initialize DevStories" button
+- No epics state: "Create Epic" button
+- Brief description of what DevStories does
+
+Files changed (6):
+- package.json (added viewsWelcome contribution)
+- src/core/welcomeContext.ts (VS Code context update functions)
+- src/core/welcomeContextUtils.ts (pure logic for unit tests)
+- src/extension.ts (integrate context updates)
+- src/test/unit/welcomeContext.test.ts (+6 unit tests)
+- src/test/suite/welcomeContext.test.ts (+8 integration tests)
+
+Tests: 396 unit + 128 integration = 524 total (+14 new)

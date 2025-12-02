@@ -4,6 +4,8 @@
 
 Stories live as markdown files in your repo—version-controlled, AI-accessible, and completely free.
 
+![DevStories Demo](assets/demo.gif)
+
 ![Tree View](assets/screenshots/tree-view.png)
 
 ## Features

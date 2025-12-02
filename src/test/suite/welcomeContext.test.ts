@@ -33,7 +33,7 @@ suite('Welcome Context Integration Test', () => {
 
   test('viewsWelcome should be defined in package.json', async () => {
     // Get extension
-    const extension = vscode.extensions.getExtension('devstories.devstories');
+    const extension = vscode.extensions.getExtension('DhavalSavalia.devstories');
     assert.ok(extension, 'Extension should be installed');
 
     const packageJson = extension.packageJSON;
@@ -43,7 +43,7 @@ suite('Welcome Context Integration Test', () => {
   });
 
   test('first welcome item should be for no folder state', async () => {
-    const extension = vscode.extensions.getExtension('devstories.devstories');
+    const extension = vscode.extensions.getExtension('DhavalSavalia.devstories');
     assert.ok(extension);
 
     const welcome = extension.packageJSON.contributes.viewsWelcome[0];
@@ -54,7 +54,7 @@ suite('Welcome Context Integration Test', () => {
   });
 
   test('second welcome item should be for no epics state', async () => {
-    const extension = vscode.extensions.getExtension('devstories.devstories');
+    const extension = vscode.extensions.getExtension('DhavalSavalia.devstories');
     assert.ok(extension);
 
     const welcome = extension.packageJSON.contributes.viewsWelcome[1];

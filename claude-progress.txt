@@ -1540,3 +1540,37 @@ Files changed (5):
 - .devstories/stories/DS-167.md (marked done)
 
 Tests: skipped (configuration/docs only)
+
+=== Session: 2025-12-02 15:15 ===
+Story: DS-160 (Configure branch protection for main)
+Status: done
+
+Changes:
+- Configured GitHub branch protection via gh API
+- Required status checks: test (20.x), test (22.x), integration-test
+- Required 1 approval for PRs
+- Blocked force pushes and branch deletion
+- Added Branch Protection section to CONTRIBUTING.md with CLI reference
+
+Files changed (2):
+- CONTRIBUTING.md (Branch Protection section)
+- .devstories/stories/DS-160.md (marked done)
+
+Tests: skipped (configuration only)
+
+=== Session: 2025-12-02 15:15 ===
+Story: DS-161 (Configure tag protection for releases)
+Status: done
+
+Changes:
+- Created repository ruleset "version-tags" via gh CLI API
+- Pattern: refs/tags/v* (all version tags)
+- Rules: deletion + update (prevents both)
+- Bypass: Repository admins only
+- Added Tag Protection section to CONTRIBUTING.md with CLI reference
+
+Files changed (2):
+- CONTRIBUTING.md (Tag Protection section)
+- .devstories/stories/DS-161.md (marked done)
+
+Tests: skipped (configuration only)

@@ -154,6 +154,43 @@ Or configure via GitHub UI: Settings → Branches → Add rule for `main`
 - Reference story IDs: `feat: add quick capture (DS-013)`
 - Keep commits focused and atomic
 
+## Tag Protection
+
+Version tags (`v*`) are protected by a repository ruleset:
+
+- **No deletion**: Tags cannot be deleted once created
+- **No modification**: Tags cannot be force-pushed or updated
+- **Bypass**: Repository admins can bypass for corrections
+
+### CLI Reference
+
+To configure tag protection (maintainers only):
+
+```bash
+gh api repos/{owner}/{repo}/rulesets -X POST --input - <<'EOF'
+{
+  "name": "version-tags",
+  "target": "tag",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": {
+      "include": ["refs/tags/v*"],
+      "exclude": []
+    }
+  },
+  "rules": [
+    {"type": "deletion"},
+    {"type": "update"}
+  ],
+  "bypass_actors": [
+    {"actor_id": 5, "actor_type": "RepositoryRole", "bypass_mode": "always"}
+  ]
+}
+EOF
+```
+
+Or configure via GitHub UI: Settings → Rules → Rulesets
+
 ## Releases
 
 Releases are automated via GitHub Actions when a version tag is pushed.

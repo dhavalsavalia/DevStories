@@ -206,12 +206,11 @@ created: 2025-01-01
     assert.ok(!sprints.includes('backlog'), 'Should not include backlog in sprint list');
   });
 
-  // DS-064: Additional tests for click handler and visibility
-  test('should register click handler command', () => {
-    // Verify the status bar has the pickSprint command registered
-    // We access the internal statusBarItem via a test-only method
+  // DS-153: Status bar is display-only, no click handler
+  test('should NOT have click handler command (DS-153)', () => {
+    // Status bar is display-only; use filter icon in tree view title bar
     const command = statusBar.getCommand();
-    assert.strictEqual(command, 'devstories.pickSprint', 'Should have pickSprint command');
+    assert.strictEqual(command, undefined, 'Should NOT have command - display only');
   });
 
   test('should be visible after construction', () => {

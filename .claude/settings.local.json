@@ -90,7 +90,8 @@
       "Bash(npm run vscode:prepublish:*)",
       "Bash(ls:*)",
       "Bash(git remote add:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(do grep \"^status:\" \"$f\")"
     ],
     "deny": [],
     "ask": [],

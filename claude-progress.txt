@@ -1247,3 +1247,29 @@ Files changed (5):
 
 Tests: 405 unit + 134 integration = 539 total (+15 new)
 
+
+=== Session: 2025-12-01 19:34 ===
+Story: DS-153 (Sprint picker in tree view with auto-filter)
+Status: done
+
+Changes:
+- Added filter icon button to tree view title bar (package.json: view/title menu + icon on pickSprint command)
+- Removed status bar click handler (display-only now)
+- Removed "Click to change sprint filter" from tooltip
+- Added `autoFilterCurrentSprint` config option (JSON schema + ConfigData type + parsing + defaults)
+- Added auto-filter on extension load via `applyAutoFilterSprint()` utility
+
+Files changed (11):
+- package.json (view/title menu for pickSprint, filter icon)
+- src/view/statusBar.ts (removed command from status bar)
+- src/view/statusBarUtils.ts (removed click hint from tooltip)
+- schemas/devstories.schema.json (+autoFilterCurrentSprint property)
+- src/core/configServiceUtils.ts (ConfigData + parsing + defaults + merge)
+- src/core/autoFilterSprint.ts (new - auto-filter utility)
+- src/extension.ts (import + call applyAutoFilterSprint)
+- src/test/unit/statusBar.test.ts (updated tooltip test)
+- src/test/unit/configService.test.ts (+3 tests for autoFilterCurrentSprint)
+- src/test/unit/autoFilterSprint.test.ts (new - 5 tests)
+- src/test/suite/statusBar.test.ts (updated command test)
+
+Tests: 413 unit + 134 integration = 547 total (+8 new)

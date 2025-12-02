@@ -102,6 +102,11 @@
       },
       "additionalProperties": false,
       "description": "Quick capture settings"
+    },
+    "autoFilterCurrentSprint": {
+      "type": "boolean",
+      "default": true,
+      "description": "When true, automatically filter to current sprint on extension load"
     }
   },
   "additionalProperties": false

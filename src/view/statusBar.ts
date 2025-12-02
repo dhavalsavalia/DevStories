@@ -28,7 +28,7 @@ export class StatusBarController implements vscode.Disposable {
       100
     );
     this.statusBarItem.name = 'DevStories Progress';
-    this.statusBarItem.command = 'devstories.pickSprint';
+    // DS-153: Status bar is display-only, use filter icon in tree view title bar
 
     // Listen for store updates
     this.disposables.push(

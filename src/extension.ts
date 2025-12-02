@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { executeChangeStatus } from './commands/changeStatus';
 import { executeCreateEpic } from './commands/createEpic';
 import { executeCreateStory } from './commands/createStory';
+import { executeCreateStoryMenu } from './commands/createStoryMenu';
 import { wrapCommand } from './commands/errorHandler';
 import { executeInit } from './commands/init';
 import { executePickSprint } from './commands/pickSprint';
@@ -138,6 +139,12 @@ export async function activate(context: vscode.ExtensionContext) {
 		})
 	);
 
+	const createStoryMenuCommand = vscode.commands.registerCommand('devstories.createStoryMenu',
+		wrapCommand('createStoryMenu', async () => {
+			await executeCreateStoryMenu();
+		})
+	);
+
 	context.subscriptions.push(
 		watcher,
 		configService,
@@ -154,7 +161,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		saveAsTemplateCommand,
 		changeStatusCommand,
 		pickSprintCommand,
-		openEpicCommand
+		openEpicCommand,
+		createStoryMenuCommand
 	);
 }
 

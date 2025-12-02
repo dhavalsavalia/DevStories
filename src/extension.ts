@@ -17,6 +17,7 @@ import { StoryHoverProvider } from './providers/storyHoverProvider';
 import { StoryLinkProvider } from './providers/storyLinkProvider';
 import { StatusBarController } from './view/statusBar';
 import { StoriesProvider } from './view/storiesProvider';
+import { getTreeViewTitle } from './view/storiesProviderUtils';
 
 export async function activate(context: vscode.ExtensionContext) {
 	// Initialize logger first
@@ -35,8 +36,15 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Initialize config service (loads config and starts watching)
 	await configService.initialize();
 
-	// Register Tree Data Provider
-	vscode.window.registerTreeDataProvider('devstories.views.explorer', storiesProvider);
+	// Register Tree View with createTreeView for dynamic title updates (DS-139)
+	const treeView = vscode.window.createTreeView('devstories.views.explorer', {
+		treeDataProvider: storiesProvider
+	});
+
+	// Update tree view title when sprint filter changes
+	sprintFilterService.onDidSprintChange((sprint) => {
+		treeView.title = getTreeViewTitle(sprint);
+	});
 
 	// Register Document Link Provider for [[ID]] links
 	const storyLinkProvider = new StoryLinkProvider(store);
@@ -127,6 +135,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		sprintFilterService,
 		autoTimestamp,
 		statusBarController,
+		treeView,
 		linkProviderDisposable,
 		hoverProviderDisposable,
 		initCommand,

@@ -3,6 +3,7 @@ import {
   sortStoriesForTreeView,
   getEarliestStorySprintIndex,
   sortEpicsBySprintOrder,
+  getTreeViewTitle,
 } from '../../view/storiesProviderUtils';
 import { Story, StoryType, StorySize } from '../../types/story';
 import { Epic } from '../../types/epic';
@@ -283,6 +284,20 @@ describe('Tree View Sorting Utils', () => {
       sortEpicsBySprintOrder(epics, sprintSequence, getStoriesByEpic);
 
       expect(epics.map(e => e.id)).toEqual(originalOrder);
+    });
+  });
+
+  describe('getTreeViewTitle', () => {
+    it('should return "Stories" when no filter is active', () => {
+      expect(getTreeViewTitle(null)).toBe('Stories');
+    });
+
+    it('should return "Stories (sprint-name)" when sprint filter is active', () => {
+      expect(getTreeViewTitle('sprint-1')).toBe('Stories (sprint-1)');
+    });
+
+    it('should return "Stories (Backlog)" when backlog filter is active', () => {
+      expect(getTreeViewTitle('backlog')).toBe('Stories (Backlog)');
     });
   });
 });

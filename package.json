@@ -33,6 +33,7 @@
     "Other",
     "Notebooks"
   ],
+  "icon": "assets/logo.png",
   "activationEvents": [
     "workspaceContains:.devstories",
     "onCommand:devstories.init"

@@ -6,7 +6,7 @@
 import { StoryType, StorySize } from '../types/story';
 import { substituteTemplateVariables, resolveTemplateReference } from './templateUtils';
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+ 
 const matter = require('gray-matter');
 
 /**

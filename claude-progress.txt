@@ -1574,3 +1574,29 @@ Files changed (2):
 - .devstories/stories/DS-161.md (marked done)
 
 Tests: skipped (configuration only)
+
+=== Session: 2025-12-02 15:22 ===
+Story: DS-172 (Migrate to ESLint 9 flat config)
+Status: done
+
+Changes:
+- Upgraded eslint 8.57.0 → 9.39.1
+- Upgraded @typescript-eslint/* 7.x → 8.48.1
+- Added typescript-eslint package for flat config API
+- Created eslint.config.mjs (flat config format)
+- Deleted .eslintrc.json
+- Updated lint script (removed --ext ts flag)
+- Removed deprecated @typescript-eslint/semi rule
+
+Files changed (8):
+- eslint.config.mjs (new)
+- .eslintrc.json (deleted)
+- package.json (deps + lint script)
+- package-lock.json (deps)
+- src/commands/changeStatusUtils.ts (removed unused eslint-disable)
+- src/commands/createEpicUtils.ts (removed unused eslint-disable)
+- src/commands/createStoryUtils.ts (removed unused eslint-disable)
+- src/commands/saveAsTemplateUtils.ts (removed unused eslint-disable)
+- src/core/configServiceUtils.ts (removed unused eslint-disable)
+
+Tests: 413 unit + 134 integration (all passing)

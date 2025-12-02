@@ -99,7 +99,15 @@
       "Bash(do grep -E \"^(id|title|status|sprint):\" \"$f\")",
       "Bash(npx vsce package)",
       "Bash(code --install-extension:*)",
-      "Bash(code --list-extensions --show-versions)"
+      "Bash(code --list-extensions --show-versions)",
+      "Bash(git tag:*)",
+      "Bash(node --version:*)",
+      "Bash(npm --version:*)",
+      "WebFetch(domain:docs.github.com)",
+      "WebFetch(domain:dev.to)",
+      "WebFetch(domain:www.eliostruyf.com)",
+      "Bash(paste:*)",
+      "Bash(npm run check-types:*)"
     ],
     "deny": [],
     "ask": [],

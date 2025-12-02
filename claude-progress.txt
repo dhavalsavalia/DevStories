@@ -1342,3 +1342,21 @@ Files changed (2):
 - .devstories/stories/DS-146.md (marked done)
 
 Tests: 413 unit + 134 integration = 547 total (all passing)
+
+=== Session: 2025-12-02 11:30 ===
+Story: DS-156 (Create CI workflow)
+Status: done
+
+Changes:
+- Created `.github/workflows/ci.yml` with GitHub Actions CI pipeline
+- Triggers on push to main and all PRs
+- Node.js matrix: 20.x, 22.x
+- Steps: checkout → setup-node (with npm cache) → npm ci → check-types → lint → test
+- Added CI status badge to README.md
+
+Files changed (3):
+- .github/workflows/ci.yml (new)
+- README.md (added badge)
+- .devstories/stories/DS-156.md (marked done)
+
+Tests: 413 unit tests pass (verified locally)

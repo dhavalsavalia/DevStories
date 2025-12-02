@@ -111,6 +111,43 @@ Fork PRs use a separate workflow (`pr-fork.yml`) with limited scope:
 - No secrets access
 - Uses `pull_request` event (not `pull_request_target`)
 
+## Branch Protection
+
+The `main` branch has protection rules enabled:
+
+- **Require pull request**: No direct pushes to main
+- **Require 1 approval**: At least one reviewer must approve
+- **Require status checks**: CI must pass (`test (20.x)`, `test (22.x)`, `integration-test`)
+- **Block force pushes**: History cannot be rewritten
+- **No branch deletion**: Main branch cannot be deleted
+
+### CLI Reference
+
+To configure branch protection (maintainers only):
+
+```bash
+gh api repos/{owner}/{repo}/branches/main/protection \
+  -X PUT \
+  -H "Accept: application/vnd.github+json" \
+  --input - <<'EOF'
+{
+  "required_status_checks": {
+    "strict": true,
+    "contexts": ["test (20.x)", "test (22.x)", "integration-test"]
+  },
+  "enforce_admins": false,
+  "required_pull_request_reviews": {
+    "required_approving_review_count": 1
+  },
+  "restrictions": null,
+  "allow_force_pushes": false,
+  "allow_deletions": false
+}
+EOF
+```
+
+Or configure via GitHub UI: Settings → Branches → Add rule for `main`
+
 ## Commit Guidelines
 
 - Use conventional commits: `feat:`, `fix:`, `docs:`, `chore:`

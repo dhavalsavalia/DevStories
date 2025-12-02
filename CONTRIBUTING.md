@@ -89,3 +89,33 @@ Fork PRs use a separate workflow (`pr-fork.yml`) that:
 - Use conventional commits: `feat:`, `fix:`, `docs:`, `chore:`
 - Reference story IDs: `feat: add quick capture (DS-013)`
 - Keep commits focused and atomic
+
+## Releases
+
+Releases are automated via GitHub Actions when a version tag is pushed.
+
+### Release Process
+
+1. Update version in `package.json`
+2. Commit: `git commit -am "chore: bump version to X.Y.Z"`
+3. Tag: `git tag vX.Y.Z`
+4. Push: `git push && git push --tags`
+
+The workflow will:
+- Run full test suite (unit + integration)
+- Build the extension
+- Create GitHub Release with auto-generated notes
+- Upload `.vsix` as release asset
+- Publish to VS Code Marketplace
+
+### Repository Secrets Required
+
+| Secret | Description |
+|--------|-------------|
+| `VSCE_PAT` | VS Code Marketplace Personal Access Token |
+
+**To create VSCE_PAT:**
+1. Go to [Azure DevOps](https://dev.azure.com)
+2. User Settings → Personal Access Tokens
+3. Create token with Marketplace → Manage scope
+4. Add to repo: Settings → Secrets → Actions → `VSCE_PAT`

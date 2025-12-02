@@ -144,6 +144,18 @@
         "fileMatch": ".devstories/config.json",
         "url": "./schemas/devstories.schema.json"
       }
+    ],
+    "viewsWelcome": [
+      {
+        "view": "devstories.views.explorer",
+        "contents": "Track your work in markdown files that live with your code.\n\nNo servers. No sync issues. Just stories in git.\n[Initialize DevStories](command:devstories.init)",
+        "when": "!devstories:hasDevstoriesFolder"
+      },
+      {
+        "view": "devstories.views.explorer",
+        "contents": "Epics group related stories into themes.\n[Create Your First Epic](command:devstories.createEpic)",
+        "when": "devstories:hasDevstoriesFolder && !devstories:hasEpics"
+      }
     ]
   },
   "scripts": {

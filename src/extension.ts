@@ -13,6 +13,7 @@ import { initializeLogger, disposeLogger } from './core/logger';
 import { SprintFilterService } from './core/sprintFilterService';
 import { Store } from './core/store';
 import { Watcher } from './core/watcher';
+import { updateWelcomeContext } from './core/welcomeContext';
 import { StoryHoverProvider } from './providers/storyHoverProvider';
 import { StoryLinkProvider } from './providers/storyLinkProvider';
 import { StatusBarController } from './view/statusBar';
@@ -63,6 +64,12 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Load initial data and wait for completion
 	await store.load();
 
+	// Update welcome context based on folder and epic state
+	await updateWelcomeContext(store.getEpics().length);
+	store.onDidUpdate(async () => {
+		await updateWelcomeContext(store.getEpics().length);
+	});
+
 	// Register Commands with error handling
 	const initCommand = vscode.commands.registerCommand('devstories.init',
 		wrapCommand('init', async () => {
@@ -70,6 +77,8 @@ export async function activate(context: vscode.ExtensionContext) {
 			if (success) {
 				// Reload store to pick up new files
 				await store.load();
+				// Update welcome context (folder now exists)
+				await updateWelcomeContext(store.getEpics().length);
 			}
 		})
 	);

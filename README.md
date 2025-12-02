@@ -2,180 +2,101 @@
 
 **Lightweight story management in VS Code. No JIRA. No bloat. Just markdown.**
 
-> A VS Code extension that treats markdown story files as a first-class project management system.
+Stories live as markdown files in your repo—version-controlled, AI-accessible, and completely free.
 
----
+![Tree View](assets/screenshots/tree-view.png)
 
-## 🎯 Vision
+## Features
 
-For developers who are tired of heavy project management tools, DevStories brings story management directly into VS Code. Your stories live as markdown files in your repo, version-controlled with Git, accessible to AI coding tools, and completely free.
+### 📁 Tree View with Sprint Filtering
+Organize work into epics and stories. Filter by sprint to focus on what matters now.
 
-**Target users:**
-- Solo developers
-- Small teams (2-5 people)
-- Open source maintainers
-- Anyone who doesn't want to spin up JIRA
+### ⚡ Quick Capture
+Press `Cmd+Shift+S` to capture ideas without leaving your code. Supports type prefixes (`bug:`, `feat:`) and inline notes.
 
----
+![Quick Capture](assets/screenshots/quick-capture.png)
 
-## ✨ Key Features (v0.1 MVP)
+### 🔗 Inline Preview
+Hover over any `[[TASK-001]]` link to see the full story card—status, type, size, sprint, and more.
 
-### Must-Have (P0)
-- ✅ Initialize `.devstories/` structure
-- ✅ Tree view showing epics → stories
-- ✅ Create epic/story commands
-- ✅ **Quick Capture** (`Cmd+Shift+S`) - create story without leaving code
-- ✅ **Story Templates** - different templates per type (feature/bug/task/chore)
-- ✅ **Inline Preview** - hover `[[STORY-001]]` anywhere to see story card
-- ✅ **Progress Bar** - status bar shows `Sprint 4: ████░░ 8/12`
-- ✅ **Auto-timestamps** - `updated` field auto-updates on save
-- ✅ Status toggle via right-click
-- ✅ Clickable `[[STORY-ID]]` links
+![Hover Preview](assets/screenshots/hover-preview.png)
 
-### Should-Have (P1)
-- Kanban board view with drag-drop
-- Sprint filter for tree/board
+### 📊 Sprint Progress
+Status bar shows real-time progress for your filtered sprint.
 
-### Nice-to-Have (P2)
-- Dependency graph visualization
-- Auto-link commits (`feat(STORY-001):`)
+![Status Bar](assets/screenshots/status-bar.png)
 
----
+### ➕ Create Stories Your Way
+Use quick capture for fast ideas or the full form for detailed stories with templates.
 
-## 🧑‍🏫 Interactive Tutorial
+![Create Story Menu](assets/screenshots/create-story-menu.png)
 
-DevStories now includes a guided tutorial that walks through the core workflow with bundled sample data.
+### More Features
+- **Story Templates** — Different templates per type (feature/bug/task/chore)
+- **Auto-timestamps** — `updated` field auto-updates on save
+- **Status Toggle** — Right-click to change status
+- **Clickable Links** — `[[STORY-ID]]` links open the story file
 
-1. Run `npm run compile` so the latest webview assets are available.
-2. Launch VS Code in extension development mode, for example:
-    ```bash
-    code --extensionDevelopmentPath="$(pwd)" "$(pwd)/test-workspace" --new-window
-    ```
-3. In the Extension Development Host, open the Command Palette and run **DevStories: Start Tutorial**.
-4. Choose whether to keep using your current workspace, open the bundled sample workspace, or reset tutorial progress.
-5. Inside the tutorial panel, check off steps as you complete them. Use the per-step CTA buttons to run commands like `DevStories: Init`, `DevStories: Create Epic`, and `DevStories: Quick Capture` without leaving the panel.
+## Quick Start
 
-If you do not see the tutorial panel, confirm the command was executed (it does not auto-open on activation) and that the extension was compiled beforehand so `dist/webview/` contains the tutorial assets.
+1. **Install** from VS Code Marketplace (search "DevStories")
 
----
+2. **Initialize** — Run `DevStories: Init` from Command Palette (`Cmd+Shift+P`)
 
-## 📚 Documentation
+3. **Create your first epic** — Run `DevStories: Create Epic`
 
-Comprehensive PRD documentation is in `/docs/PRD/`:
+4. **Start capturing stories** — Press `Cmd+Shift+S` or click the `+` button
 
-### Overview
-- [Vision](docs/PRD/overview/01-vision.md) - Problem, solution, target audience
-- [Core Decisions](docs/PRD/overview/02-core-decisions.md) - Product, technical, design principles
+## Keyboard Shortcuts
 
-### Specs
-- [Markdown Spec](docs/PRD/specs/01-markdown-spec.md) - Complete format specification
+| Action | Shortcut |
+|--------|----------|
+| Quick Capture | `Cmd+Shift+S` |
+| Command Palette | `Cmd+Shift+P` |
 
-### Features
-- [MVP Features](docs/PRD/features/01-mvp-features.md) - P0/P1/P2 feature breakdown
-- [Story Breakdown](docs/PRD/features/02-story-breakdown.md) - All 23 stories with tasks
+## Configuration
 
-### Architecture
-- [Tech Stack](docs/PRD/architecture/01-tech-stack.md) - Components, data flow, testing
+DevStories stores configuration in `.devstories/config.json`:
 
----
-
-## 🏗️ Project Structure
-
-```
-devstories/
-├── docs/PRD/              # Product requirements
-│   ├── overview/
-│   ├── specs/
-│   ├── features/
-│   └── architecture/
-│
-├── src/                   # Extension code (to be implemented)
-├── webview/               # Board view UI
-├── test/                  # Unit + integration tests
-└── package.json
+```json
+{
+  "project": "My Project",
+  "idPrefix": {
+    "epic": "EPIC",
+    "story": "STORY"
+  },
+  "statuses": [
+    { "id": "todo", "label": "To Do" },
+    { "id": "in_progress", "label": "In Progress" },
+    { "id": "done", "label": "Done" }
+  ],
+  "sprints": {
+    "current": "sprint-1",
+    "sequence": ["sprint-1", "sprint-2", "backlog"]
+  }
+}
 ```
 
----
-
-## 🚀 Implementation Phases
-
-| Phase | Stories | Focus | Est. Time |
-|-------|---------|-------|-----------|
-| **1** | DS-001 to DS-005 | Foundation (parser, store, watcher) | 1.5 weeks |
-| **2** | DS-006 to DS-009 | Tree view + progress bar | 1.2 weeks |
-| **3** | DS-010 to DS-015 | Commands (create, quick capture, templates) | 1.8 weeks |
-| **4** | DS-016 to DS-018 | Links (clickable + inline preview) | 1.0 week |
-| **5** | DS-019 to DS-023 | Board view (kanban + drag-drop) | 2.0 weeks |
-| **Total** | **23 stories** | **MVP v0.1** | **~8 weeks** |
-
-*Add 25% buffer for unknowns: ~10 weeks to MVP*
-
----
-
-## 🧪 Testing Strategy
-
-- **TDD approach**: Red → Green → Refactor
-- **Unit tests**: Vitest (parser, store, utils)
-- **Integration tests**: @vscode/test-electron (commands, views, webview)
-- **Manual testing**: Real-world usage during development
-
----
-
-## 📦 Distribution
-
-- **VS Code Marketplace**: Primary distribution (auto-updates)
-- **Manual .vsix**: For offline install / air-gapped environments
-- **Pricing**: Free, forever
-- **License**: MIT (likely)
-
----
-
-## 🎨 Example: DevStories Managing Itself
-
-This extension will be built using DevStories to manage its own development:
+## File Structure
 
 ```
-.devstories/
-├── config.yaml
-├── epics/
-│   ├── EPIC-001-foundation.md
-│   ├── EPIC-002-tree-view.md
-│   ├── EPIC-003-commands.md
-│   ├── EPIC-004-links.md
-│   └── EPIC-005-board-view.md
-└── stories/
-    ├── DS-001-scaffolding.md
-    ├── DS-002-parser.md
-    ├── DS-003-watcher.md
-    └── ...
+your-project/
+└── .devstories/
+    ├── config.json
+    ├── epics/
+    │   ├── EPIC-001.md
+    │   └── EPIC-INBOX.md
+    ├── stories/
+    │   ├── STORY-001.md
+    │   └── STORY-002.md
+    └── templates/
+        └── feature.md
 ```
 
-**Dogfooding from day 1.**
+## Contributing
 
----
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup.
 
-## 🤝 Contributing
+## License
 
-*(To be added once implementation starts)*
-
-This is currently in the planning phase. Implementation will begin soon.
-
----
-
-## 📝 License
-
-MIT (to be confirmed)
-
----
-
-## 💡 Inspiration
-
-Built by developers, for developers who:
-- Want stories without spinning up heavy software
-- Believe in version-controlled project management
-- Live in VS Code and don't want context switching
-- Value simplicity over enterprise features
-
----
-
-**Status:** 📝 Planning Complete → 🚀 Ready for Implementation
+MIT

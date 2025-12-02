@@ -1273,3 +1273,36 @@ Files changed (11):
 - src/test/suite/statusBar.test.ts (updated command test)
 
 Tests: 413 unit + 134 integration = 547 total (+8 new)
+
+=== Session: 2025-12-01 20:30 ===
+Stories: DS-145 (Screenshots), DS-144 (README rewrite)
+Status: both done
+
+DS-145 Changes:
+- Created assets/screenshots/ directory
+- Updated test workspace (devstories_test):
+  - Renamed project "Test Project" → "TaskFlow"
+  - Changed prefix "TEST" → "TASK"
+  - Rewrote all 17 stories with realistic content
+  - Rewrote all 5 epics with proper descriptions
+- User captured 5 screenshots at 1280x800 (Dark+ theme):
+  - tree-view.png, quick-capture.png, hover-preview.png
+  - status-bar.png, create-story-menu.png
+
+DS-144 Changes:
+- Rewrote README.md for marketplace users:
+  - Hero section with tagline
+  - Features with screenshots
+  - Quick Start guide
+  - Keyboard shortcuts table
+  - Configuration section (config.json)
+  - File structure overview
+- Created CONTRIBUTING.md with developer docs
+- CLAUDE.md remains separate (not linked from README)
+
+Files changed:
+- README.md (complete rewrite)
+- CONTRIBUTING.md (new)
+- assets/screenshots/*.png (5 new images)
+- .devstories/stories/DS-144.md, DS-145.md (marked done)
+- devstories_test/.devstories/* (test workspace updates)

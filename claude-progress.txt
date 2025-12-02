@@ -1479,3 +1479,24 @@ Files changed (2):
 - .devstories/stories/DS-159.md (marked done)
 
 Tests: skipped (configuration only)
+
+=== Session: 2025-12-02 14:55 ===
+Story: DS-164 (Auto-release workflow on tag)
+Status: done
+
+Changes:
+- Created .github/workflows/release.yml
+- Triggers on v*.*.* tags
+- Runs full test suite (unit + integration)
+- Packages extension, creates GitHub Release
+- Uploads .vsix, publishes to Marketplace
+- Documented release process in CONTRIBUTING.md (including VSCE_PAT setup)
+
+Files changed (3):
+- .github/workflows/release.yml (new)
+- CONTRIBUTING.md (Releases section)
+- .devstories/stories/DS-164.md (marked done)
+
+Tests: skipped (configuration only)
+
+Note: Manual step - add VSCE_PAT secret to GitHub repo settings

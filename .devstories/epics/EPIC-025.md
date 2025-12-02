@@ -1,10 +1,10 @@
 ---
 id: EPIC-025
 title: "Release 1.0.0"
-status: active
+status: done
 sprint: "release-1.0.0"
 created: 2025-12-01
-updated: 2025-12-01
+updated: 2025-12-02
 ---
 
 # Release 1.0.0

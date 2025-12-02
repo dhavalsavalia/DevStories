@@ -1,5 +1,7 @@
 # DevStories
 
+[![CI](https://github.com/dhavalsavalia/DevStories/actions/workflows/ci.yml/badge.svg)](https://github.com/dhavalsavalia/DevStories/actions/workflows/ci.yml)
+
 **Lightweight story management in VS Code. Stories that travel with your code.**
 
 Stories live as markdown files in your repo—version-controlled, AI-accessible, and completely free.

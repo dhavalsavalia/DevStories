@@ -1395,3 +1395,20 @@ Files changed (2):
 Manual step pending: Enable private vulnerability reporting in GitHub repo settings
 
 Tests: skipped (documentation only)
+
+=== Session: 2025-12-02 14:12 ===
+Story: DS-166 (Node version pinning)
+Status: done
+
+Changes:
+- Added node engine requirement (>=20) to package.json
+- Created .nvmrc with version 20
+- Documented Node requirement in CONTRIBUTING.md
+
+Files changed (4):
+- package.json (engines.node)
+- .nvmrc (new)
+- CONTRIBUTING.md (requirements note)
+- .devstories/stories/DS-166.md (marked done)
+
+Tests: skipped (configuration only)

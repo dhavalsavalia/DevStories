@@ -4,6 +4,8 @@ Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
 
 ## Development Setup
 
+**Requirements:** Node.js 20 or higher (use `nvm use` to switch)
+
 ```bash
 # Clone the repo
 git clone https://github.com/dhavalsavalia/devstories.git

@@ -96,7 +96,10 @@
       "WebFetch(domain:www.npmjs.com)",
       "Bash(do sed -i '' 's/TEST-/TASK-/g' \"$f\")",
       "Bash(do grep -E \"^(id|title|status):\" \"$f\")",
-      "Bash(do grep -E \"^(id|title|status|sprint):\" \"$f\")"
+      "Bash(do grep -E \"^(id|title|status|sprint):\" \"$f\")",
+      "Bash(npx vsce package)",
+      "Bash(code --install-extension:*)",
+      "Bash(code --list-extensions --show-versions)"
     ],
     "deny": [],
     "ask": [],

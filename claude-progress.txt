@@ -1306,3 +1306,23 @@ Files changed:
 - assets/screenshots/*.png (5 new images)
 - .devstories/stories/DS-144.md, DS-145.md (marked done)
 - devstories_test/.devstories/* (test workspace updates)
+
+=== Session: 2025-12-01 21:24 ===
+Story: DS-148 (Write marketplace description)
+Status: done
+
+Changes:
+- Updated package.json description to: "Stories as markdown files, version-controlled with your code. No JIRA. No bloat."
+- Added marketplace copy to story file:
+  - Taglines (short + full)
+  - Social proof with actual counts (98 stories, 14 epics)
+- Added launch posts:
+  - Reddit (r/vscode, r/programming)
+  - Hacker News (Show HN format)
+  - Twitter/X (announcement + thread follow-up)
+
+Files changed (2):
+- package.json (updated description)
+- .devstories/stories/DS-148.md (marked done + added all copy)
+
+Note: Tests skipped per user request

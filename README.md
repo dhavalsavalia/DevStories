@@ -1,6 +1,6 @@
 # DevStories
 
-**Lightweight story management in VS Code. No JIRA. No bloat. Just markdown.**
+**Lightweight story management in VS Code. Stories that travel with your code.**
 
 Stories live as markdown files in your repo—version-controlled, AI-accessible, and completely free.
 

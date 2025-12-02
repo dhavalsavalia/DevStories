@@ -1430,3 +1430,21 @@ Files changed (3):
 - .devstories/stories/DS-157.md (marked done)
 
 Tests: skipped (CI configuration only)
+
+=== Session: 2025-12-02 14:21 ===
+Story: DS-162 (Fork-safe PR workflow)
+Status: done
+
+Changes:
+- Created .github/workflows/pr-fork.yml for fork PRs
+- Uses pull_request event (not pull_request_target)
+- Runs lint + unit tests only (no integration tests)
+- Explicit ref checkout for security
+- Documented fork PR security in CONTRIBUTING.md
+
+Files changed (3):
+- .github/workflows/pr-fork.yml (new)
+- CONTRIBUTING.md (Fork PR Security section)
+- .devstories/stories/DS-162.md (marked done)
+
+Tests: skipped (CI configuration only)

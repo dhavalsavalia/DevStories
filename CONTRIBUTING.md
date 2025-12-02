@@ -76,6 +76,14 @@ The CI pipeline runs on every push to main and on pull requests:
    - Uses `xvfb-run` for headless VS Code tests
    - Skipped for fork PRs (security)
 
+### Fork PR Security
+
+Fork PRs use a separate workflow (`pr-fork.yml`) that:
+- Runs lint + unit tests only (no integration tests)
+- Has no access to secrets
+- Uses explicit `ref` checkout for safety
+- Uses `pull_request` event (not `pull_request_target`)
+
 ## Commit Guidelines
 
 - Use conventional commits: `feat:`, `fix:`, `docs:`, `chore:`

@@ -27,7 +27,8 @@
     "task-management"
   ],
   "engines": {
-    "vscode": "^1.90.0"
+    "vscode": "^1.90.0",
+    "node": ">=20"
   },
   "categories": [
     "Other",

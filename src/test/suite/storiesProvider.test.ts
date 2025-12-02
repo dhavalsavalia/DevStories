@@ -4,7 +4,9 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { Store } from '../../core/store';
 import { Watcher } from '../../core/watcher';
+import { SprintFilterService } from '../../core/sprintFilterService';
 import { StoriesProvider } from '../../view/storiesProvider';
+import { getTreeViewTitle } from '../../view/storiesProviderUtils';
 
 suite('StoriesProvider Test Suite', () => {
   const workspaceRoot = vscode.workspace.workspaceFolders![0].uri.fsPath;
@@ -237,5 +239,25 @@ created: 2025-01-01
         assert.ok(tooltipValue.includes('S'), 'Tooltip should include size');
       }
     }
+  });
+
+  // DS-139: Tree view title tests
+  test('getTreeViewTitle should return "Stories" when no filter', () => {
+    assert.strictEqual(getTreeViewTitle(null), 'Stories');
+  });
+
+  test('getTreeViewTitle should return "Stories (sprint-name)" when filtered', () => {
+    assert.strictEqual(getTreeViewTitle('sprint-1'), 'Stories (sprint-1)');
+  });
+
+  test('getTreeViewTitle should capitalize Backlog', () => {
+    assert.strictEqual(getTreeViewTitle('backlog'), 'Stories (Backlog)');
+  });
+
+  test('StoriesProvider should accept SprintFilterService', () => {
+    const sprintFilter = new SprintFilterService();
+    const providerWithFilter = new StoriesProvider(store, mockExtensionPath, undefined, sprintFilter);
+    assert.ok(providerWithFilter, 'Should create provider with sprint filter service');
+    sprintFilter.dispose();
   });
 });

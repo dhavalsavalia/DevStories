@@ -1187,3 +1187,22 @@ Also created DS-152 story for config.json migration with JSON Schema.
 **Test Results:**
 - Unit tests: 387 passing
 - Integration tests: 116 passing
+
+=== Session: 2025-12-01 18:55 ===
+Story: DS-139 (Sprint filter indicator in tree view)
+Status: done
+
+Changes:
+- Added `getTreeViewTitle()` function to storiesProviderUtils.ts
+- Changed from `registerTreeDataProvider` to `createTreeView` in extension.ts
+- Subscribe to `sprintFilterService.onDidSprintChange` to update tree view title
+- Title shows "Stories" when no filter, "Stories (sprint-name)" when filtered
+- Special case: "Stories (Backlog)" for backlog filter
+
+Files changed (4):
+- src/view/storiesProviderUtils.ts (added getTreeViewTitle function)
+- src/extension.ts (use createTreeView, subscribe to sprint changes)
+- src/test/unit/treeViewSorting.test.ts (+3 unit tests)
+- src/test/suite/storiesProvider.test.ts (+4 integration tests)
+
+Tests: 390 unit + 120 integration = 510 total (+7 new)

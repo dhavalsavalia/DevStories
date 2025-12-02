@@ -8,6 +8,21 @@ import { Story } from '../types/story';
 import { getSprintIndex } from '../core/configServiceUtils';
 
 /**
+ * Get the tree view title based on sprint filter.
+ * @param sprintFilter - Sprint name, 'backlog', or null for all sprints
+ * @returns Title string like "Stories" or "Stories (sprint-name)"
+ */
+export function getTreeViewTitle(sprintFilter: string | null): string {
+  if (sprintFilter === null) {
+    return 'Stories';
+  }
+  if (sprintFilter === 'backlog') {
+    return 'Stories (Backlog)';
+  }
+  return `Stories (${sprintFilter})`;
+}
+
+/**
  * Sort stories for tree view display.
  * Order: sprint sequence → priority (lower first) → title (alphabetical, case-insensitive)
  */

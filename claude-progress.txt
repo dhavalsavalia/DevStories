@@ -1326,3 +1326,19 @@ Files changed (2):
 - .devstories/stories/DS-148.md (marked done + added all copy)
 
 Note: Tests skipped per user request
+
+=== Session: 2025-12-01 22:12 ===
+Story: DS-146 (Version bump and release commit)
+Status: done
+
+Changes:
+- Bumped package.json version: 0.0.1 → 1.0.0
+- Fixed publisher ID: devstories → DhavalSavalia
+- Generated devstories-1.0.0.vsix (5.58 MB)
+- Verified local installation
+
+Files changed (2):
+- package.json (version + publisher)
+- .devstories/stories/DS-146.md (marked done)
+
+Tests: 413 unit + 134 integration = 547 total (all passing)

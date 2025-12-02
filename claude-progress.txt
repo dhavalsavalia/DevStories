@@ -1479,3 +1479,19 @@ Files changed (2):
 - .devstories/stories/DS-159.md (marked done)
 
 Tests: skipped (configuration only)
+
+=== Session: 2025-12-02 14:50 ===
+Story: DS-163 (Configure Dependabot)
+Status: done
+
+Changes:
+- Created .github/dependabot.yml
+- npm: weekly updates (Monday), grouped patch+minor
+- github-actions: monthly updates
+- 5 PR limit per ecosystem
+
+Files changed (2):
+- .github/dependabot.yml (new)
+- .devstories/stories/DS-163.md (marked done)
+
+Tests: skipped (configuration only)

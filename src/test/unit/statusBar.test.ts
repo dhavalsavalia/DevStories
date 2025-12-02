@@ -222,10 +222,10 @@ describe('statusBarUtils', () => {
       expect(lines).toContain('📊 Showing: Backlog');
     });
 
-    it('should include header and click hint', () => {
+    it('should include header but NOT click hint (DS-153)', () => {
       const lines = formatTooltipLines(0, 0, null);
       expect(lines).toContain('**DevStories: Sprint Progress**');
-      expect(lines).toContain('*Click to change sprint filter*');
+      expect(lines).not.toContain('*Click to change sprint filter*');
     });
 
     it('should calculate remaining correctly', () => {

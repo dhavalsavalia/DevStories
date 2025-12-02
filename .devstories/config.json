@@ -34,5 +34,6 @@
       "backlog"
     ]
   },
-  "sizes": ["XS", "S", "M", "L", "XL"]
+  "sizes": ["XS", "S", "M", "L", "XL"],
+  "autoFilterCurrentSprint": true
 }

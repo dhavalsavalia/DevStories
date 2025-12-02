@@ -102,8 +102,6 @@ export function formatTooltipLines(done: number, total: number, sprint: string |
   lines.push(`✅ Done: ${done}`);
   lines.push(`📝 Remaining: ${remaining}`);
   lines.push(`📦 Total: ${total}`);
-  lines.push('');
-  lines.push('*Click to change sprint filter*');
 
   return lines;
 }

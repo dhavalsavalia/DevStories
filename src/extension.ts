@@ -8,6 +8,7 @@ import { executeInit } from './commands/init';
 import { executePickSprint } from './commands/pickSprint';
 import { executeQuickCapture } from './commands/quickCapture';
 import { executeSaveAsTemplate } from './commands/saveAsTemplate';
+import { applyAutoFilterSprint } from './core/autoFilterSprint';
 import { AutoTimestamp } from './core/autoTimestamp';
 import { ConfigService } from './core/configService';
 import { initializeLogger, disposeLogger } from './core/logger';
@@ -38,15 +39,23 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Initialize config service (loads config and starts watching)
 	await configService.initialize();
 
+	// Auto-filter to current sprint if configured (DS-153)
+	applyAutoFilterSprint(configService.config, sprintFilterService);
+
 	// Register Tree View with createTreeView for dynamic title updates (DS-139)
 	const treeView = vscode.window.createTreeView('devstories.views.explorer', {
 		treeDataProvider: storiesProvider
 	});
 
-	// Update tree view title when sprint filter changes
-	sprintFilterService.onDidSprintChange((sprint) => {
+	// Update tree view title and context when sprint filter changes
+	sprintFilterService.onDidSprintChange(async (sprint) => {
 		treeView.title = getTreeViewTitle(sprint);
+		// DS-153: Update context for filter icon state
+		await vscode.commands.executeCommand('setContext', 'devstories:hasSprintFilter', sprint !== null);
 	});
+
+	// Set initial filter context
+	await vscode.commands.executeCommand('setContext', 'devstories:hasSprintFilter', sprintFilterService.currentSprint !== null);
 
 	// Register Document Link Provider for [[ID]] links
 	const storyLinkProvider = new StoryLinkProvider(store);
@@ -128,6 +137,13 @@ export async function activate(context: vscode.ExtensionContext) {
 		})
 	);
 
+	// DS-153: Clear sprint filter command
+	const clearSprintFilterCommand = vscode.commands.registerCommand('devstories.clearSprintFilter',
+		wrapCommand('clearSprintFilter', async () => {
+			sprintFilterService.setSprint(null);
+		})
+	);
+
 	const openEpicCommand = vscode.commands.registerCommand('devstories.openEpic',
 		wrapCommand('openEpic', async (item) => {
 			if (item) {
@@ -161,6 +177,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		saveAsTemplateCommand,
 		changeStatusCommand,
 		pickSprintCommand,
+		clearSprintFilterCommand,
 		openEpicCommand,
 		createStoryMenuCommand
 	);

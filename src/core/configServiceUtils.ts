@@ -38,6 +38,7 @@ export interface ConfigData {
   statuses: StatusDef[];
   sizes: StorySize[];
   quickCaptureDefaultToCurrentSprint: boolean;
+  autoFilterCurrentSprint: boolean;
 }
 
 /**
@@ -55,6 +56,7 @@ export const DEFAULT_CONFIG: ConfigData = {
   ],
   sizes: ['XS', 'S', 'M', 'L', 'XL'] as StorySize[],
   quickCaptureDefaultToCurrentSprint: false,
+  autoFilterCurrentSprint: true,
 };
 
 /**
@@ -141,6 +143,11 @@ export function parseConfigJsonContent(content: string): Partial<ConfigData> {
       result.quickCaptureDefaultToCurrentSprint = parsed.quickCapture.defaultToCurrentSprint;
     }
 
+    // Auto-filter current sprint (DS-153)
+    if (typeof parsed.autoFilterCurrentSprint === 'boolean') {
+      result.autoFilterCurrentSprint = parsed.autoFilterCurrentSprint;
+    }
+
     return result;
   } catch {
     // Invalid JSON config - return empty to use defaults
@@ -176,6 +183,7 @@ export function mergeConfigWithDefaults(parsed: Partial<ConfigData>): ConfigData
     statuses: parsed.statuses ?? DEFAULT_CONFIG.statuses,
     sizes: parsed.sizes ?? DEFAULT_CONFIG.sizes,
     quickCaptureDefaultToCurrentSprint: parsed.quickCaptureDefaultToCurrentSprint ?? DEFAULT_CONFIG.quickCaptureDefaultToCurrentSprint,
+    autoFilterCurrentSprint: parsed.autoFilterCurrentSprint ?? DEFAULT_CONFIG.autoFilterCurrentSprint,
   };
 }
 

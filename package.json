@@ -83,7 +83,19 @@
       },
       {
         "command": "devstories.pickSprint",
-        "title": "DevStories: Pick Sprint"
+        "title": "DevStories: Pick Sprint",
+        "icon": {
+          "light": "assets/filter.svg",
+          "dark": "assets/filter.svg"
+        }
+      },
+      {
+        "command": "devstories.clearSprintFilter",
+        "title": "DevStories: Clear Sprint Filter",
+        "icon": {
+          "light": "assets/filter-filled.svg",
+          "dark": "assets/filter-filled.svg"
+        }
       },
       {
         "command": "devstories.openEpic",
@@ -100,7 +112,17 @@
         {
           "command": "devstories.createStoryMenu",
           "when": "view == devstories.views.explorer",
-          "group": "navigation"
+          "group": "navigation@1"
+        },
+        {
+          "command": "devstories.pickSprint",
+          "when": "view == devstories.views.explorer && !devstories:hasSprintFilter",
+          "group": "navigation@2"
+        },
+        {
+          "command": "devstories.clearSprintFilter",
+          "when": "view == devstories.views.explorer && devstories:hasSprintFilter",
+          "group": "navigation@2"
         }
       ],
       "view/item/context": [

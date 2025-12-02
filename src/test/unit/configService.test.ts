@@ -92,6 +92,31 @@ describe('ConfigService Utils', () => {
       expect(merged.quickCaptureDefaultToCurrentSprint).toBe(false);
     });
 
+    it('should parse autoFilterCurrentSprint when true', () => {
+      const json = JSON.stringify({
+        version: 1,
+        autoFilterCurrentSprint: true,
+      });
+      const result = parseConfigJsonContent(json);
+      expect(result.autoFilterCurrentSprint).toBe(true);
+    });
+
+    it('should parse autoFilterCurrentSprint when false', () => {
+      const json = JSON.stringify({
+        version: 1,
+        autoFilterCurrentSprint: false,
+      });
+      const result = parseConfigJsonContent(json);
+      expect(result.autoFilterCurrentSprint).toBe(false);
+    });
+
+    it('should default autoFilterCurrentSprint to true when not specified (DS-153)', () => {
+      const json = JSON.stringify({ version: 1 });
+      const result = parseConfigJsonContent(json);
+      const merged = mergeConfigWithDefaults(result);
+      expect(merged.autoFilterCurrentSprint).toBe(true);
+    });
+
     it('should parse sprint sequence array', () => {
       const json = JSON.stringify({
         version: 1,

@@ -7,6 +7,8 @@ import {
   findLinkAtPosition,
   findBareIdAtPosition,
   isInFrontmatter,
+  findFieldNameAtPosition,
+  getFieldDescription,
 } from '../../providers/storyHoverProviderUtils';
 import { Story } from '../../types/story';
 import { Epic } from '../../types/epic';
@@ -157,5 +159,40 @@ suite('StoryHoverProvider Integration Test', () => {
 
     // Line 4 is after frontmatter
     assert.strictEqual(isInFrontmatter(lines, 4), false);
+  });
+
+  test('findFieldNameAtPosition finds field name at cursor', () => {
+    const text = 'status: todo';
+    const match = findFieldNameAtPosition(text, 3);
+
+    assert.ok(match !== null);
+    assert.strictEqual(match!.fieldName, 'status');
+    assert.strictEqual(match!.start, 0);
+    assert.strictEqual(match!.end, 6);
+  });
+
+  test('findFieldNameAtPosition returns null when on value', () => {
+    const text = 'status: todo';
+    const match = findFieldNameAtPosition(text, 9);
+
+    assert.strictEqual(match, null);
+  });
+
+  test('getFieldDescription returns description for story fields', () => {
+    const description = getFieldDescription('status', 'story');
+
+    assert.strictEqual(description, 'Current workflow status (validated against config.yaml statuses)');
+  });
+
+  test('getFieldDescription returns description for epic fields', () => {
+    const description = getFieldDescription('title', 'epic');
+
+    assert.strictEqual(description, 'Epic title - thematic grouping of related stories');
+  });
+
+  test('getFieldDescription returns null for unknown fields', () => {
+    const description = getFieldDescription('unknown', 'story');
+
+    assert.strictEqual(description, null);
   });
 });

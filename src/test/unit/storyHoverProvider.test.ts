@@ -6,6 +6,8 @@ import {
   findLinkAtPosition,
   findBareIdAtPosition,
   isInFrontmatter,
+  findFieldNameAtPosition,
+  getFieldDescription,
 } from '../../providers/storyHoverProviderUtils';
 import { Story, StoryType } from '../../types/story';
 import { Epic } from '../../types/epic';
@@ -426,6 +428,200 @@ describe('storyHoverProviderUtils', () => {
         start: 12,
         end: 18,
       });
+    });
+  });
+
+  describe('findFieldNameAtPosition', () => {
+    it('should return field name when cursor is on field name', () => {
+      const text = 'status: todo';
+      const result = findFieldNameAtPosition(text, 3); // On 'sta|tus'
+
+      expect(result).toEqual({
+        fieldName: 'status',
+        start: 0,
+        end: 6,
+      });
+    });
+
+    it('should return null when cursor is on field value', () => {
+      const text = 'status: todo';
+      const result = findFieldNameAtPosition(text, 9); // On 'to|do'
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null when cursor is on colon', () => {
+      const text = 'status: todo';
+      const result = findFieldNameAtPosition(text, 6); // On ':'
+
+      expect(result).toBeNull();
+    });
+
+    it('should handle indented fields', () => {
+      const text = '  epic: EPIC-001';
+      const result = findFieldNameAtPosition(text, 4); // On 'ep|ic'
+
+      expect(result).toEqual({
+        fieldName: 'epic',
+        start: 2,
+        end: 6,
+      });
+    });
+
+    it('should return null for lines without colon', () => {
+      const text = 'just plain text';
+      const result = findFieldNameAtPosition(text, 5);
+
+      expect(result).toBeNull();
+    });
+
+    it('should handle field at cursor position 0', () => {
+      const text = 'id: DS-001';
+      const result = findFieldNameAtPosition(text, 0); // On 'i|d'
+
+      expect(result).toEqual({
+        fieldName: 'id',
+        start: 0,
+        end: 2,
+      });
+    });
+
+    it('should handle field with empty value', () => {
+      const text = 'assignee:';
+      const result = findFieldNameAtPosition(text, 3);
+
+      expect(result).toEqual({
+        fieldName: 'assignee',
+        start: 0,
+        end: 8,
+      });
+    });
+
+    it('should handle field with quoted value', () => {
+      const text = 'title: "Some Title"';
+      const result = findFieldNameAtPosition(text, 2);
+
+      expect(result).toEqual({
+        fieldName: 'title',
+        start: 0,
+        end: 5,
+      });
+    });
+
+    it('should return null for YAML array items', () => {
+      const text = '  - DS-001';
+      const result = findFieldNameAtPosition(text, 5);
+
+      expect(result).toBeNull();
+    });
+
+    it('should handle dependencies field name', () => {
+      const text = 'dependencies:';
+      const result = findFieldNameAtPosition(text, 6);
+
+      expect(result).toEqual({
+        fieldName: 'dependencies',
+        start: 0,
+        end: 12,
+      });
+    });
+  });
+
+  describe('getFieldDescription', () => {
+    it('should return description for story status field', () => {
+      const result = getFieldDescription('status', 'story');
+
+      expect(result).toBe('Current workflow status (validated against config.yaml statuses)');
+    });
+
+    it('should return description for story id field', () => {
+      const result = getFieldDescription('id', 'story');
+
+      expect(result).toBe('Unique story identifier (e.g., DS-001)');
+    });
+
+    it('should return description for story epic field', () => {
+      const result = getFieldDescription('epic', 'story');
+
+      expect(result).toBe('Parent epic ID this story belongs to');
+    });
+
+    it('should return description for epic id field', () => {
+      const result = getFieldDescription('id', 'epic');
+
+      expect(result).toBe('Unique epic identifier (e.g., EPIC-001 or EPIC-INBOX)');
+    });
+
+    it('should return description for epic status field', () => {
+      const result = getFieldDescription('status', 'epic');
+
+      expect(result).toBe('Current workflow status (validated against config.yaml statuses)');
+    });
+
+    it('should return null for unknown field', () => {
+      const result = getFieldDescription('unknownField', 'story');
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null for story-only field on epic', () => {
+      const result = getFieldDescription('epic', 'epic');
+
+      expect(result).toBeNull();
+    });
+
+    it('should return description for title field (story)', () => {
+      const result = getFieldDescription('title', 'story');
+
+      expect(result).toBe('Story title - brief description of the work');
+    });
+
+    it('should return description for title field (epic)', () => {
+      const result = getFieldDescription('title', 'epic');
+
+      expect(result).toBe('Epic title - thematic grouping of related stories');
+    });
+
+    it('should return description for dependencies field', () => {
+      const result = getFieldDescription('dependencies', 'story');
+
+      expect(result).toBe('List of story IDs this story depends on');
+    });
+
+    it('should return description for type field', () => {
+      const result = getFieldDescription('type', 'story');
+
+      expect(result).toBe('Story type: feature, bug, task, or chore');
+    });
+
+    it('should return description for size field', () => {
+      const result = getFieldDescription('size', 'story');
+
+      expect(result).toBe('Complexity estimate: XS, S, M, L, or XL');
+    });
+
+    it('should return description for sprint field', () => {
+      const result = getFieldDescription('sprint', 'story');
+
+      expect(result).toBe('Sprint identifier (validated against config.yaml sprints)');
+    });
+
+    it('should return description for priority field', () => {
+      const result = getFieldDescription('priority', 'story');
+
+      expect(result).toBe('Sort priority - lower values appear first');
+    });
+
+    it('should return description for created field (story)', () => {
+      const result = getFieldDescription('created', 'story');
+
+      expect(result).toBe('Date story was created (YYYY-MM-DD)');
+    });
+
+    it('should return description for updated field (epic)', () => {
+      const result = getFieldDescription('updated', 'epic');
+
+      expect(result).toBe('Date epic was last modified (auto-updated on save)');
     });
   });
 });

@@ -1600,3 +1600,26 @@ Files changed (8):
 - src/core/configServiceUtils.ts (removed unused eslint-disable)
 
 Tests: 413 unit + 134 integration (all passing)
+
+=== Session: 2025-12-04 09:58 ===
+Story: DS-174 (Backlog cleanup - close stale stories)
+Status: done
+
+Changes:
+- Audited 21 todo stories in backlog
+- Closed 3 stories not in v1.1.0+ roadmap:
+  - DS-114: orphan epic EPIC-022, 1.0.0 verification (already released via EPIC-025)
+  - DS-140: Insert Story Link command (deferred scope from 1.0.0)
+  - DS-141: Template browser command (deferred scope from 1.0.0)
+- Kept 18 todo stories:
+  - DS-112, DS-113 (MCP - 1.2.0)
+  - DS-120-125, DS-173 (Intellisense - 1.1.0)
+  - DS-126-132, DS-151 (EPIC-INBOX backlog)
+
+Files changed (4):
+- .devstories/stories/DS-114.md (status: closed)
+- .devstories/stories/DS-140.md (status: closed)
+- .devstories/stories/DS-141.md (status: closed)
+- .devstories/stories/DS-174.md (status: done)
+
+Tests: N/A (chore - no code changes)

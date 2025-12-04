@@ -194,3 +194,34 @@ Files changed (4):
 - .devstories/stories/DS-122.md (status: done)
 
 Tests: 488 unit + 134 integration (all passing)
+
+=== Session: 2025-12-04 16:26 ===
+Story: DS-123 (Autocomplete for enum fields)
+Status: done
+
+Changes:
+- Created src/providers/frontmatterCompletionProviderUtils.ts:
+  - detectFieldAtCursor() detects status/type/size/sprint fields
+  - getStatusCompletions() returns config statuses with labels
+  - getTypeCompletions() returns fixed types with descriptions
+  - getSizeCompletions() returns config sizes with descriptions
+  - getSprintCompletions() returns config sprint sequence
+- Created src/providers/frontmatterCompletionProvider.ts:
+  - FrontmatterCompletionProvider implements CompletionItemProvider
+  - Registers with trigger chars ':' and ' '
+  - Uses isInFrontmatter() from storyHoverProviderUtils
+  - Returns null for non-.devstories files and non-frontmatter context
+- Updated src/extension.ts to register completion provider
+- Created comprehensive unit tests (23 tests)
+
+Decision: Sprint completions use config.sprintSequence only (not existing story sprints)
+Rationale: Validation catches typos, autocomplete provides valid options
+
+Files changed (4):
+- src/providers/frontmatterCompletionProviderUtils.ts (new)
+- src/providers/frontmatterCompletionProvider.ts (new)
+- src/test/unit/frontmatterCompletionProvider.test.ts (new)
+- src/extension.ts (register provider)
+- .devstories/stories/DS-123.md (status: done)
+
+Tests: 511 unit + 134 integration (all passing)

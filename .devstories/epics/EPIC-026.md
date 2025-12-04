@@ -1,7 +1,7 @@
 ---
 id: EPIC-026
 title: "Open Source Hardening & CI/CD"
-status: todo
+status: done
 created: 2025-12-02
 updated: 2025-12-02
 ---

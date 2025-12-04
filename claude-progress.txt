@@ -111,3 +111,28 @@ Files changed (4):
 - .devstories/stories/DS-174.md (status: done)
 
 Tests: N/A (chore - no code changes)
+
+=== Session: 2025-12-04 10:41 ===
+Story: DS-120 (JSON Schema definitions for frontmatter)
+Status: done
+
+Changes:
+- Created schemas/defs/common.schema.json with shared definitions:
+  - storyId, storyIdOrWikiLink, epicId patterns
+  - dateString pattern
+  - storyType, storySize enums
+- Created schemas/story.schema.json with all story frontmatter fields
+- Created schemas/epic.schema.json with all epic frontmatter fields
+- Added ajv as devDependency for schema validation in tests
+- Created src/test/unit/schemas.test.ts with 21 test cases
+
+Files changed (7):
+- schemas/defs/common.schema.json (new)
+- schemas/story.schema.json (new)
+- schemas/epic.schema.json (new)
+- src/test/unit/schemas.test.ts (new)
+- package.json (ajv devDependency)
+- package-lock.json (updated)
+- .devstories/stories/DS-120.md (status: done)
+
+Tests: 434 unit + 134 integration (all passing)

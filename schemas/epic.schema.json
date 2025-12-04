@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DevStories Epic Frontmatter",
+  "description": "Schema for epic markdown frontmatter",
+  "type": "object",
+  "required": ["id", "title", "status", "created"],
+  "properties": {
+    "id": {
+      "$ref": "defs/common.schema.json#/$defs/epicId",
+      "description": "Unique epic identifier (e.g., EPIC-001 or EPIC-INBOX)"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "Epic title - thematic grouping of related stories"
+    },
+    "status": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Current workflow status (validated against config.yaml statuses)"
+    },
+    "created": {
+      "$ref": "defs/common.schema.json#/$defs/dateString",
+      "description": "Date epic was created (YYYY-MM-DD)"
+    },
+    "updated": {
+      "$ref": "defs/common.schema.json#/$defs/dateString",
+      "description": "Date epic was last modified (auto-updated on save)"
+    }
+  },
+  "additionalProperties": false
+}

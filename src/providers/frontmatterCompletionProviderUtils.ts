@@ -120,3 +120,160 @@ export function getSprintCompletions(sprints: string[]): CompletionData[] {
     value: sprint,
   }));
 }
+
+/**
+ * Detect if cursor is on epic: field after the colon
+ * @param line The current line text
+ * @param charPos The cursor's character position in the line
+ * @returns true if on epic field after colon
+ */
+export function detectEpicField(line: string, charPos: number): boolean {
+  const colonIndex = line.indexOf(':');
+  if (colonIndex === -1 || charPos <= colonIndex) {
+    return false;
+  }
+  const fieldPart = line.substring(0, colonIndex).trim();
+  return fieldPart === 'epic';
+}
+
+/**
+ * Detect if cursor is in a YAML array item under dependencies:
+ * @param lines All lines of the document
+ * @param lineNum The current line number (0-indexed)
+ * @param charPos The cursor's character position (not used but kept for consistency)
+ * @returns true if in dependencies array context
+ */
+export function detectDependencyContext(lines: string[], lineNum: number, _charPos: number): boolean {
+  const currentLine = lines[lineNum];
+
+  // Must be an array item line (starts with whitespace and -)
+  if (!currentLine.match(/^\s+-/)) {
+    return false;
+  }
+
+  // Check if we're inside frontmatter
+  let inFrontmatter = false;
+  let frontmatterStart = -1;
+  for (let i = 0; i <= lineNum; i++) {
+    if (lines[i].trim() === '---') {
+      if (!inFrontmatter) {
+        inFrontmatter = true;
+        frontmatterStart = i;
+      } else {
+        // Second --- before our line means we're outside frontmatter
+        if (i < lineNum) {
+          return false;
+        }
+      }
+    }
+  }
+
+  if (!inFrontmatter || frontmatterStart === -1) {
+    return false;
+  }
+
+  // Look backwards to find the parent field
+  for (let i = lineNum - 1; i >= frontmatterStart; i--) {
+    const prevLine = lines[i];
+    // If we hit a non-indented line with a colon, that's the parent field
+    if (prevLine.match(/^[a-z_]+:/i)) {
+      const fieldName = prevLine.split(':')[0].trim();
+      return fieldName === 'dependencies';
+    }
+    // If we hit another array item, continue looking back
+    if (prevLine.match(/^\s+-/)) {
+      continue;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Detect if cursor is inside a [[ link pattern
+ * @param line The current line text
+ * @param charPos The cursor's character position in the line
+ * @returns true if inside [[ but not after ]]
+ */
+export function detectLinkTrigger(line: string, charPos: number): boolean {
+  if (!line || charPos <= 0) {
+    return false;
+  }
+
+  const textBefore = line.substring(0, charPos);
+
+  // Find last [[ before cursor
+  const lastOpenBracket = textBefore.lastIndexOf('[[');
+  if (lastOpenBracket === -1) {
+    return false;
+  }
+
+  // Check if there's a ]] after the [[ but before cursor
+  const textAfterOpen = textBefore.substring(lastOpenBracket);
+  if (textAfterOpen.includes(']]')) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Simple Epic type for completions (only need id and title)
+ */
+interface EpicLike {
+  id: string;
+  title: string;
+}
+
+/**
+ * Simple Story type for completions (only need id and title)
+ */
+interface StoryLike {
+  id: string;
+  title: string;
+}
+
+/**
+ * Generate completion items for epic field
+ * Always includes EPIC-INBOX as a valid option
+ * @param epics Epic objects with id and title
+ * @returns Completion data array
+ */
+export function getEpicCompletions(epics: EpicLike[]): CompletionData[] {
+  const completions: CompletionData[] = [
+    { value: 'EPIC-INBOX', detail: 'Inbox for uncategorized stories' },
+  ];
+
+  for (const epic of epics) {
+    completions.push({
+      value: epic.id,
+      detail: epic.title,
+    });
+  }
+
+  return completions;
+}
+
+/**
+ * Generate completion items for story references (dependencies)
+ * @param stories Story objects with id and title
+ * @returns Completion data array
+ */
+export function getStoryCompletions(stories: StoryLike[]): CompletionData[] {
+  return stories.map(story => ({
+    value: story.id,
+    detail: story.title,
+  }));
+}
+
+/**
+ * Generate completion items for [[ID]] links (both stories and epics)
+ * @param stories Story objects with id and title
+ * @param epics Epic objects with id and title
+ * @returns Completion data array
+ */
+export function getAllIdCompletions(stories: StoryLike[], epics: EpicLike[]): CompletionData[] {
+  const storyCompletions = getStoryCompletions(stories);
+  const epicCompletions = getEpicCompletions(epics);
+  return [...storyCompletions, ...epicCompletions];
+}

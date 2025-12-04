@@ -1,10 +1,14 @@
 /**
- * Completion provider for frontmatter enum fields in .devstories/ markdown files
- * Provides autocomplete suggestions for status, type, size, and sprint fields
+ * Completion provider for frontmatter fields in .devstories/ markdown files
+ * Provides autocomplete suggestions for:
+ * - Enum fields: status, type, size, sprint
+ * - Reference fields: epic, dependencies
+ * - Wiki-style links: [[ID]]
  */
 
 import * as vscode from 'vscode';
 import { ConfigService } from '../core/configService';
+import { Store } from '../core/store';
 import { isInFrontmatter } from './storyHoverProviderUtils';
 import {
   detectFieldAtCursor,
@@ -12,11 +16,20 @@ import {
   getTypeCompletions,
   getSizeCompletions,
   getSprintCompletions,
+  detectEpicField,
+  detectDependencyContext,
+  detectLinkTrigger,
+  getEpicCompletions,
+  getStoryCompletions,
+  getAllIdCompletions,
   CompletionData,
 } from './frontmatterCompletionProviderUtils';
 
 export class FrontmatterCompletionProvider implements vscode.CompletionItemProvider {
-  constructor(private configService: ConfigService) {}
+  constructor(
+    private configService: ConfigService,
+    private store: Store
+  ) {}
 
   provideCompletionItems(
     document: vscode.TextDocument,
@@ -29,38 +42,46 @@ export class FrontmatterCompletionProvider implements vscode.CompletionItemProvi
       return null;
     }
 
-    // Check if we're in frontmatter
     const allLines = document.getText().split('\n');
-    const inFrontmatter = isInFrontmatter(allLines, position.line);
+    const line = document.lineAt(position.line).text;
 
+    // Check for [[ID]] link pattern first (can be anywhere in file)
+    if (detectLinkTrigger(line, position.character)) {
+      const stories = this.store.getStories();
+      const epics = this.store.getEpics();
+      return this.toCompletionItems(getAllIdCompletions(stories, epics), vscode.CompletionItemKind.Reference);
+    }
+
+    // Check if we're in frontmatter for other completions
+    const inFrontmatter = isInFrontmatter(allLines, position.line);
     if (!inFrontmatter) {
       return null;
     }
 
-    // Get current line and detect field
-    const line = document.lineAt(position.line).text;
-    const field = detectFieldAtCursor(line, position.character);
+    // Check for epic: field
+    if (detectEpicField(line, position.character)) {
+      const epics = this.store.getEpics();
+      return this.toCompletionItems(getEpicCompletions(epics), vscode.CompletionItemKind.Reference);
+    }
 
+    // Check for dependencies: array items
+    if (detectDependencyContext(allLines, position.line, position.character)) {
+      const stories = this.store.getStories();
+      return this.toCompletionItems(getStoryCompletions(stories), vscode.CompletionItemKind.Reference);
+    }
+
+    // Check for enum fields (status, type, size, sprint)
+    const field = detectFieldAtCursor(line, position.character);
     if (!field) {
       return null;
     }
 
-    // Get completions based on field type
     const completionData = this.getCompletionsForField(field);
     if (!completionData || completionData.length === 0) {
       return null;
     }
 
-    // Convert to VS Code CompletionItems
-    return completionData.map((data, index) => {
-      const item = new vscode.CompletionItem(data.value, vscode.CompletionItemKind.Value);
-      if (data.detail) {
-        item.detail = data.detail;
-      }
-      // Set sort order to preserve original order
-      item.sortText = String(index).padStart(3, '0');
-      return item;
-    });
+    return this.toCompletionItems(completionData, vscode.CompletionItemKind.Value);
   }
 
   private getCompletionsForField(field: string): CompletionData[] {
@@ -78,5 +99,17 @@ export class FrontmatterCompletionProvider implements vscode.CompletionItemProvi
       default:
         return [];
     }
+  }
+
+  private toCompletionItems(data: CompletionData[], kind: vscode.CompletionItemKind): vscode.CompletionItem[] {
+    return data.map((d, index) => {
+      const item = new vscode.CompletionItem(d.value, kind);
+      if (d.detail) {
+        item.detail = d.detail;
+      }
+      // Set sort order to preserve original order
+      item.sortText = String(index).padStart(3, '0');
+      return item;
+    });
   }
 }

@@ -136,3 +136,32 @@ Files changed (7):
 - .devstories/stories/DS-120.md (status: done)
 
 Tests: 434 unit + 134 integration (all passing)
+
+=== Session: 2025-12-04 12:12 ===
+Story: DS-121 (Single-file frontmatter validation)
+Status: done
+
+Changes:
+- Added ajv-formats dependency for date format validation
+- Created src/validation/frontmatterValidator.ts:
+  - Pure validation functions using Ajv with JSON schemas
+  - Normalizes gray-matter parsed dates back to strings
+  - Returns errors with line numbers and column positions
+  - Schema errors → Error severity, config mismatches → Warning severity
+- Created src/validation/frontmatterDiagnostics.ts:
+  - VS Code DiagnosticCollection provider
+  - Validates on open, save (immediate), and change (300ms debounce)
+  - Re-validates all open docs when config changes
+- Registered FrontmatterDiagnosticsProvider in extension.ts
+- Created comprehensive unit tests (32 tests)
+
+Files changed (7):
+- package.json (ajv-formats dependency)
+- package-lock.json (updated)
+- src/validation/frontmatterValidator.ts (new)
+- src/validation/frontmatterDiagnostics.ts (new)
+- src/test/unit/frontmatterValidator.test.ts (new)
+- src/extension.ts (register diagnostics provider)
+- .devstories/stories/DS-121.md (status: done)
+
+Tests: 466 unit + 134 integration (all passing)

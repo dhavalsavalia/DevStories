@@ -3,7 +3,7 @@ id: EPIC-023
 title: "Frontmatter Intellisense"
 status: todo
 created: 2025-11-30
-updated: 2025-11-30
+updated: 2025-12-04
 ---
 
 # Frontmatter Intellisense
@@ -11,6 +11,12 @@ updated: 2025-11-30
 ## Description
 
 Full validation, autocomplete, and hover support for story/epic frontmatter. JSON Schema foundation enables future CLI and MCP reuse.
+
+## Decisions
+
+- **Validation**: JSON Schema + Ajv (portable for CLI/MCP reuse)
+- **Error UX**: Lenient (load files with warnings, show diagnostics in Problems panel)
+- **Dynamic enums**: Schema uses `type: string` for status/sprint; runtime validates against ConfigService
 
 ## Goals
 
@@ -21,7 +27,8 @@ Full validation, autocomplete, and hover support for story/epic frontmatter. JSO
 
 ## Stories
 
-- [[DS-120]] JSON Schema definitions
+- [[DS-174]] Backlog cleanup - close stale stories (done)
+- [[DS-120]] JSON Schema definitions (foundation)
 - [[DS-121]] Single-file validation
 - [[DS-122]] Cross-file validation
 - [[DS-123]] Autocomplete for enum fields

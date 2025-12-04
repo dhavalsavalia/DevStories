@@ -41,7 +41,9 @@ Check these items:
 
 ## Step 4: Decision Point
 
-If ALL checks pass, ask the user:
+**Check arguments first:** If user passed "merge", "push", or "merge and push" as arguments, skip confirmation and proceed directly to Step 5.
+
+Otherwise, if ALL checks pass, ask the user:
 
 > "All checks passed. Ready to merge `<branch-name>` to main?"
 >
@@ -70,9 +72,10 @@ Report:
 
 ## Critical Rules
 
-- NEVER merge without user confirmation
+- NEVER merge without user confirmation (unless "merge" or "push" passed as argument)
 - NEVER merge if tests fail
 - NEVER merge if story file is incomplete
 - ALWAYS use `--no-gpg-sign` for merge commits
 - ALWAYS delete the feature branch after successful merge
+- If "push" is in arguments, also run `git push` after merge
 - MUST keep all stories that are modified outside your implementation, as I may have changed them

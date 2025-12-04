@@ -13,7 +13,7 @@
     { "id": "done", "label": "Done" }
   ],
   "sprints": {
-    "current": "osh-sprint",
+    "current": "1.1.0-intellisense",
     "sequence": [
       "phase-1",
       "phase-2",
@@ -30,8 +30,8 @@
       "pre-launch",
       "release-1.0.0",
       "osh-sprint",
-      "1.1.0-mcp",
-      "1.2.0-intellisense",
+      "1.1.0-intellisense",
+      "1.2.0-mcp",
       "backlog"
     ]
   },

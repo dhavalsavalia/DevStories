@@ -116,7 +116,12 @@
       "Bash(gh pr view:*)",
       "Bash(gh pr create:*)",
       "Bash(npm install:*)",
-      "Bash(npm run lint:*)"
+      "Bash(npm run lint:*)",
+      "Bash(gh pr close:*)",
+      "Bash(do if grep -q '^epic: EPIC-026' $f)",
+      "Bash(then grep -E \"^(id|title|status):\" $f)",
+      "Bash(sort:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": [],

@@ -16,6 +16,7 @@ import { SprintFilterService } from './core/sprintFilterService';
 import { Store } from './core/store';
 import { Watcher } from './core/watcher';
 import { updateWelcomeContext } from './core/welcomeContext';
+import { FrontmatterCompletionProvider } from './providers/frontmatterCompletionProvider';
 import { StoryHoverProvider } from './providers/storyHoverProvider';
 import { StoryLinkProvider } from './providers/storyLinkProvider';
 import { FrontmatterDiagnosticsProvider } from './validation/frontmatterDiagnostics';
@@ -70,6 +71,15 @@ export async function activate(context: vscode.ExtensionContext) {
 	const hoverProviderDisposable = vscode.languages.registerHoverProvider(
 		{ language: 'markdown', scheme: 'file' },
 		storyHoverProvider
+	);
+
+	// Register Completion Provider for frontmatter enum fields (DS-123)
+	const frontmatterCompletionProvider = new FrontmatterCompletionProvider(configService);
+	const completionProviderDisposable = vscode.languages.registerCompletionItemProvider(
+		{ language: 'markdown', scheme: 'file' },
+		frontmatterCompletionProvider,
+		':',  // Trigger after colon
+		' '   // Trigger after space
 	);
 
 	// Register Frontmatter Diagnostics Provider (DS-121, DS-122)
@@ -175,6 +185,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		treeView,
 		linkProviderDisposable,
 		hoverProviderDisposable,
+		completionProviderDisposable,
 		diagnosticsProvider,
 		...diagnosticsDisposables,
 		initCommand,

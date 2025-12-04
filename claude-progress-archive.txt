@@ -560,3 +560,1524 @@ Next story: DS-020 (Kanban Board UI)
 
 ---
 
+=== Archived 2025-11-29 ===
+Sessions archived: 14
+Date range: 2025-11-27 00:00 (Initial)  to  2025-11-28 12:16
+Stories completed: 13
+
+---
+
+=== Session: 2025-11-28 12:28 ===
+Story: DS-020 (Kanban Board UI)
+Status: done
+
+Work done:
+- Created kanban utility functions in `src/view/boardViewUtils.ts`:
+  - `getTypeIcon()`: Returns emoji for story type (feature/bug/task/chore)
+  - `groupStoriesByStatus()`: Groups stories by status for column rendering
+  - `getStoriesForColumn()`: Gets stories for a specific column
+- Updated `webview/board.css` with full kanban styles:
+  - Board container with horizontal scroll
+  - Fixed-width columns (260px) with vertical scroll
+  - Card layout with header, title, footer
+  - Type-specific left border colors
+  - Empty column state
+- Replaced placeholder `renderBoard()` in `webview/board.js` with full implementation:
+  - `groupStoriesByStatus()`: Client-side grouping
+  - `renderColumn()`: Renders column with header and cards
+  - `renderCard()`: Renders card with type icon, ID, size, title, epic, deps
+  - `getEpicName()`: Resolves epic ID to title
+  - `escapeHtml()`: XSS prevention
+  - Scroll position persistence (board + columns)
+- Added 11 new unit tests for kanban utilities (36 total in boardView.test.ts)
+
+MVP Acceptance Criteria:
+- ✅ Board renders columns from config.yaml statuses
+- ✅ Stories render as cards in correct columns based on status
+- ✅ Cards display: ID, Title, Type icon, Size badge
+- ✅ Columns show count of stories
+- ✅ Horizontal scroll for many columns, vertical scroll within columns
+- ✅ Empty column state: "No stories" placeholder
+- ✅ Color coding: Subtle color hints based on type (left border)
+
+Enhanced features deferred:
+- WIP limits, Swimlanes, Compact/expanded view, Story count by type, Card hover
+
+Tests: 246 unit + 94 integration = 340 total passing
+
+Project Status: 22/25 stories done (88%)
+- Phase 5 (Board View): 2/5 done
+
+Next story: DS-021 (Drag-and-Drop)
+
+---
+
+=== Session: 2025-11-28 12:44 ===
+Story: DS-021 (Drag-Drop + Keyboard Navigation)
+Status: done
+
+Work done:
+- Added navigation utilities in `src/view/boardViewUtils.ts`:
+  - `getNextColumnIndex()`, `getPrevColumnIndex()`: Column navigation with wrap
+  - `getNextCardIndex()`, `getPrevCardIndex()`: Card navigation within column
+  - `findFirstCardInColumn()`: Find first card ID in column
+  - `getCardIndexInColumn()`: Get card index by ID
+  - `getColumnIndexByStatus()`, `getStatusByColumnIndex()`: Status<->column mapping
+  - `getNextStatusInWorkflow()`: Get next status for Space key advance
+- Added drag-drop styles in `webview/board.css`:
+  - `.dragging`: Card opacity + scale during drag
+  - `.drag-over`: Column highlight on dragover
+  - `.focused`: Keyboard focus outline
+  - `.just-moved`: Slide-in animation on successful drop
+  - `.update-failed`: Shake animation on failure
+- Implemented drag-drop in `webview/board.js`:
+  - `handleDragStart/End/Over/Leave/Drop`: Full HTML5 drag-drop
+  - Optimistic UI update with `pendingUpdates` Map for rollback
+  - `handleUpdateFailed()`: Rollback on error
+- Implemented keyboard navigation in `webview/board.js`:
+  - `handleKeydown()`: Global keydown handler
+  - j/k/↑/↓: Move between cards
+  - h/l/←/→: Move between columns
+  - Enter: Open story file
+  - Space: Advance status to next column
+  - 1-4: Jump to column by number
+  - Focus state persisted in webview state
+- Added `updateStoryStatus()` in `src/view/boardView.ts`:
+  - Handles `updateStatus` message from webview
+  - Uses `updateStoryStatus` from changeStatusUtils.ts
+  - Sends `updateFailed` message on error for rollback
+- Added `updateFailed` message type to `src/types/webviewMessages.ts`
+
+MVP Acceptance Criteria:
+- ✅ Cards are draggable (HTML5 drag-drop API)
+- ✅ Visual feedback during drag (card ghost, drop zone highlight)
+- ✅ Dropping card in new column sends `updateStatus` message
+- ✅ Optimistic UI update (immediate visual move)
+- ✅ Revert position if backend update fails
+- ✅ Cards maintain order within column
+
+Enhanced Acceptance Criteria:
+- ✅ Keyboard navigation (j/k/h/l, arrows, Enter, Space, 1-4)
+- ✅ Animations (move + error shake)
+- ⏸️ Touch support (deferred)
+- ⏸️ Multi-select drag (deferred)
+- ⏸️ Drag to reorder within column (deferred)
+
+Tests: 271 unit + 105 integration = 376 total passing (+37 new)
+
+Project Status: 23/25 stories done (92%)
+- Phase 5 (Board View): 3/5 done
+
+Next story: DS-022 (File Writer for Status Changes) - though this may already be complete since we're using changeStatusUtils
+
+---
+
+=== Session: 2025-11-28 13:06 ===
+Story: DS-022 + DS-023 (File Writer + Board Filters)
+Status: done
+
+DS-022 was already complete:
+- File writer functionality was implemented in DS-021 via changeStatusUtils.ts
+- Marked DS-022 as done (no additional code needed)
+
+DS-023 Work done:
+- Added `FilterState` interface to `src/types/webviewMessages.ts`
+- Updated `InitPayload` to include `sprints[]` for filter dropdowns
+- Added filter utility functions in `src/view/boardViewUtils.ts`:
+  - `DEFAULT_FILTER_STATE`: Empty filter state constant
+  - `extractSprints()`: Get unique sprints from stories/epics
+  - `extractAssignees()`: Get unique assignees from stories
+  - `filterStories()`: Apply filters with AND logic
+  - `hasActiveFilters()`: Check if any filter active
+  - `countActiveFilters()`: Count number of active filters
+- Updated `src/view/boardView.ts` to include sprints in init payload
+- Added comprehensive filter bar CSS in `webview/board.css`:
+  - Filter dropdowns with custom styling
+  - Search input with placeholder
+  - Quick filter chips (Bugs, Features, Unassigned)
+  - Clear button with active filter count badge
+  - Responsive layout with flex wrap
+- Implemented full filter system in `webview/board.js`:
+  - Filter state management with persistence via vscode.setState()
+  - Sprint, Epic, Type dropdown filters
+  - Debounced search input (150ms)
+  - Quick filter chip toggles
+  - Clear filters button
+  - Client-side filtering for instant response
+- Added 32 new unit tests for filter utilities
+- All MVP and most Enhanced criteria met
+
+MVP Acceptance Criteria:
+- ✅ Sprint filter dropdown in board header
+- ✅ "All Sprints" shows everything, specific sprint filters cards
+- ✅ Epic filter: Show stories from selected epic(s)
+- ✅ Filter state reflected in webview state (for persistence)
+- ✅ Clear filters button
+
+Enhanced Acceptance Criteria:
+- ✅ Multi-filter: Combine sprint + epic + type filters
+- ✅ Type filter: Show only features, bugs, etc.
+- ✅ Assignee filter: Filter by assignee (including "Unassigned")
+- ✅ Search: Quick text search across visible cards
+- ⏸️ Saved views: Deferred (requires config.yaml schema changes)
+- ✅ Quick filters: Chips for Bugs, Features, Unassigned
+
+Tests: 303 unit + 105 integration = 408 total passing (+32 new)
+
+Files changed:
+- src/types/webviewMessages.ts (FilterState, InitPayload update)
+- src/view/boardViewUtils.ts (filter utilities)
+- src/view/boardView.ts (sprints in init payload)
+- webview/board.css (filter bar styles)
+- webview/board.js (full filter implementation)
+- src/test/unit/boardView.test.ts (32 new tests)
+- .devstories/stories/DS-022.md (status: done)
+- .devstories/stories/DS-023.md (status: done + implementation notes)
+- .devstories/epics/EPIC-005.md (status: done)
+
+🎉 PROJECT COMPLETE! 🎉
+All 25 stories done (100%)
+All 5 phases complete:
+- Phase 1 (Foundation): ✅ 5/5 done
+- Phase 2 (Tree View): ✅ 4/4 done
+- Phase 3 (Commands): ✅ 7/7 done
+- Phase 4 (Links): ✅ 3/3 done
+- Phase 5 (Board View): ✅ 5/5 done
+
+Next steps: Merge feature branch to main, consider publishing extension
+
+---
+
+=== Session: 2025-11-29 10:39 ===
+Story: DS-033 (Load .devstories on extension activation)
+Status: done
+
+Bug fix: Extension wasn't loading story data on activation.
+
+Root cause:
+1. `store.load()` called but NOT awaited in extension.ts
+2. `store.load()` didn't fire `onDidUpdate` event after completing
+
+Fix applied:
+1. Changed `activate()` to async and await `store.load()`
+2. Added `_onDidUpdate.fire()` at end of `load()` method
+
+Files changed:
+- src/extension.ts (await store.load())
+- src/core/store.ts (fire onDidUpdate after load)
+- src/test/suite/store.test.ts (new test: onDidUpdate fires after load)
+
+Tests: 303 unit + 106 integration = 409 total passing (+1 new)
+
+---
+
+=== Session: 2025-11-29 11:16 ===
+Story: DS-026 (Fix search input blur on first keystroke)
+Status: done
+
+Bug fix: Board filter search input loses focus after first keystroke.
+
+Root cause:
+- `renderBoard()` replaces entire DOM on filter change
+- Debounced search input triggers `onFilterChanged()` -> `renderBoard()`
+- Focus lost when innerHTML is replaced
+
+Fix applied:
+1. Save focus state and cursor position before DOM re-render, restore after
+2. Skip keyboard navigation when user is focused on input/select/textarea elements
+
+Files changed:
+- webview/board.js (renderBoard() focus preservation + handleKeydown() input check)
+- .devstories/stories/DS-026.md (marked done)
+
+Tests: 303 unit + 106 integration = 409 total passing (no new tests - fix is in webview JS)
+
+---
+
+=== Session: 2025-11-29 12:00 ===
+Story: DS-035 (Config + template live reload service)
+Status: done
+
+Implemented ConfigService for live-reloading config.yaml and templates.
+
+Key changes:
+1. Created ConfigService (src/core/configService.ts) that watches:
+   - .devstories/config.yaml for status/sprint/size changes
+   - .devstories/templates/*.md for custom templates
+
+2. Created configServiceUtils.ts with pure utility functions:
+   - parseConfigYamlContent() - parse YAML content
+   - parseTemplateFile() - parse template with frontmatter
+   - mergeConfigWithDefaults() - fill in missing config with defaults
+   - debounce() - generic debounce helper
+
+3. Wired ConfigService into extension:
+   - BoardViewProvider subscribes to onDidConfigChange → re-renders columns
+   - StoriesProvider subscribes to onDidConfigChange → rebuilds tree
+   - changeStatus command optionally uses ConfigService for statuses
+
+4. Error handling:
+   - Parse errors show VS Code warning message
+   - Falls back to last-known-good config values
+   - onParseError event for consumers
+
+Files changed:
+- src/core/configService.ts (new - main service)
+- src/core/configServiceUtils.ts (new - pure utilities)
+- src/extension.ts (wire up ConfigService)
+- src/view/boardView.ts (use ConfigService for statuses)
+- src/view/storiesProvider.ts (subscribe to config changes)
+- src/commands/changeStatus.ts (optional ConfigService param)
+- src/test/unit/configService.test.ts (16 unit tests)
+- src/test/suite/configService.test.ts (5 integration tests)
+- .devstories/stories/DS-035.md (marked done)
+
+Tests: 319 unit + 111 integration = 430 total passing (+21 new)
+
+---
+
+=== Session: 2025-11-29 12:08 ===
+Story: DS-034 (Sprint-aware status bar & picker)
+Status: done
+
+Implemented sprint-aware status bar with picker for filtering stories by sprint.
+
+Key changes:
+1. Created SprintFilterService (src/core/sprintFilterService.ts):
+   - Shared sprint filter state across StatusBar, TreeView, BoardView
+   - Event-based: subscribers notified on filter change
+
+2. Created statusBarUtils.ts with pure utility functions:
+   - getStatsFromStories() - filter stories by sprint
+   - buildProgressBar() - render progress bar
+   - getFormattedStatusBarText() - format "Sprint X: ███░░░ N/M"
+   - collectAvailableSprints() - gather sprints from stories + config
+
+3. Updated StatusBarController:
+   - Shows "All Sprints" when no filter, sprint name when filtered
+   - Subscribes to SprintFilterService, ConfigService, Store
+   - Click invokes devstories.pickSprint command
+   - Rich tooltip with stats breakdown
+
+4. Created pickSprint command (src/commands/pickSprint.ts):
+   - QuickPick with All Sprints, Current Sprint (from config), Backlog, other sprints
+   - Sets SprintFilterService which propagates to all views
+
+5. Updated StoriesProvider (tree view):
+   - Filters epics to only show those with matching stories
+   - Filters stories within each epic by sprint
+
+6. Updated BoardViewProvider:
+   - Sends sprint filter to webview on change
+   - Includes currentSprint in init payload
+
+7. Updated webview/board.js:
+   - Handles sprintFilterChanged message
+   - Syncs sprint filter dropdown on init
+
+Files changed:
+- src/core/sprintFilterService.ts (new)
+- src/view/statusBarUtils.ts (new)
+- src/view/statusBar.ts (refactored to use utils + filter service)
+- src/commands/pickSprint.ts (new)
+- src/view/storiesProvider.ts (sprint filtering)
+- src/view/boardView.ts (sprint filter propagation)
+- src/types/webviewMessages.ts (added sprintFilterChanged message)
+- webview/board.js (handle sprint filter)
+- package.json (registered pickSprint command)
+- src/extension.ts (wire up SprintFilterService)
+- src/test/unit/statusBar.test.ts (new - 19 tests)
+- src/test/suite/statusBar.test.ts (updated + 4 new tests)
+- src/test/suite/pickSprint.test.ts (new - 7 tests)
+
+Tests: 338 unit + 122 integration = 460 total passing (+30 new)
+
+---
+
+=== Session: 2025-11-29 12:28 ===
+Story: DS-041 (Cadence reminders & ritual prompts)
+Status: done
+
+Implemented cadence reminders and ritual prompts for solo dev weekly rituals.
+
+Key changes:
+1. Created cadenceServiceUtils.ts with pure utility functions:
+   - parseCadenceConfig() - parse cadence from config.yaml
+   - calculateNextOccurrence() - calculate next ritual occurrence
+   - getNextRitual() - find nearest upcoming ritual
+   - shouldShowReminder() - check if within active hours
+   - formatRitualText() - format for status bar display
+   - getRitualStatusBarText() - combined utility for status bar
+
+2. Created CadenceService (src/core/cadenceService.ts):
+   - Manages cadence config from ConfigService
+   - Periodic reminder check (every 5 minutes)
+   - Notification throttling (1 hour between reminders)
+   - Shows notifications for rituals within 24 hours
+   - Respects active hours configuration
+
+3. Created RitualStatusBarController (src/view/ritualStatusBar.ts):
+   - Shows next ritual in status bar when cadence enabled
+   - Click invokes devstories.startRitual command
+   - Tooltip with detailed ritual info
+
+4. Created startRitual command (src/commands/startRitual.ts):
+   - QuickPick to select ritual type (planning/retro/grooming)
+   - Planning: shows backlog stats, opens board/backlog stories
+   - Retro: creates retro note template, views done stories
+   - Grooming: shows unsized/inbox stats, creates stories
+
+5. Extended ConfigData with cadence config:
+   - cadence.enabled - toggle reminders on/off
+   - cadence.reminders.{planning,retro,grooming} - day/time per ritual
+   - cadence.activeHours - start/end hours for reminders
+
+Files changed:
+- src/core/cadenceServiceUtils.ts (new - pure utilities)
+- src/core/cadenceService.ts (new - main service)
+- src/core/configServiceUtils.ts (extended for cadence)
+- src/view/ritualStatusBar.ts (new - status bar item)
+- src/commands/startRitual.ts (new - ritual walkthrough)
+- src/extension.ts (wire up CadenceService + RitualStatusBar)
+- package.json (register startRitual command)
+- src/test/unit/cadenceService.test.ts (new - 29 tests)
+- src/test/unit/cadenceServiceIntegration.test.ts (new - 3 tests)
+- src/test/unit/startRitual.test.ts (new - 3 tests)
+- src/test/unit/configService.test.ts (+3 tests for cadence)
+- src/test/suite/cadenceService.test.ts (new - 5 integration tests)
+- src/test/suite/startRitual.test.ts (new - 1 integration test)
+
+Tests: 376 unit + 128 integration = 504 total passing (+44 new)
+
+---
+
+=== Session: 2025-11-29 13:15 ===
+Story: DS-047 (First-run welcome hub + quick actions)
+Status: done
+
+Shipped the new welcome experience that guides first-time users.
+
+Key changes:
+1. Added `WelcomeExperience` to persist dismissal per workspace and gate auto-open logic.
+2. Implemented `WelcomeViewProvider`, HTML template, and quick action helpers with offline assets.
+3. Registered `devstories.openWelcome` command plus activation wiring so the hub opens once automatically.
+4. Added Vitest coverage for persistence, action wiring, template rendering, and asset helpers; ensured build copies new assets.
+
+Files changed:
+- src/core/welcomeExperience.ts (new persistence helper + tests)
+- src/view/welcomeView*.ts (provider, template, utils, actions) and src/types/welcomeMessages.ts
+- webview/welcome.{css,js} + welcome-hero.svg (offline UI assets)
+- src/extension.ts, package.json (command registration + activation wiring)
+
+Tests: 382 unit + 128 integration = 510 total passing (+8 unit)
+
+
+=== Session: 2025-11-29 16:00 ===
+Story: DS-048 (Interactive DevStories tutorial & sample workspace)
+Status: done
+
+Implemented interactive tutorial webview with 6 guided steps.
+
+Key changes:
+1. TutorialService - manages step definitions, completion state via GlobalState
+2. TutorialViewProvider - webview panel with step cards, progress bar, theme support
+3. startTutorial command - opens tutorial panel
+4. 16 SVG assets for light/dark step illustrations
+5. "Open Test Workspace" action to try features in sample project
+
+Files changed:
+- src/core/tutorialService.ts (step definitions + persistence)
+- src/view/tutorialView.ts (webview provider)
+- src/commands/startTutorial.ts + startTutorialUtils.ts
+- src/types/tutorialMessages.ts
+- webview/tutorial.{css,js} + tutorial-media/*.svg (16 assets)
+- package.json (command registration)
+- esbuild.js (copy tutorial assets)
+
+Tests: 386 unit + 128 integration = 514 total passing (+4 unit)
+
+=== Session: 2025-11-29 17:45 ===
+Story: DS-079 (Sprint sequence configuration)
+Status: done
+
+Added sprint sequence configuration to enable ordered sprints.
+
+Key changes:
+1. Added `sprintSequence: string[]` to ConfigData interface
+2. Updated parseConfigYamlContent() to parse `sprints.sequence` array
+3. Added `getSprintIndex()` helper - returns index or Infinity for unknown sprints
+4. Updated mergeConfigWithDefaults() to include sprintSequence
+5. Added 8 new tests for sprint sequence parsing and index lookup
+
+Files changed:
+- src/core/configServiceUtils.ts (interface, parsing, getSprintIndex)
+- src/test/unit/configService.test.ts (+8 tests)
+- .devstories/config.yaml (added sequence array)
+- .devstories/epics/EPIC-017.md (new epic)
+- .devstories/stories/DS-079.md through DS-083.md (new stories)
+
+Tests: 394 unit + 128 integration = 522 total passing (+8 new)
+
+=== Session: 2025-11-29 18:05 ===
+Story: DS-079 (continued) - Epic sprint cleanup
+
+Fixed domain model: Removed sprint field from Epic type.
+Epics are thematic containers spanning multiple sprints.
+Only stories have sprint associations.
+
+Key changes:
+- Removed sprint from Epic interface (src/types/epic.ts)
+- Removed sprint parsing for epics (src/core/parser.ts)
+- Removed sprint picker from createEpic command
+- Removed epic sprint inheritance in createStory
+- Updated extractSprints() to only use stories
+- Updated hover provider to only show sprint for stories
+- Cleaned sprint from all 17 epic markdown files
+- Updated 6 test files
+
+Files changed (32 total):
+- src/types/epic.ts, webviewMessages.ts
+- src/core/parser.ts
+- src/commands/createEpic.ts, createEpicUtils.ts, createStory.ts, init.ts, initUtils.ts
+- src/view/boardView.ts, boardViewUtils.ts
+- src/providers/storyHoverProviderUtils.ts
+- src/test/suite/createEpic.test.ts, init.test.ts
+- src/test/unit/boardView.test.ts, createEpic.test.ts
+- .devstories/epics/EPIC-001.md through EPIC-017.md
+- CLAUDE.md (updated pitfalls, no auto-launch)
+
+Tests: 391 unit + 128 integration = 519 total passing
+
+=== Session: 2025-11-29 18:12 ===
+Story: DS-080 (Story priority field)
+Status: done
+
+Added priority field to stories for ordering within sprints.
+
+Key changes:
+1. Added `priority: number` to Story interface (non-optional, defaults to 500)
+2. Updated parser.ts to read priority from frontmatter with ?? 500 default
+3. gray-matter stringify automatically preserves priority on write
+4. Added tests for priority parsing (0, 100, default 500)
+5. Added test for priority preservation during status updates
+6. Updated 5 test files with priority field in mock Story objects
+
+Files changed:
+- src/types/story.ts (added priority field)
+- src/core/parser.ts (parse priority with default)
+- src/test/unit/parser.test.ts (+3 tests)
+- src/test/unit/changeStatus.test.ts (+1 test)
+- src/test/unit/boardView.test.ts (added priority to mocks)
+- src/test/unit/statusBar.test.ts (added priority to mocks)
+- src/test/unit/storyHoverProvider.test.ts (added priority to mocks)
+- src/test/suite/boardView.test.ts (added priority to mocks)
+- src/test/suite/storyHoverProvider.test.ts (added priority to mocks)
+
+Tests: 395 unit + 128 integration = 523 total passing (+4 new)
+
+(continued) - Full priority integration:
+
+Additional changes:
+1. Updated devstories_test workspace - added priority to 4 stories (50, 100, 200, 800)
+2. createStoryUtils.ts - new stories include priority: 500 in markdown
+3. WebviewStory type - added priority: number
+4. serializeStoryForWebview - includes priority in webview data
+5. storyHoverProviderUtils - shows priority in hover card when non-default
+6. initUtils.ts - sample story includes priority: 500
+7. Fixed ~30 WebviewStory mocks in boardView tests with priority: 500
+8. Added 2 tests for hover card priority display
+
+Tests: 397 unit + 128 integration = 525 total passing (+2 more)
+
+=== Session: 2025-11-29 18:33 ===
+Story: DS-081 (Board view sorting and priority badge)
+Status: done
+
+Implemented story sorting within board columns and added priority/blocked badges.
+
+Key changes:
+1. Added `isStoryBlocked()` - checks if dependencies are not done
+2. Added `sortStoriesForColumn()` - sorts: blocked last → priority asc → created asc
+3. Added `shouldShowPriorityBadge()` - returns true for non-500 priority
+4. Updated `groupStoriesByStatus()` in board.js to apply sorting after grouping
+5. Updated `renderCard()` - added priority badge [N] and blocked badge ⛔
+6. Added CSS for `.priority-badge`, `.blocked-badge`, `.card.blocked`
+7. Added 16 new unit tests for sorting and priority functions
+
+Files changed:
+- src/view/boardViewUtils.ts (+3 functions)
+- src/test/unit/boardView.test.ts (+16 tests)
+- webview/board.js (isStoryBlocked, sortStoriesForColumn, renderCard update)
+- webview/board.css (priority badge, blocked state styles)
+- .devstories/stories/DS-081.md (marked done)
+
+Tests: 413 unit + 128 integration = 541 total passing (+16 unit)
+
+=== Session: 2025-11-29 18:38 ===
+Story: DS-083 (Drag-drop reorder in board)
+Status: done
+
+Implemented drag-drop reordering within board columns by updating story priority.
+
+Key changes:
+1. Added priority calculation utilities (boardViewUtils.ts):
+   - `isReorderWithinColumn()` - detect vertical vs cross-column drag
+   - `calculatePriorityBetween()` - average of neighbors
+   - `calculatePriorityForPosition()` - handle first/last/between cases
+   - `getDropTargetIndex()` - calculate drop position from mouse Y
+
+2. Updated webview (board.js):
+   - Modified `handleDrop()` to detect same-column reorder
+   - Added `handleReorderWithinColumn()` - calculates priority, sends message
+   - Added `calculatePriorityForPosition()` - mirrors TS implementation
+   - Added `updatePriority` to `window.boardApi`
+
+3. Added extension message handler (boardView.ts):
+   - `updatePriority` message type in WebviewMessage union
+   - `updateStoryPriority()` method - reads file, updates priority, writes back
+   - File watcher triggers refresh automatically
+
+4. Added `updateStoryPriority()` utility (changeStatusUtils.ts):
+   - Updates priority field in frontmatter via gray-matter
+   - Also updates `updated` timestamp
+
+Files changed (7):
+- src/view/boardViewUtils.ts (+4 functions)
+- src/types/webviewMessages.ts (+1 message type)
+- src/view/boardView.ts (+updateStoryPriority method)
+- src/commands/changeStatusUtils.ts (+updateStoryPriority function)
+- webview/board.js (+reorder logic, +API method)
+- src/test/unit/boardView.test.ts (+19 tests)
+- src/test/unit/changeStatus.test.ts (+5 tests)
+
+Tests: 437 unit + 128 integration = 565 total passing (+24 new)
+
+=== Session: 2025-11-29 19:00 ===
+Story: DS-082 (Tree view sorting)
+Status: done
+
+Implemented tree view sorting for epics and stories.
+
+Key changes:
+1. Created `storiesProviderUtils.ts` with pure sorting functions:
+   - `sortStoriesForTreeView()` - sorts by sprint sequence → priority → created
+   - `getEarliestStorySprintIndex()` - finds earliest sprint for an epic
+   - `sortEpicsBySprintOrder()` - sorts epics by their earliest story's sprint
+
+2. Updated `storiesProvider.ts`:
+   - `getChildren()` now applies sorting via utility functions
+   - Epics sorted by earliest story's sprint position
+   - Stories sorted within each epic
+
+3. Added `getEpicsBySprintOrder()` helper to `store.ts`
+
+4. Tests:
+   - Added 17 unit tests in `treeViewSorting.test.ts`
+   - Added 1 integration test in `store.test.ts`
+
+Files changed (5):
+- src/view/storiesProviderUtils.ts (new)
+- src/view/storiesProvider.ts (updated getChildren)
+- src/core/store.ts (added getEpicsBySprintOrder)
+- src/test/unit/treeViewSorting.test.ts (new, 17 tests)
+- src/test/suite/store.test.ts (added 1 test)
+
+Tests: 454 unit + 129 integration = 583 total passing (+18 new)
+
+=== Session: 2025-11-29 19:55 ===
+Story: DS-099 (Standardize epic titles)
+Status: done
+
+Removed "Phase X:" prefixes from EPIC-001 through EPIC-005 titles.
+
+Changes:
+- EPIC-001: "Phase 1: Foundation" → "Foundation"
+- EPIC-002: "Phase 2: Tree View" → "Tree View"
+- EPIC-003: "Phase 3: Commands" → "Commands"
+- EPIC-004: "Phase 4: Links" → "Links"
+- EPIC-005: "Phase 5: Board View" → "Board View"
+
+Files changed (6):
+- .devstories/epics/EPIC-001.md
+- .devstories/epics/EPIC-002.md
+- .devstories/epics/EPIC-003.md
+- .devstories/epics/EPIC-004.md
+- .devstories/epics/EPIC-005.md
+- .devstories/stories/DS-099.md
+
+=== Session: 2025-11-29 19:58 ===
+Story: DS-100 (Update config with complete sprint sequence)
+Status: done
+
+Verified config.yaml already contains all required sprint entries.
+All acceptance criteria were already satisfied:
+- phase-1 through phase-5 present in sequence
+- housekeeping follows foundation-1
+- All 15 sprint values from stories have matching config entries
+- Order is chronological (historical → current → future → backlog)
+
+Files changed (1):
+- .devstories/stories/DS-100.md (marked done)
+
+No code changes needed - config was already complete.
+
+=== Session: 2025-11-29 20:08 ===
+Story: DS-101 (Final audit and verification)
+Status: done
+
+Verified all housekeeping tasks complete:
+1. ds-status.sh shows correct counts: 101 stories, 19 epics
+2. Random story format check: DS-002, DS-076, DS-020, DS-048, DS-033 - all valid
+3. Fixed 4 epics missing `updated:` field (EPIC-001, EPIC-002, EPIC-018, EPIC-019)
+4. All epic statuses verified against story completion
+5. Config sprint sequence covers all 15 unique sprint values
+
+Files changed (6):
+- .devstories/epics/EPIC-001.md (added updated field)
+- .devstories/epics/EPIC-002.md (added updated field)
+- .devstories/epics/EPIC-018.md (added updated field)
+- .devstories/epics/EPIC-019.md (added updated field, status→done)
+- .devstories/stories/DS-101.md (status→done)
+
+EPIC-019 marked done - all housekeeping complete.
+
+=== Session: 2025-11-29 21:01 ===
+Task: Epic click behavior (single-click expand, double-click open)
+Status: done
+
+Implemented tree view UX improvement:
+- Single-click on epic now expands/collapses (was opening file)
+- Added "Open Epic File" context menu command
+- Set resourceUri on epics for file theming integration
+
+Key changes:
+1. Removed `command` from epic TreeItems in storiesProvider.ts
+   - Single-click now naturally triggers expand/collapse behavior
+   - Set `resourceUri` for file-related operations
+
+2. Added `devstories.openEpic` command:
+   - package.json: command + context menu entry
+   - extension.ts: command handler opens epic file via vscode.open
+
+3. Added 2 integration tests:
+   - Epic should NOT have command (for expand behavior)
+   - Epic should have resourceUri set
+
+Files changed (4):
+- src/view/storiesProvider.ts (removed command, added resourceUri)
+- package.json (added openEpic command and menu)
+- src/extension.ts (registered openEpic command)
+- src/test/suite/storiesProvider.test.ts (+2 tests)
+
+Tests: 444 unit + 131 integration = 575 total passing (+2 new)
+
+Reference: VS Code API doesn't support separate single/double-click handlers.
+Workaround: Remove command from collapsible items for native expand behavior.
+Sources: github.com/microsoft/vscode/issues/85636, stackoverflow.com
+
+=== Session: 2025-11-29 21:20 ===
+Story: DS-052 (Create OutputChannel-based logger service)
+Status: done
+
+Created centralized logging service using VS Code OutputChannel API.
+
+Implementation:
+- Logger with info(), warn(), error(), debug() methods
+- Formats messages as [LEVEL] message
+- debug() respects devstories.debug setting
+- Singleton pattern with initializeLogger(), getLogger(), disposeLogger()
+- Initialized in extension activation, disposed in deactivate
+
+Files changed (3):
+- src/core/logger.ts (new - logger service)
+- src/test/unit/logger.test.ts (new - 14 tests)
+- src/extension.ts (integrated logger)
+
+Tests: 458 unit + 131 integration = 589 total (+14 new)
+
+=== Session: 2025-11-29 21:30 ===
+Story: DS-053 (Replace all console.log with logger service)
+Status: done
+
+Replaced all console.log/error instances with logger service:
+- createStory.ts: console.log → getLogger().warn() for non-critical epic auto-link failure
+- quickCapture.ts: console.log → getLogger().warn() for inbox auto-link failure
+- boardView.ts: console.log → getLogger().debug() for webview ready and filter messages
+- store.ts: console.error → getLogger().error() for parse failures
+- webview/board.js: console.error → postMessage({ type: 'error', ... })
+
+Note: extension.ts acceptance criteria was N/A - no console.log existed there.
+
+Files changed (6):
+- src/commands/createStory.ts
+- src/commands/quickCapture.ts
+- src/view/boardView.ts
+- src/core/store.ts
+- webview/board.js
+- .devstories/stories/DS-053.md
+
+Tests: 458 unit + 131 integration = 589 total (unchanged)
+
+=== Session: 2025-11-29 22:38 ===
+Story: DS-054 (Identify and remove unused exports/dependencies)
+Status: done
+
+Static analysis findings:
+- ts-prune: No unused exports (activate/deactivate are VS Code entry points)
+- depcheck: No unused dependencies (vscode module false positive)
+- eslint no-unused-vars: Fixed 6 unused imports/variables
+
+Removed dead code:
+- src/commands/createStory.ts: Removed unused BUNDLED_TEMPLATES import
+- src/extension.ts: Removed unused getLogger import
+- src/providers/storyLinkProvider.ts: Removed unused path import
+- src/providers/storyLinkProviderUtils.ts: Removed unused isEpicId import
+- src/commands/quickCapture.ts: Removed duplicate INBOX_EPIC_ID import
+- src/commands/startRitual.ts: Removed unused CadenceService import, cadenceService param, lines array, epics variable
+
+Files changed (7):
+- src/commands/createStory.ts
+- src/commands/quickCapture.ts
+- src/commands/startRitual.ts
+- src/extension.ts
+- src/providers/storyLinkProvider.ts
+- src/providers/storyLinkProviderUtils.ts
+- .devstories/stories/DS-054.md
+
+Tests: 458 unit + 131 integration = 589 total (unchanged)
+
+
+=== Session: 2025-11-29 22:43 ===
+Story: DS-055 (Clean up commented code blocks and stale TODOs)
+Status: done
+
+Verification-only story - codebase was already clean.
+
+Searched for:
+- Commented-out code blocks: None found
+- // TODO comments: Only in test file as test input (not stale)
+- // old:, // deprecated: markers: None found
+- // FIXME, // HACK, // XXX: None found
+
+Files changed (1):
+- .devstories/stories/DS-055.md
+
+Tests: 458 unit + 131 integration = 589 total (unchanged)
+
+=== Session: 2025-11-29 22:50 ===
+Story: DS-056 (Add error handling to all command registrations)
+Status: done
+
+Implementation:
+- Created src/commands/errorHandler.ts with wrapCommand() helper
+- wrapCommand catches errors, logs with stack trace, shows user-friendly message
+- Added CommandError class for custom user-facing error messages
+- Wrapped all 9 command handlers in extension.ts with wrapCommand()
+
+Files changed (3):
+- src/commands/errorHandler.ts (new - error handling utility)
+- src/test/unit/commandErrorHandling.test.ts (new - 12 tests)
+- src/extension.ts (wrapped all commands)
+
+Tests: 470 unit + 131 integration = 601 total (+12 new)
+
+=== Session: 2025-11-29 22:57 ===
+Story: DS-057 (Replace empty catch blocks with proper error handling)
+Status: done
+
+Fixed 19 empty catch blocks across 10 files:
+- Added getLogger().debug() for config/file read failures
+- Added getLogger().warn() for non-critical failures that show user errors
+- Added descriptive comments for expected scenarios (file doesn't exist checks)
+- Created new test file to verify no empty catch blocks remain
+
+Files changed (11):
+- src/commands/createStory.ts (2 catch blocks)
+- src/commands/quickCapture.ts (2 catch blocks)
+- src/commands/createEpic.ts (1 catch block + logger import)
+- src/commands/changeStatus.ts (1 catch block + logger import)
+- src/commands/init.ts (3 catch blocks + logger import)
+- src/commands/saveAsTemplate.ts (3 catch blocks + logger import)
+- src/core/configService.ts (2 catch blocks + logger import)
+- src/view/boardViewUtils.ts (1 catch block)
+- src/commands/changeStatusUtils.ts (1 catch block)
+- src/core/configServiceUtils.ts (1 catch block)
+- src/commands/initUtils.ts (1 catch block)
+- src/test/unit/emptyCatchBlocks.test.ts (new - 5 tests)
+
+Tests: 475 unit + 131 integration = 606 total (+5 new)
+
+
+=== Session: 2025-11-29 23:04 ===
+Story: DS-058 (Add production ESLint rules)
+Status: done
+
+Implementation:
+- Added 3 strict ESLint rules: no-console, no-explicit-any, no-floating-promises
+- Configured parserOptions.project for typed linting
+- Added webview/ to ignorePatterns
+- Fixed 33 floating promise violations with void operator
+- Fixed 2 no-console violations with eslint-disable comments
+
+Files changed (14):
+- .eslintrc.json (new rules)
+- src/commands/changeStatus.ts
+- src/commands/createEpic.ts
+- src/commands/createStory.ts
+- src/commands/errorHandler.ts
+- src/commands/init.ts
+- src/commands/quickCapture.ts
+- src/commands/saveAsTemplate.ts
+- src/core/cadenceService.ts
+- src/core/configService.ts
+- src/view/boardView.ts
+- src/test/runTest.ts
+- src/test/suite/index.ts
+- src/test/suite/extension.test.ts
+
+Tests: 475 unit + 131 integration = 606 total (unchanged)
+
+
+=== Session: 2025-11-29 23:55 ===
+Story: DS-059 (Replace 'any' types with proper interfaces)
+Status: done
+
+Verification-only story - all criteria already met by previous work (DS-058).
+
+Findings:
+- tutorialService.ts doesn't exist (stale reference in story)
+- 0 `any` types in source files; 8 in test files have proper eslint-disable
+- Webview types already defined in src/types/webviewMessages.ts
+- ESLint no-explicit-any: error rule passes with 0 errors
+- 475 unit tests + 131 integration tests pass
+
+Files changed (1):
+- .devstories/stories/DS-059.md
+
+Tests: 475 unit + 131 integration = 606 total (unchanged)
+
+=== Session: 2025-11-30 00:05 ===
+Story: DS-062 (Audit and harden all innerHTML assignments)
+Status: done
+
+Implementation:
+- Audited all innerHTML in board.js: 1 innerHTML assignment at line 274
+- All 12 dynamic values (story titles, epic names, IDs, etc.) are already escaped with escapeHtml()
+- Added server-side escapeHtml() function to boardViewUtils.ts for unit testing
+- Created 25 comprehensive XSS tests covering:
+  - Basic character escaping (<, >, &, ", ')
+  - XSS attack vectors (script, img onerror, SVG onload, event handlers, etc.)
+  - Edge cases (null, undefined, unicode, long strings)
+  - Attribute context safety (double/single quote breakout)
+- CSP was already fully implemented in boardView.ts (verified existing code)
+- Documented why backticks don't need escaping in HTML context
+
+Files changed (3):
+- src/view/boardViewUtils.ts (added escapeHtml function)
+- src/test/unit/boardView.test.ts (added 25 XSS tests)
+- .devstories/stories/DS-062.md (updated)
+
+Tests: 500 unit + 131 integration = 631 total (+25 new)
+
+=== Session: 2025-11-30 00:14 ===
+Story: DS-063 (Validate user input in command handlers)
+Status: done
+
+Implementation:
+- Created centralized input validation module (src/utils/inputValidation.ts)
+- Added validators for story titles (max 200 chars), epic names (max 100 chars), sprint names (alphanumeric + hyphens)
+- Integrated validation into Parser.parseStory() and Parser.parseEpic()
+- Updated command handlers to use VS Code input box validation:
+  - createStory.ts: validates title before accepting input
+  - createEpic.ts: validates epic name before accepting input
+  - quickCapture.ts: validates parsed title before accepting input
+- All validators allow UTF-8, reject control characters
+- Helpful error messages shown inline in input boxes
+
+Files changed (8):
+- src/utils/inputValidation.ts (new - validation utilities)
+- src/test/unit/inputValidation.test.ts (new - 32 tests)
+- src/core/parser.ts (added validation on parse)
+- src/test/unit/parser.test.ts (added 7 content validation tests)
+- src/commands/createStory.ts (added input validation)
+- src/commands/createEpic.ts (added input validation)
+- src/commands/quickCapture.ts (added input validation)
+- .devstories/stories/DS-063.md (updated)
+
+Tests: 539 unit + 131 integration = 670 total (+39 new)
+
+=== Session: 2025-11-30 12:30 ===
+Story: DS-064 (Add unit tests for statusBar.ts)
+Status: done
+
+Implementation:
+- Added getCommand(), isVisible(), show(), hide() methods to StatusBarController
+- Extracted formatTooltipLines() to statusBarUtils.ts for unit testing
+- Refactored getTooltip() to use the new utility function
+- Added 6 new unit tests for tooltip formatting
+- Added 4 new integration tests (click handler, visibility toggle, dispose)
+
+Files changed (4):
+- src/view/statusBar.ts (added visibility tracking, getCommand, show/hide methods)
+- src/view/statusBarUtils.ts (added formatTooltipLines function)
+- src/test/unit/statusBar.test.ts (added 6 tooltip tests)
+- src/test/suite/statusBar.test.ts (added 4 tests: click handler, visibility, dispose)
+- .devstories/stories/DS-064.md (updated)
+
+Tests: 545 unit + 135 integration = 680 total (+10 new)
+
+=== Session: 2025-11-30 16:08 ===
+Story: DS-109 (Remove board view code)
+Status: done
+
+Implementation:
+- Board view files were already deleted in prior cleanup
+- Removed dangling import and usage of BoardViewProvider from extension.ts
+- Removed boardViewDisposable from subscriptions array
+
+Files changed (2):
+- src/extension.ts (removed BoardViewProvider import and usage)
+- .devstories/stories/DS-109.md (updated status)
+
+Tests: 395 unit + 135 integration = 530 total (unchanged)
+
+=== Session: 2025-11-30 16:10 ===
+Story: DS-110 (Remove ritual/cadence code)
+Status: done
+
+Removed all ritual and cadence related code to simplify extension for 1.0.0 release.
+
+Deleted files:
+- src/commands/startRitual.ts
+- src/core/cadenceService.ts
+- src/core/cadenceServiceUtils.ts
+- src/view/ritualStatusBar.ts
+- src/test/suite/cadenceService.test.ts
+- src/test/suite/startRitual.test.ts
+- src/test/unit/cadenceService.test.ts
+- src/test/unit/cadenceServiceIntegration.test.ts
+- src/test/unit/startRitual.test.ts
+
+Modified files:
+- package.json (removed startRitual command)
+- src/extension.ts (removed CadenceService, RitualStatusBar, startRitual command)
+- src/core/configServiceUtils.ts (removed cadence from ConfigData interface)
+- src/test/unit/configService.test.ts (removed cadence tests)
+
+Gap found: Story checklist didn't include configServiceUtils.ts cleanup (cadence config parsing).
+
+Tests: 357 unit + 129 integration = 486 total (-44 removed)
+
+=== Session: 2025-11-30 16:18 ===
+Story: DS-111 (Cleanup epics and stories)
+Status: done
+
+Verification:
+- All 10 epics listed for deletion (EPIC-005 to EPIC-018) were already deleted in prior cleanup
+- No orphan todo stories exist - all stories referencing deleted epics are status:done
+- No actual deletions needed - story was outdated
+
+Files changed (2):
+- .devstories/stories/DS-111.md (marked complete)
+- .devstories/epics/EPIC-020.md (marked done - all stories complete)
+
+Tests: 357 unit + 129 integration = 486 total (all passing)
+
+Note: Integration tests failed initially due to leftover files in test-workspace/.devstories/ from previous runs. This is a pre-existing test isolation issue, not related to this story.
+
+=== Session: 2025-12-01 14:17 ===
+Story: DS-118 (fix init.sh npm test linting)
+Status: done
+
+Fixed 20 ESLint warnings and streamlined init.sh:
+- Fixed missing semicolon in autoTimestamp.ts
+- Fixed curly brace warnings in 4 test files
+- Changed init.sh to use `npx vitest run` directly to avoid redundant pretest script
+
+Files changed (5):
+- src/core/autoTimestamp.ts
+- src/test/suite/autoTimestamp.test.ts
+- src/test/suite/store.test.ts
+- src/test/unit/emptyCatchBlocks.test.ts
+- src/test/unit/treeViewSorting.test.ts
+- init.sh
+
+Tests: 357 unit + 129 integration = 486 total (all passing)
+
+=== Session: 2025-12-01 15:01 ===
+Story: DS-115 (Tree view sorting with alphabetical fallback)
+Status: done
+
+Changed tertiary sort from created date to alphabetical title (case-insensitive).
+Stories now sort: sprint → priority → title (A-Z).
+
+Files changed (2):
+- src/view/storiesProviderUtils.ts (changed localeCompare with sensitivity: 'base')
+- src/test/unit/treeViewSorting.test.ts (+3 new tests, updated 2 existing)
+
+Tests: 359 unit + 110 integration = 469 total (+2 new)
+
+=== Session: 2025-12-01 15:09 ===
+Story: DS-116 (Configurable default sprint for quick capture)
+Status: done
+
+Added quickCapture.defaultToCurrentSprint config option:
+- Default: false (stories go to backlog for triage)
+- When true: stories use config.sprints.current
+
+Files changed (6):
+- src/core/configServiceUtils.ts (added field to ConfigData, DEFAULT_CONFIG, parsing)
+- src/commands/createStoryUtils.ts (added field to DevStoriesConfig, parsing)
+- src/commands/quickCapture.ts (use config option for sprint decision)
+- src/test/unit/createStory.test.ts (+3 tests)
+- src/test/unit/configService.test.ts (+3 tests)
+- .devstories/config.yaml (added quickCapture section with comments)
+
+Tests: 365 unit + 110 integration = 475 total (+6 new)
+
+=== Session: 2025-12-01 15:23 ===
+Story: DS-117 (Add Open Story action to quick capture notification)
+Status: done
+
+Added "Open Story" button to quick capture success notification.
+Clicking the button opens the story file in editor.
+Dismissing does nothing (default VS Code behavior).
+
+Files changed (4):
+- src/commands/quickCaptureUtils.ts (added OPEN_STORY_ACTION constant)
+- src/commands/quickCapture.ts (notification with action button, file opening)
+- src/test/unit/quickCapture.test.ts (+1 test for constant)
+- src/test/suite/quickCapture.test.ts (+1 integration test)
+
+Tests: 366 unit + 111 integration = 477 total (+2 new)
+
+Epic EPIC-024 (UX Improvements) marked done - all 3 stories complete.
+
+=== Session: 2025-12-01 16:02 ===
+Story: DS-149 (Create GitHub repository)
+Status: done
+
+Actions:
+- Added remote: git@github.com:dhavalsavalia/DevStories.git
+- Pushed main branch with tracking
+- Pushed all 10 feature branches
+
+Repository URL: https://github.com/dhavalsavalia/DevStories
+
+Files changed (1):
+- .devstories/stories/DS-149.md (marked complete)
+
+Tests: 366 unit + 111 integration = 477 total (all passing)
+
+=== Session: 2025-12-01 16:13 ===
+Story: DS-135 (Update package.json metadata)
+Status: done
+
+Added marketplace metadata to package.json:
+- repository, homepage, bugs fields pointing to GitHub
+- license: MIT
+- keywords array (7 terms)
+- categories: ["Other", "Notebooks"]
+
+Files changed (2):
+- package.json (added metadata)
+- .devstories/stories/DS-135.md (marked complete)
+
+Tests: 366 unit + 111 integration = 477 total (all passing)
+
+=== Session: 2025-12-01 16:24 ===
+Story: DS-150 (Hover preview for bare IDs in frontmatter)
+Status: done
+
+Added hover previews for bare IDs (DS-XXX, EPIC-XXX) in YAML frontmatter.
+- `BARE_ID_PATTERN` matches IDs without [[]] wrapper
+- `isInFrontmatter()` detects cursor position in frontmatter vs body
+- `findBareIdAtPosition()` finds bare IDs in frontmatter lines
+- `StoryHoverProvider.provideHover()` now checks frontmatter context
+
+Files changed (5):
+- src/utils/linkResolver.ts (added BARE_ID_PATTERN)
+- src/providers/storyHoverProviderUtils.ts (added findBareIdAtPosition, isInFrontmatter)
+- src/providers/storyHoverProvider.ts (use context-aware matching)
+- src/test/unit/storyHoverProvider.test.ts (+14 new tests)
+- src/test/suite/storyHoverProvider.test.ts (+3 integration tests)
+
+Tests: 380 unit + 114 integration = 494 total (+17 new)
+
+=== Session: 2025-12-01 16:48 ===
+Story: DS-142 (Config validation with user feedback)
+Status: done
+
+Added warning notification when config.yaml has parse errors:
+- Parse error: warning message with "Open Config" action button
+- Clicking "Open Config" opens the config file for editing
+
+Files changed (3):
+- src/core/configServiceNotifications.ts (new - notification constants and functions)
+- src/core/configService.ts (import and use notification function)
+- src/test/suite/configService.test.ts (+2 integration tests)
+
+Tests: 380 unit + 116 integration = 496 total (+2 new)
+
+Also created DS-152 story for config.json migration with JSON Schema.
+
+## Session: 2025-12-01 (continued)
+
+### DS-152: Migrate config.yaml to config.json with JSON Schema
+**Status:** Done
+
+**Changes:**
+- Created `schemas/devstories.schema.json` with full JSON Schema for config validation
+- Added `contributes.jsonValidation` to `package.json` for VS Code integration
+- Updated `configServiceUtils.ts`: `parseConfigJsonContent()`, `validateSprintConfig()`, removed `inlineTemplates`
+- Updated `configService.ts`: Changed watcher pattern and load path to `config.json`, added sprint validation
+- Updated `configServiceNotifications.ts`: Changed path reference
+- Updated `initUtils.ts`: `generateConfigJson()` replaces YAML generation
+- Updated `init.ts`: Writes `config.json`
+- Updated `createStory.ts`, `createStoryUtils.ts`: JSON parsing
+- Updated `createEpic.ts`, `createEpicUtils.ts`: JSON parsing
+- Updated `quickCapture.ts`: JSON parsing
+- Updated `changeStatus.ts`, `changeStatusUtils.ts`: JSON parsing
+- Updated all unit tests (19 files, 387 tests passing)
+- Updated all integration tests (116 tests passing)
+- Migrated `.devstories/config.yaml` → `.devstories/config.json`
+- Migrated `devstories_test/.devstories/config.yaml` → `config.json`
+- Deleted old YAML config files
+
+**Files Changed:** ~30 files including schema, package.json, core services, commands, and tests
+
+**Test Results:**
+- Unit tests: 387 passing
+- Integration tests: 116 passing
+
+=== Session: 2025-12-01 18:55 ===
+Story: DS-139 (Sprint filter indicator in tree view)
+Status: done
+
+Changes:
+- Added `getTreeViewTitle()` function to storiesProviderUtils.ts
+- Changed from `registerTreeDataProvider` to `createTreeView` in extension.ts
+- Subscribe to `sprintFilterService.onDidSprintChange` to update tree view title
+- Title shows "Stories" when no filter, "Stories (sprint-name)" when filtered
+- Special case: "Stories (Backlog)" for backlog filter
+
+Files changed (4):
+- src/view/storiesProviderUtils.ts (added getTreeViewTitle function)
+- src/extension.ts (use createTreeView, subscribe to sprint changes)
+- src/test/unit/treeViewSorting.test.ts (+3 unit tests)
+- src/test/suite/storiesProvider.test.ts (+4 integration tests)
+
+Tests: 390 unit + 120 integration = 510 total (+7 new)
+
+=== Session: 2025-12-01 19:03 ===
+Story: DS-138 (Tree view welcome content)
+Status: done
+
+Added welcome content to tree view when empty:
+- `viewsWelcome` contribution in package.json with two states
+- Context keys: `devstories:hasDevstoriesFolder`, `devstories:hasEpics`
+- No folder state: "Initialize DevStories" button
+- No epics state: "Create Epic" button
+- Brief description of what DevStories does
+
+Files changed (6):
+- package.json (added viewsWelcome contribution)
+- src/core/welcomeContext.ts (VS Code context update functions)
+- src/core/welcomeContextUtils.ts (pure logic for unit tests)
+- src/extension.ts (integrate context updates)
+- src/test/unit/welcomeContext.test.ts (+6 unit tests)
+- src/test/suite/welcomeContext.test.ts (+8 integration tests)
+
+Tests: 396 unit + 128 integration = 524 total (+14 new)
+
+=== Session: 2025-12-01 19:15 ===
+Story: DS-143 (Unify quick capture and create story entry)
+Status: done
+
+Added unified "+" button in tree view title bar for story creation:
+- `view/title` menu with `devstories.createStoryMenu` command
+- QuickPick shows two options: Quick Capture (zap icon) and Full Story (file-add icon)
+- Each option executes the corresponding existing command
+
+Files changed (5):
+- package.json (added command + view/title menu entry)
+- src/commands/createStoryMenuUtils.ts (new - menu options constants)
+- src/commands/createStoryMenu.ts (new - command implementation)
+- src/extension.ts (registered command)
+- src/test/unit/createStoryMenu.test.ts (new - 9 unit tests)
+- src/test/suite/createStoryMenu.test.ts (new - 6 integration tests)
+
+Tests: 405 unit + 134 integration = 539 total (+15 new)
+
+
+=== Session: 2025-12-01 19:34 ===
+Story: DS-153 (Sprint picker in tree view with auto-filter)
+Status: done
+
+Changes:
+- Added filter icon button to tree view title bar (package.json: view/title menu + icon on pickSprint command)
+- Removed status bar click handler (display-only now)
+- Removed "Click to change sprint filter" from tooltip
+- Added `autoFilterCurrentSprint` config option (JSON schema + ConfigData type + parsing + defaults)
+- Added auto-filter on extension load via `applyAutoFilterSprint()` utility
+
+Files changed (11):
+- package.json (view/title menu for pickSprint, filter icon)
+- src/view/statusBar.ts (removed command from status bar)
+- src/view/statusBarUtils.ts (removed click hint from tooltip)
+- schemas/devstories.schema.json (+autoFilterCurrentSprint property)
+- src/core/configServiceUtils.ts (ConfigData + parsing + defaults + merge)
+- src/core/autoFilterSprint.ts (new - auto-filter utility)
+- src/extension.ts (import + call applyAutoFilterSprint)
+- src/test/unit/statusBar.test.ts (updated tooltip test)
+- src/test/unit/configService.test.ts (+3 tests for autoFilterCurrentSprint)
+- src/test/unit/autoFilterSprint.test.ts (new - 5 tests)
+- src/test/suite/statusBar.test.ts (updated command test)
+
+Tests: 413 unit + 134 integration = 547 total (+8 new)
+
+=== Session: 2025-12-01 20:30 ===
+Stories: DS-145 (Screenshots), DS-144 (README rewrite)
+Status: both done
+
+DS-145 Changes:
+- Created assets/screenshots/ directory
+- Updated test workspace (devstories_test):
+  - Renamed project "Test Project" → "TaskFlow"
+  - Changed prefix "TEST" → "TASK"
+  - Rewrote all 17 stories with realistic content
+  - Rewrote all 5 epics with proper descriptions
+- User captured 5 screenshots at 1280x800 (Dark+ theme):
+  - tree-view.png, quick-capture.png, hover-preview.png
+  - status-bar.png, create-story-menu.png
+
+DS-144 Changes:
+- Rewrote README.md for marketplace users:
+  - Hero section with tagline
+  - Features with screenshots
+  - Quick Start guide
+  - Keyboard shortcuts table
+  - Configuration section (config.json)
+  - File structure overview
+- Created CONTRIBUTING.md with developer docs
+- CLAUDE.md remains separate (not linked from README)
+
+Files changed:
+- README.md (complete rewrite)
+- CONTRIBUTING.md (new)
+- assets/screenshots/*.png (5 new images)
+- .devstories/stories/DS-144.md, DS-145.md (marked done)
+- devstories_test/.devstories/* (test workspace updates)
+
+=== Session: 2025-12-01 21:24 ===
+Story: DS-148 (Write marketplace description)
+Status: done
+
+Changes:
+- Updated package.json description to: "Stories as markdown files, version-controlled with your code. No JIRA. No bloat."
+- Added marketplace copy to story file:
+  - Taglines (short + full)
+  - Social proof with actual counts (98 stories, 14 epics)
+- Added launch posts:
+  - Reddit (r/vscode, r/programming)
+  - Hacker News (Show HN format)
+  - Twitter/X (announcement + thread follow-up)
+
+Files changed (2):
+- package.json (updated description)
+- .devstories/stories/DS-148.md (marked done + added all copy)
+
+Note: Tests skipped per user request
+
+=== Session: 2025-12-01 22:12 ===
+Story: DS-146 (Version bump and release commit)
+Status: done
+
+Changes:
+- Bumped package.json version: 0.0.1 → 1.0.0
+- Fixed publisher ID: devstories → DhavalSavalia
+- Generated devstories-1.0.0.vsix (5.58 MB)
+- Verified local installation
+
+Files changed (2):
+- package.json (version + publisher)
+- .devstories/stories/DS-146.md (marked done)
+
+Tests: 413 unit + 134 integration = 547 total (all passing)
+
+=== Session: 2025-12-02 11:30 ===
+Story: DS-156 (Create CI workflow)
+Status: done
+
+Changes:
+- Created `.github/workflows/ci.yml` with GitHub Actions CI pipeline
+- Triggers on push to main and all PRs
+- Node.js matrix: 20.x, 22.x
+- Steps: checkout → setup-node (with npm cache) → npm ci → check-types → lint → test
+- Added CI status badge to README.md
+
+Files changed (3):
+- .github/workflows/ci.yml (new)
+- README.md (added badge)
+- .devstories/stories/DS-156.md (marked done)
+
+Tests: 413 unit tests pass (verified locally)
+
+=== Session: 2025-12-02 14:00 ===
+Story: DS-155 (Add CODE_OF_CONDUCT.md)
+Status: done
+
+Changes:
+- Created CODE_OF_CONDUCT.md with Contributor Covenant v2.1
+- GitHub Security Advisories used for violation reports (no email)
+- Added link to Code of Conduct at top of CONTRIBUTING.md
+
+Files changed (3):
+- CODE_OF_CONDUCT.md (new)
+- CONTRIBUTING.md (added link)
+- .devstories/stories/DS-155.md (marked done)
+
+Tests: skipped (documentation only)
+
+=== Session: 2025-12-02 14:05 ===
+Story: DS-154 (Add SECURITY.md)
+Status: done
+
+Changes:
+- Created SECURITY.md with security policy
+- Supported versions: v1.x
+- GitHub Security Advisories for reporting
+- 48-hour acknowledgment SLA
+- No public disclosure before fix
+
+Files changed (2):
+- SECURITY.md (new)
+- .devstories/stories/DS-154.md (marked done)
+
+Manual step pending: Enable private vulnerability reporting in GitHub repo settings
+
+Tests: skipped (documentation only)
+
+=== Session: 2025-12-02 14:12 ===
+Story: DS-166 (Node version pinning)
+Status: done
+
+Changes:
+- Added node engine requirement (>=20) to package.json
+- Created .nvmrc with version 20
+- Documented Node requirement in CONTRIBUTING.md
+
+Files changed (4):
+- package.json (engines.node)
+- .nvmrc (new)
+- CONTRIBUTING.md (requirements note)
+- .devstories/stories/DS-166.md (marked done)
+
+Tests: skipped (configuration only)
+
+=== Session: 2025-12-02 14:16 ===
+Story: DS-157 (Add integration tests to CI)
+Status: done
+
+Changes:
+- Added integration-test job to ci.yml
+- Uses xvfb-run for headless VS Code tests
+- Runs after unit tests pass (needs: [test])
+- Skips for fork PRs (security)
+- Documented CI architecture in CONTRIBUTING.md
+
+Files changed (3):
+- .github/workflows/ci.yml (added integration-test job)
+- CONTRIBUTING.md (CI Pipeline section)
+- .devstories/stories/DS-157.md (marked done)
+
+Tests: skipped (CI configuration only)
+
+=== Session: 2025-12-02 14:21 ===
+Story: DS-162 (Fork-safe PR workflow)
+Status: done
+
+Changes:
+- Created .github/workflows/pr-fork.yml for fork PRs
+- Uses pull_request event (not pull_request_target)
+- Runs lint + unit tests only (no integration tests)
+- Explicit ref checkout for security
+- Documented fork PR security in CONTRIBUTING.md
+
+Files changed (3):
+- .github/workflows/pr-fork.yml (new)
+- CONTRIBUTING.md (Fork PR Security section)
+- .devstories/stories/DS-162.md (marked done)
+
+Tests: skipped (CI configuration only)
+
+=== Session: 2025-12-02 14:35 ===
+Story: DS-158 (Create issue templates)
+Status: done
+
+Changes:
+- Created bug_report.yml form-based template (VS Code/ext version, OS, steps, expected/actual, screenshots)
+- Created feature_request.yml form-based template (problem required, solution/alternatives optional)
+- Created config.yml to disable blank issues and link to discussions
+
+Files changed (4):
+- .github/ISSUE_TEMPLATE/bug_report.yml (new)
+- .github/ISSUE_TEMPLATE/feature_request.yml (new)
+- .github/ISSUE_TEMPLATE/config.yml (new)
+- .devstories/stories/DS-158.md (marked done)
+
+Tests: skipped (configuration only)
+
+=== Session: 2025-12-02 14:38 ===
+Story: DS-159 (Create PR template)
+Status: done
+
+Changes:
+- Created pull_request_template.md with Summary, Related Issue, Test Plan, Checklist sections
+- Checklist: tests, types, lint, docs
+
+Files changed (2):
+- .github/pull_request_template.md (new)
+- .devstories/stories/DS-159.md (marked done)
+
+Tests: skipped (configuration only)
+
+=== Session: 2025-12-02 14:50 ===
+Story: DS-163 (Configure Dependabot)
+Status: done
+
+Changes:
+- Created .github/dependabot.yml
+- npm: weekly updates (Monday), grouped patch+minor
+- github-actions: monthly updates
+- 5 PR limit per ecosystem
+
+Files changed (2):
+- .github/dependabot.yml (new)
+- .devstories/stories/DS-163.md (marked done)
+
+Tests: skipped (configuration only)
+
+=== Session: 2025-12-02 14:55 ===
+Story: DS-164 (Auto-release workflow on tag)
+Status: done
+
+Changes:
+- Created .github/workflows/release.yml
+- Triggers on v*.*.* tags
+- Runs full test suite (unit + integration)
+- Packages extension, creates GitHub Release
+- Uploads .vsix, publishes to Marketplace
+- Documented release process in CONTRIBUTING.md (including VSCE_PAT setup)
+
+Files changed (3):
+- .github/workflows/release.yml (new)
+- CONTRIBUTING.md (Releases section)
+- .devstories/stories/DS-164.md (marked done)
+
+Tests: skipped (configuration only)
+
+Note: Manual step - add VSCE_PAT secret to GitHub repo settings
+
+---
+

@@ -73,13 +73,14 @@ export async function activate(context: vscode.ExtensionContext) {
 		storyHoverProvider
 	);
 
-	// Register Completion Provider for frontmatter enum fields (DS-123)
-	const frontmatterCompletionProvider = new FrontmatterCompletionProvider(configService);
+	// Register Completion Provider for frontmatter fields and [[ID]] links (DS-123, DS-124)
+	const frontmatterCompletionProvider = new FrontmatterCompletionProvider(configService, store);
 	const completionProviderDisposable = vscode.languages.registerCompletionItemProvider(
 		{ language: 'markdown', scheme: 'file' },
 		frontmatterCompletionProvider,
-		':',  // Trigger after colon
-		' '   // Trigger after space
+		':',  // Trigger for field values
+		' ',  // Trigger after space
+		'['   // Trigger for [[ID]] links
 	);
 
 	// Register Frontmatter Diagnostics Provider (DS-121, DS-122)

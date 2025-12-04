@@ -225,3 +225,26 @@ Files changed (4):
 - .devstories/stories/DS-123.md (status: done)
 
 Tests: 511 unit + 134 integration (all passing)
+
+=== Session: 2025-12-04 16:42 ===
+Story: DS-124 (Autocomplete for references)
+Status: done
+
+Changes:
+- Extended FrontmatterCompletionProvider to accept Store for ID lookups
+- Added detectEpicField() to detect `epic:` field context
+- Added detectDependencyContext() to detect YAML array items under `dependencies:`
+- Added detectLinkTrigger() to detect `[[` pattern anywhere in file
+- Added getEpicCompletions() for epic field (includes EPIC-INBOX)
+- Added getStoryCompletions() for dependencies field
+- Added getAllIdCompletions() for [[ID]] links (stories + epics)
+- Updated extension.ts to pass Store and add `[` trigger character
+
+Files changed (4):
+- src/providers/frontmatterCompletionProviderUtils.ts (6 new functions)
+- src/providers/frontmatterCompletionProvider.ts (Store integration)
+- src/extension.ts (pass Store, add `[` trigger)
+- src/test/unit/frontmatterCompletionProvider.test.ts (25 new tests)
+- .devstories/stories/DS-124.md (status: done)
+
+Tests: 536 unit + 134 integration (all passing)

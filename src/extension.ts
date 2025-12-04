@@ -72,8 +72,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		storyHoverProvider
 	);
 
-	// Register Frontmatter Diagnostics Provider (DS-121)
-	const diagnosticsProvider = new FrontmatterDiagnosticsProvider(configService, context.extensionPath);
+	// Register Frontmatter Diagnostics Provider (DS-121, DS-122)
+	const diagnosticsProvider = new FrontmatterDiagnosticsProvider(configService, store, context.extensionPath);
 	const diagnosticsDisposables = diagnosticsProvider.register();
 
 	// Load initial data and wait for completion

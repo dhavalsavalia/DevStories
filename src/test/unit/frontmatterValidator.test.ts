@@ -2,13 +2,15 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import * as path from 'path';
 import {
   validateFrontmatter,
+  validateCrossFile,
   findFieldLine,
   findValueColumn,
   getFileTypeFromPath,
   isDevStoriesFile,
   resetAjvCache,
   ValidationConfig,
-  ValidationError
+  ValidationError,
+  KnownIds
 } from '../../validation/frontmatterValidator';
 
 const SCHEMAS_DIR = path.join(__dirname, '../../../schemas');
@@ -440,6 +442,425 @@ created: 2025-01-15
       // No schema errors - file structure is valid
       const schemaErrors = errors.filter(e => e.severity === 'error');
       expect(schemaErrors).toHaveLength(0);
+    });
+  });
+
+  describe('validateCrossFile', () => {
+    // Helper to create KnownIds for tests
+    const createKnownIds = (overrides: Partial<KnownIds> = {}): KnownIds => ({
+      stories: new Set(['DS-001', 'DS-002', 'DS-003']),
+      epics: new Set(['EPIC-001', 'EPIC-002', 'EPIC-INBOX']),
+      epicStoryMap: new Map([
+        ['EPIC-001', new Set(['DS-001', 'DS-002'])],
+        ['EPIC-002', new Set(['DS-003'])],
+        ['EPIC-INBOX', new Set()]
+      ]),
+      ...overrides
+    });
+
+    describe('epic field validation', () => {
+      it('should return no errors when epic exists', () => {
+        const content = `---
+id: DS-001
+title: Test Story
+type: feature
+epic: EPIC-001
+status: todo
+size: M
+created: 2025-01-15
+---
+
+Some content.
+`;
+        const errors = validateCrossFile(content, 'story', 'DS-001', createKnownIds());
+        const epicErrors = errors.filter(e => e.field === 'epic');
+        expect(epicErrors).toHaveLength(0);
+      });
+
+      it('should return error when epic does not exist', () => {
+        const content = `---
+id: DS-001
+title: Test Story
+type: feature
+epic: EPIC-999
+status: todo
+size: M
+created: 2025-01-15
+---
+`;
+        const errors = validateCrossFile(content, 'story', 'DS-001', createKnownIds());
+        const epicError = errors.find(e => e.field === 'epic');
+        expect(epicError).toBeDefined();
+        expect(epicError?.severity).toBe('error');
+        expect(epicError?.message).toContain('EPIC-999');
+        expect(epicError?.message).toContain('does not exist');
+      });
+
+      it('should return correct line number for epic error', () => {
+        const content = `---
+id: DS-001
+title: Test Story
+type: feature
+epic: EPIC-999
+status: todo
+size: M
+created: 2025-01-15
+---
+`;
+        const errors = validateCrossFile(content, 'story', 'DS-001', createKnownIds());
+        const epicError = errors.find(e => e.field === 'epic');
+        expect(epicError?.line).toBe(5); // epic is on line 5
+      });
+
+      it('should NOT check epic for epics (epics dont have epic field)', () => {
+        const content = `---
+id: EPIC-001
+title: Test Epic
+status: todo
+created: 2025-01-15
+---
+`;
+        const errors = validateCrossFile(content, 'epic', 'EPIC-001', createKnownIds());
+        const epicErrors = errors.filter(e => e.field === 'epic');
+        expect(epicErrors).toHaveLength(0);
+      });
+
+      it('should NOT error for EPIC-INBOX (special case)', () => {
+        const content = `---
+id: DS-001
+title: Test Story
+type: feature
+epic: EPIC-INBOX
+status: todo
+size: M
+created: 2025-01-15
+---
+`;
+        // EPIC-INBOX always valid even if not in knownIds
+        const knownIds = createKnownIds({ epics: new Set(['EPIC-001']) });
+        const errors = validateCrossFile(content, 'story', 'DS-001', knownIds);
+        const epicErrors = errors.filter(e => e.field === 'epic');
+        expect(epicErrors).toHaveLength(0);
+      });
+    });
+
+    describe('dependencies validation', () => {
+      it('should return no errors when all dependencies exist', () => {
+        const content = `---
+id: DS-001
+title: Test Story
+type: feature
+epic: EPIC-001
+status: todo
+size: M
+dependencies:
+  - DS-002
+  - DS-003
+created: 2025-01-15
+---
+`;
+        const errors = validateCrossFile(content, 'story', 'DS-001', createKnownIds());
+        const depErrors = errors.filter(e => e.field === 'dependencies');
+        expect(depErrors).toHaveLength(0);
+      });
+
+      it('should return error when dependency does not exist', () => {
+        const content = `---
+id: DS-001
+title: Test Story
+type: feature
+epic: EPIC-001
+status: todo
+size: M
+dependencies:
+  - DS-999
+created: 2025-01-15
+---
+`;
+        const errors = validateCrossFile(content, 'story', 'DS-001', createKnownIds());
+        const depError = errors.find(e => e.field === 'dependencies');
+        expect(depError).toBeDefined();
+        expect(depError?.severity).toBe('error');
+        expect(depError?.message).toContain('DS-999');
+      });
+
+      it('should return error for self-reference in dependencies', () => {
+        const content = `---
+id: DS-001
+title: Test Story
+type: feature
+epic: EPIC-001
+status: todo
+size: M
+dependencies:
+  - DS-001
+created: 2025-01-15
+---
+`;
+        const errors = validateCrossFile(content, 'story', 'DS-001', createKnownIds());
+        const selfRefError = errors.find(e => e.message.includes('itself'));
+        expect(selfRefError).toBeDefined();
+        expect(selfRefError?.severity).toBe('error');
+      });
+
+      it('should return multiple errors for multiple missing dependencies', () => {
+        const content = `---
+id: DS-001
+title: Test Story
+type: feature
+epic: EPIC-001
+status: todo
+size: M
+dependencies:
+  - DS-888
+  - DS-999
+created: 2025-01-15
+---
+`;
+        const errors = validateCrossFile(content, 'story', 'DS-001', createKnownIds());
+        const depErrors = errors.filter(e => e.field === 'dependencies');
+        expect(depErrors.length).toBeGreaterThanOrEqual(2);
+      });
+
+      it('should handle wiki-style dependency format [[DS-002]]', () => {
+        const content = `---
+id: DS-001
+title: Test Story
+type: feature
+epic: EPIC-001
+status: todo
+size: M
+dependencies:
+  - "[[DS-002]]"
+created: 2025-01-15
+---
+`;
+        const errors = validateCrossFile(content, 'story', 'DS-001', createKnownIds());
+        const depErrors = errors.filter(e => e.field === 'dependencies');
+        expect(depErrors).toHaveLength(0);
+      });
+
+      it('should handle empty dependencies array', () => {
+        const content = `---
+id: DS-001
+title: Test Story
+type: feature
+epic: EPIC-001
+status: todo
+size: M
+dependencies: []
+created: 2025-01-15
+---
+`;
+        const errors = validateCrossFile(content, 'story', 'DS-001', createKnownIds());
+        const depErrors = errors.filter(e => e.field === 'dependencies');
+        expect(depErrors).toHaveLength(0);
+      });
+    });
+
+    describe('[[ID]] link validation in body', () => {
+      it('should return no errors when all links resolve', () => {
+        const content = `---
+id: DS-001
+title: Test Story
+type: feature
+epic: EPIC-001
+status: todo
+size: M
+created: 2025-01-15
+---
+
+# Story
+
+Related to [[DS-002]] and [[EPIC-001]].
+`;
+        const errors = validateCrossFile(content, 'story', 'DS-001', createKnownIds());
+        const linkErrors = errors.filter(e => e.message.includes('[['));
+        expect(linkErrors).toHaveLength(0);
+      });
+
+      it('should return warning when link does not resolve', () => {
+        const content = `---
+id: DS-001
+title: Test Story
+type: feature
+epic: EPIC-001
+status: todo
+size: M
+created: 2025-01-15
+---
+
+# Story
+
+See [[DS-999]] for more info.
+`;
+        const errors = validateCrossFile(content, 'story', 'DS-001', createKnownIds());
+        const linkWarning = errors.find(e => e.message.includes('DS-999'));
+        expect(linkWarning).toBeDefined();
+        expect(linkWarning?.severity).toBe('warning');
+      });
+
+      it('should include line number for broken link', () => {
+        const content = `---
+id: DS-001
+title: Test Story
+type: feature
+epic: EPIC-001
+status: todo
+size: M
+created: 2025-01-15
+---
+
+# Story
+
+See [[DS-999]] for more info.
+`;
+        const errors = validateCrossFile(content, 'story', 'DS-001', createKnownIds());
+        const linkWarning = errors.find(e => e.message.includes('DS-999'));
+        expect(linkWarning?.line).toBe(13); // The line with [[DS-999]]
+      });
+
+      it('should find multiple broken links', () => {
+        const content = `---
+id: DS-001
+title: Test Story
+type: feature
+epic: EPIC-001
+status: todo
+size: M
+created: 2025-01-15
+---
+
+See [[DS-888]] and [[EPIC-999]].
+`;
+        const errors = validateCrossFile(content, 'story', 'DS-001', createKnownIds());
+        const linkWarnings = errors.filter(e => e.severity === 'warning' && e.message.includes('does not exist'));
+        expect(linkWarnings.length).toBe(2);
+      });
+
+      it('should validate links in epics too', () => {
+        const content = `---
+id: EPIC-001
+title: Test Epic
+status: todo
+created: 2025-01-15
+---
+
+# Epic
+
+Stories: [[DS-001]], [[DS-999]]
+`;
+        const errors = validateCrossFile(content, 'epic', 'EPIC-001', createKnownIds());
+        const linkWarning = errors.find(e => e.message.includes('DS-999'));
+        expect(linkWarning).toBeDefined();
+      });
+    });
+
+    describe('ID uniqueness validation', () => {
+      it('should return error if story ID exists as epic ID', () => {
+        const content = `---
+id: EPIC-001
+title: Test Story
+type: feature
+epic: EPIC-002
+status: todo
+size: M
+created: 2025-01-15
+---
+`;
+        // Story file trying to use EPIC-001 as ID (which exists in epics)
+        const errors = validateCrossFile(content, 'story', 'EPIC-001', createKnownIds());
+        const dupeError = errors.find(e => e.message.includes('duplicate') || e.message.includes('already exists'));
+        expect(dupeError).toBeDefined();
+        expect(dupeError?.severity).toBe('error');
+      });
+
+      it('should return error if epic ID exists as story ID', () => {
+        const content = `---
+id: DS-001
+title: Test Epic
+status: todo
+created: 2025-01-15
+---
+`;
+        // Epic file trying to use DS-001 as ID (which exists in stories)
+        const errors = validateCrossFile(content, 'epic', 'DS-001', createKnownIds());
+        const dupeError = errors.find(e => e.message.includes('duplicate') || e.message.includes('already exists'));
+        expect(dupeError).toBeDefined();
+        expect(dupeError?.severity).toBe('error');
+      });
+
+      it('should NOT error for own ID in same collection', () => {
+        const content = `---
+id: DS-001
+title: Test Story
+type: feature
+epic: EPIC-001
+status: todo
+size: M
+created: 2025-01-15
+---
+`;
+        // DS-001 exists in stories but we're validating DS-001.md itself
+        const errors = validateCrossFile(content, 'story', 'DS-001', createKnownIds());
+        const dupeErrors = errors.filter(e => e.message.includes('duplicate') || e.message.includes('already exists'));
+        expect(dupeErrors).toHaveLength(0);
+      });
+    });
+
+    describe('orphan story validation', () => {
+      it('should return warning when story is not listed in epic', () => {
+        const content = `---
+id: DS-004
+title: Orphan Story
+type: feature
+epic: EPIC-001
+status: todo
+size: M
+created: 2025-01-15
+---
+`;
+        // DS-004 references EPIC-001 but EPIC-001's stories list only has DS-001, DS-002
+        const knownIds = createKnownIds({ stories: new Set(['DS-001', 'DS-002', 'DS-004']) });
+        const errors = validateCrossFile(content, 'story', 'DS-004', knownIds);
+        const orphanWarning = errors.find(e => e.message.includes('not listed') || e.message.includes('orphan'));
+        expect(orphanWarning).toBeDefined();
+        expect(orphanWarning?.severity).toBe('warning');
+      });
+
+      it('should NOT warn for stories in EPIC-INBOX', () => {
+        const content = `---
+id: DS-004
+title: Inbox Story
+type: feature
+epic: EPIC-INBOX
+status: todo
+size: M
+created: 2025-01-15
+---
+`;
+        // EPIC-INBOX is a special case - stories don't need to be listed
+        const errors = validateCrossFile(content, 'story', 'DS-004', createKnownIds());
+        const orphanWarning = errors.find(e => e.message.includes('not listed') || e.message.includes('orphan'));
+        expect(orphanWarning).toBeUndefined();
+      });
+
+      it('should NOT warn when story IS listed in epic', () => {
+        const content = `---
+id: DS-001
+title: Listed Story
+type: feature
+epic: EPIC-001
+status: todo
+size: M
+created: 2025-01-15
+---
+`;
+        // DS-001 is in EPIC-001's epicStoryMap
+        const errors = validateCrossFile(content, 'story', 'DS-001', createKnownIds());
+        const orphanWarning = errors.find(e => e.message.includes('not listed') || e.message.includes('orphan'));
+        expect(orphanWarning).toBeUndefined();
+      });
     });
   });
 });

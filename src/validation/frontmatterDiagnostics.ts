@@ -5,12 +5,15 @@
 
 import * as vscode from 'vscode';
 import { ConfigService } from '../core/configService';
+import { Store } from '../core/store';
 import {
   validateFrontmatter,
+  validateCrossFile,
   getFileTypeFromPath,
   isDevStoriesFile,
   ValidationError,
-  ValidationConfig
+  ValidationConfig,
+  KnownIds
 } from './frontmatterValidator';
 import * as path from 'path';
 
@@ -19,6 +22,11 @@ const DEBOUNCE_DELAY = 300;
 /**
  * Provider that validates frontmatter and shows diagnostics
  */
+/**
+ * Link pattern to extract [[ID]] from epic content
+ */
+const LINK_PATTERN = /\[\[([A-Z]+-(?:\d+|INBOX))\]\]/g;
+
 export class FrontmatterDiagnosticsProvider implements vscode.Disposable {
   private diagnostics: vscode.DiagnosticCollection;
   private debounceTimers: Map<string, NodeJS.Timeout> = new Map();
@@ -27,6 +35,7 @@ export class FrontmatterDiagnosticsProvider implements vscode.Disposable {
 
   constructor(
     private configService: ConfigService,
+    private store: Store,
     extensionPath: string
   ) {
     this.diagnostics = vscode.languages.createDiagnosticCollection('devstories');
@@ -69,6 +78,13 @@ export class FrontmatterDiagnosticsProvider implements vscode.Disposable {
     // Re-validate all open documents when config changes
     this.disposables.push(
       this.configService.onDidConfigChange(() => {
+        this.validateAllOpenDocuments();
+      })
+    );
+
+    // Re-validate all open documents when store updates (cross-file references may change)
+    this.disposables.push(
+      this.store.onDidUpdate(() => {
         this.validateAllOpenDocuments();
       })
     );
@@ -134,10 +150,61 @@ export class FrontmatterDiagnosticsProvider implements vscode.Disposable {
       sizes: this.configService.config.sizes
     };
 
-    const errors = validateFrontmatter(content, fileType, config, this.schemasDir);
-    const diagnostics = errors.map(error => this.errorToDiagnostic(error, doc));
+    // Schema validation
+    const schemaErrors = validateFrontmatter(content, fileType, config, this.schemasDir);
+
+    // Cross-file validation
+    const knownIds = this.buildKnownIds();
+    const currentId = this.extractIdFromContent(content);
+    const crossFileErrors = validateCrossFile(content, fileType, currentId, knownIds);
+
+    // Combine errors
+    const allErrors = [...schemaErrors, ...crossFileErrors];
+    const diagnostics = allErrors.map(error => this.errorToDiagnostic(error, doc));
 
     this.diagnostics.set(doc.uri, diagnostics);
+  }
+
+  /**
+   * Build KnownIds from Store
+   */
+  private buildKnownIds(): KnownIds {
+    const stories = new Set<string>();
+    const epics = new Set<string>();
+    const epicStoryMap = new Map<string, Set<string>>();
+
+    // Collect all story IDs
+    for (const story of this.store.getStories()) {
+      stories.add(story.id);
+    }
+
+    // Collect all epic IDs and extract [[links]] from their content
+    for (const epic of this.store.getEpics()) {
+      epics.add(epic.id);
+
+      // Extract story IDs mentioned in epic's content (## Stories section)
+      const storyLinks = new Set<string>();
+      let match;
+      LINK_PATTERN.lastIndex = 0;
+      while ((match = LINK_PATTERN.exec(epic.content)) !== null) {
+        const id = match[1];
+        // Only include story-like IDs (not EPIC-*)
+        if (!id.startsWith('EPIC-')) {
+          storyLinks.add(id);
+        }
+      }
+      epicStoryMap.set(epic.id, storyLinks);
+    }
+
+    return { stories, epics, epicStoryMap };
+  }
+
+  /**
+   * Extract ID from frontmatter content
+   */
+  private extractIdFromContent(content: string): string | undefined {
+    const match = content.match(/^id:\s*(.+)$/m);
+    return match ? match[1].trim() : undefined;
   }
 
   /**

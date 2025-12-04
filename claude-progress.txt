@@ -165,3 +165,32 @@ Files changed (7):
 - .devstories/stories/DS-121.md (status: done)
 
 Tests: 466 unit + 134 integration (all passing)
+
+=== Session: 2025-12-04 12:30 ===
+Story: DS-122 (Cross-file frontmatter validation)
+Status: done
+
+Changes:
+- Added `validateCrossFile()` function to frontmatterValidator.ts
+- Added `KnownIds` interface for cross-file validation context
+- Updated `FrontmatterDiagnosticsProvider` to:
+  - Accept Store in constructor
+  - Build KnownIds from Store (stories, epics, epicStoryMap)
+  - Subscribe to Store.onDidUpdate to revalidate when refs change
+- Updated extension.ts to pass store to diagnostics provider
+
+Validations implemented:
+- Epic field: Error if epic doesn't exist (EPIC-INBOX always valid)
+- Dependencies: Error if dependency doesn't exist or self-references
+- [[ID]] links: Warning for broken links in markdown body
+- ID uniqueness: Error if ID exists in opposite collection
+- Orphan stories: Warning if story not listed in epic's ## Stories section
+
+Files changed (4):
+- src/validation/frontmatterValidator.ts (validateCrossFile, KnownIds)
+- src/validation/frontmatterDiagnostics.ts (Store integration)
+- src/extension.ts (pass store to diagnostics)
+- src/test/unit/frontmatterValidator.test.ts (22 new tests)
+- .devstories/stories/DS-122.md (status: done)
+
+Tests: 488 unit + 134 integration (all passing)

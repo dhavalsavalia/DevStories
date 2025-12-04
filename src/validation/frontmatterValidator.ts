@@ -35,6 +35,15 @@ export interface ValidationConfig {
   sizes: string[];
 }
 
+/**
+ * Known IDs for cross-file validation
+ */
+export interface KnownIds {
+  stories: Set<string>;                         // All story IDs
+  epics: Set<string>;                           // All epic IDs
+  epicStoryMap: Map<string, Set<string>>;       // Epic ID → story IDs listed in that epic's ## Stories section
+}
+
 // Lazy-loaded Ajv instance
 let ajvInstance: Ajv | null = null;
 let storyValidate: ReturnType<Ajv['compile']> | null = null;
@@ -313,4 +322,230 @@ export function resetAjvCache(): void {
   ajvInstance = null;
   storyValidate = null;
   epicValidate = null;
+}
+
+/**
+ * Special epic ID that always exists (quick capture inbox)
+ */
+const EPIC_INBOX = 'EPIC-INBOX';
+
+/**
+ * Pattern to extract [[ID]] links from markdown content
+ */
+const LINK_PATTERN = /\[\[([A-Z]+-(?:\d+|INBOX))\]\]/g;
+
+/**
+ * Extract the ID from a dependency string (handles both "DS-001" and "[[DS-001]]" formats)
+ */
+function extractIdFromDependency(dep: string): string {
+  const match = dep.match(/\[\[([A-Z]+-(?:\d+|INBOX))\]\]/);
+  return match ? match[1] : dep;
+}
+
+/**
+ * Find the line number where a specific array item appears
+ */
+function findArrayItemLine(content: string, fieldName: string, item: string): number {
+  const lines = content.split('\n');
+  let inField = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line.startsWith(`${fieldName}:`)) {
+      inField = true;
+      continue;
+    }
+    if (inField) {
+      // Check if we've left the array (next field starts)
+      if (!line.startsWith('-') && line.includes(':') && !line.startsWith('#')) {
+        break;
+      }
+      // Check if this line contains the item
+      if (line.includes(item)) {
+        return i + 1; // 1-indexed
+      }
+    }
+  }
+
+  return findFieldLine(content, fieldName);
+}
+
+/**
+ * Find all [[ID]] links in content (below frontmatter) with their line numbers
+ */
+function findLinksInContent(content: string): Array<{ id: string; line: number; column: number }> {
+  const links: Array<{ id: string; line: number; column: number }> = [];
+  const lines = content.split('\n');
+
+  // Find where frontmatter ends (second --- line)
+  let frontmatterEnd = 0;
+  let dashCount = 0;
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].trim() === '---') {
+      dashCount++;
+      if (dashCount === 2) {
+        frontmatterEnd = i + 1;
+        break;
+      }
+    }
+  }
+
+  // Search content after frontmatter
+  for (let i = frontmatterEnd; i < lines.length; i++) {
+    const line = lines[i];
+    let match;
+    LINK_PATTERN.lastIndex = 0; // Reset regex state
+    while ((match = LINK_PATTERN.exec(line)) !== null) {
+      links.push({
+        id: match[1],
+        line: i + 1, // 1-indexed
+        column: match.index
+      });
+    }
+  }
+
+  return links;
+}
+
+/**
+ * Validate cross-file references in frontmatter
+ * Returns array of validation errors (empty if all references valid)
+ */
+export function validateCrossFile(
+  content: string,
+  fileType: FileType,
+  currentId: string | undefined,
+  knownIds: KnownIds
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+
+  // Parse frontmatter to get field values
+  let parsed;
+  try {
+    parsed = matter(content);
+  } catch {
+    // Can't parse - schema validation will catch this
+    return [];
+  }
+
+  const data = parsed.data;
+
+  // 1. Validate epic field (stories only)
+  if (fileType === 'story' && data.epic) {
+    const epicId = String(data.epic);
+    // EPIC-INBOX is always valid
+    if (epicId !== EPIC_INBOX && !knownIds.epics.has(epicId)) {
+      const line = findFieldLine(content, 'epic');
+      const lineContent = content.split('\n')[line - 1] || '';
+      const { start, end } = findValueColumn(lineContent, 'epic');
+
+      errors.push({
+        line,
+        column: start,
+        endColumn: end,
+        message: `Epic '${epicId}' does not exist`,
+        severity: 'error',
+        field: 'epic'
+      });
+    }
+  }
+
+  // 2. Validate dependencies (stories only)
+  if (fileType === 'story' && Array.isArray(data.dependencies)) {
+    for (const dep of data.dependencies) {
+      const depId = extractIdFromDependency(String(dep));
+
+      // Self-reference check
+      if (depId === currentId) {
+        const line = findArrayItemLine(content, 'dependencies', dep);
+        errors.push({
+          line,
+          column: 0,
+          message: `Story cannot depend on itself`,
+          severity: 'error',
+          field: 'dependencies'
+        });
+        continue;
+      }
+
+      // Existence check
+      if (!knownIds.stories.has(depId)) {
+        const line = findArrayItemLine(content, 'dependencies', dep);
+        errors.push({
+          line,
+          column: 0,
+          message: `Dependency '${depId}' does not exist`,
+          severity: 'error',
+          field: 'dependencies'
+        });
+      }
+    }
+  }
+
+  // 3. Validate [[ID]] links in markdown body
+  const links = findLinksInContent(content);
+  for (const link of links) {
+    const exists = knownIds.stories.has(link.id) || knownIds.epics.has(link.id);
+    if (!exists) {
+      errors.push({
+        line: link.line,
+        column: link.column,
+        message: `Link '[[${link.id}]]' does not exist`,
+        severity: 'warning'
+      });
+    }
+  }
+
+  // 4. ID uniqueness across collections
+  if (currentId) {
+    if (fileType === 'story' && knownIds.epics.has(currentId)) {
+      const line = findFieldLine(content, 'id');
+      const lineContent = content.split('\n')[line - 1] || '';
+      const { start, end } = findValueColumn(lineContent, 'id');
+
+      errors.push({
+        line,
+        column: start,
+        endColumn: end,
+        message: `ID '${currentId}' already exists as an epic`,
+        severity: 'error',
+        field: 'id'
+      });
+    } else if (fileType === 'epic' && knownIds.stories.has(currentId)) {
+      const line = findFieldLine(content, 'id');
+      const lineContent = content.split('\n')[line - 1] || '';
+      const { start, end } = findValueColumn(lineContent, 'id');
+
+      errors.push({
+        line,
+        column: start,
+        endColumn: end,
+        message: `ID '${currentId}' already exists as a story`,
+        severity: 'error',
+        field: 'id'
+      });
+    }
+  }
+
+  // 5. Orphan story warning (story not listed in epic's ## Stories section)
+  if (fileType === 'story' && currentId && data.epic) {
+    const epicId = String(data.epic);
+    // Skip EPIC-INBOX - stories there don't need to be listed
+    if (epicId !== EPIC_INBOX && knownIds.epics.has(epicId)) {
+      const epicStories = knownIds.epicStoryMap.get(epicId);
+      if (epicStories && !epicStories.has(currentId)) {
+        const line = findFieldLine(content, 'epic');
+
+        errors.push({
+          line,
+          column: 0,
+          message: `Story is not listed in ${epicId}'s Stories section`,
+          severity: 'warning',
+          field: 'epic'
+        });
+      }
+    }
+  }
+
+  return errors;
 }

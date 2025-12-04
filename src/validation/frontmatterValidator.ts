@@ -1,0 +1,316 @@
+/**
+ * Pure validation functions for story/epic frontmatter
+ * No VS Code dependencies - unit testable with Vitest
+ */
+
+import Ajv, { ErrorObject } from 'ajv';
+import addFormats from 'ajv-formats';
+import * as fs from 'fs';
+import * as path from 'path';
+
+const matter = require('gray-matter');
+
+/**
+ * Validation error with position info for diagnostics
+ */
+export interface ValidationError {
+  line: number;       // 1-indexed line number in file
+  column: number;     // 0-indexed column position
+  endColumn?: number; // End column for range highlighting
+  message: string;    // User-friendly error message
+  severity: 'error' | 'warning';
+  field?: string;     // Field name if applicable
+}
+
+/**
+ * File type for schema selection
+ */
+export type FileType = 'story' | 'epic';
+
+/**
+ * Config values for dynamic validation
+ */
+export interface ValidationConfig {
+  statuses: string[];
+  sizes: string[];
+}
+
+// Lazy-loaded Ajv instance
+let ajvInstance: Ajv | null = null;
+let storyValidate: ReturnType<Ajv['compile']> | null = null;
+let epicValidate: ReturnType<Ajv['compile']> | null = null;
+
+/**
+ * Get or create Ajv instance with schemas loaded
+ */
+function getAjv(schemasDir: string): Ajv {
+  if (ajvInstance) {
+    return ajvInstance;
+  }
+
+  ajvInstance = new Ajv({ strict: false, allErrors: true });
+  addFormats(ajvInstance);
+
+  // Load common schema
+  const commonSchema = JSON.parse(
+    fs.readFileSync(path.join(schemasDir, 'defs/common.schema.json'), 'utf-8')
+  );
+  ajvInstance.addSchema(commonSchema, 'defs/common.schema.json');
+
+  // Load and compile story schema
+  const storySchema = JSON.parse(
+    fs.readFileSync(path.join(schemasDir, 'story.schema.json'), 'utf-8')
+  );
+  storyValidate = ajvInstance.compile(storySchema);
+
+  // Load and compile epic schema
+  const epicSchema = JSON.parse(
+    fs.readFileSync(path.join(schemasDir, 'epic.schema.json'), 'utf-8')
+  );
+  epicValidate = ajvInstance.compile(epicSchema);
+
+  return ajvInstance;
+}
+
+/**
+ * Find the line number of a YAML field in content
+ * Returns 1-indexed line number, or 1 if not found
+ */
+export function findFieldLine(content: string, fieldName: string): number {
+  const lines = content.split('\n');
+  const regex = new RegExp(`^${fieldName}:`);
+
+  for (let i = 0; i < lines.length; i++) {
+    if (regex.test(lines[i].trim())) {
+      return i + 1; // 1-indexed
+    }
+  }
+
+  return 1; // Default to line 1 if not found
+}
+
+/**
+ * Find the column position of a value in a YAML field line
+ */
+export function findValueColumn(line: string, fieldName: string): { start: number; end: number } {
+  const colonIndex = line.indexOf(':');
+  if (colonIndex === -1) {
+    return { start: 0, end: line.length };
+  }
+
+  // Value starts after colon and any whitespace
+  const afterColon = line.slice(colonIndex + 1);
+  const valueMatch = afterColon.match(/^\s*(.+?)\s*$/);
+
+  if (valueMatch) {
+    const valueStart = colonIndex + 1 + (afterColon.length - afterColon.trimStart().length);
+    const valueEnd = valueStart + valueMatch[1].length;
+    return { start: valueStart, end: valueEnd };
+  }
+
+  return { start: colonIndex + 1, end: line.length };
+}
+
+/**
+ * Map Ajv error to user-friendly validation error
+ */
+function mapAjvError(error: ErrorObject, content: string): ValidationError {
+  const lines = content.split('\n');
+
+  // Extract field name from instancePath (e.g., "/id" -> "id")
+  const field = error.instancePath.replace(/^\//, '') || error.params?.missingProperty;
+  const line = field ? findFieldLine(content, field) : 1;
+  const lineContent = lines[line - 1] || '';
+  const { start, end } = findValueColumn(lineContent, field || '');
+
+  let message: string;
+
+  switch (error.keyword) {
+    case 'required':
+      message = `Missing required field: ${error.params?.missingProperty}`;
+      break;
+    case 'enum':
+      message = `Invalid value for '${field}'. Allowed: ${error.params?.allowedValues?.join(', ')}`;
+      break;
+    case 'pattern':
+      message = `Invalid format for '${field}'. ${error.message}`;
+      break;
+    case 'type':
+      message = `Invalid type for '${field}'. Expected ${error.params?.type}`;
+      break;
+    case 'minLength':
+      message = `'${field}' cannot be empty`;
+      break;
+    case 'maxLength':
+      message = `'${field}' exceeds maximum length of ${error.params?.limit}`;
+      break;
+    case 'additionalProperties':
+      message = `Unknown field: ${error.params?.additionalProperty}`;
+      break;
+    default:
+      message = error.message || `Invalid value for '${field}'`;
+  }
+
+  return {
+    line,
+    column: start,
+    endColumn: end,
+    message,
+    severity: 'error',
+    field: field || undefined
+  };
+}
+
+/**
+ * Normalize data parsed by gray-matter for Ajv validation.
+ * gray-matter auto-converts dates to Date objects, but Ajv expects strings.
+ */
+function normalizeForValidation(data: Record<string, unknown>): Record<string, unknown> {
+  const normalized: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(data)) {
+    if (value instanceof Date) {
+      // Convert Date back to YYYY-MM-DD string
+      normalized[key] = value.toISOString().split('T')[0];
+    } else if (Array.isArray(value)) {
+      normalized[key] = value.map(item =>
+        item instanceof Date ? item.toISOString().split('T')[0] : item
+      );
+    } else {
+      normalized[key] = value;
+    }
+  }
+
+  return normalized;
+}
+
+/**
+ * Validate frontmatter against JSON schema and config
+ * Returns array of validation errors (empty if valid)
+ */
+export function validateFrontmatter(
+  content: string,
+  fileType: FileType,
+  config: ValidationConfig,
+  schemasDir: string
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+
+  // Parse frontmatter
+  let parsed;
+  try {
+    parsed = matter(content);
+  } catch (e) {
+    return [{
+      line: 1,
+      column: 0,
+      message: 'Invalid YAML frontmatter syntax',
+      severity: 'error'
+    }];
+  }
+
+  // Normalize data for validation (gray-matter converts dates to Date objects)
+  const data = normalizeForValidation(parsed.data);
+
+  // Check if frontmatter exists
+  if (!data || Object.keys(data).length === 0) {
+    return [{
+      line: 1,
+      column: 0,
+      message: 'No frontmatter found. Add YAML frontmatter between --- markers.',
+      severity: 'error'
+    }];
+  }
+
+  // Initialize Ajv and get validator
+  getAjv(schemasDir);
+  const validate = fileType === 'story' ? storyValidate : epicValidate;
+
+  if (!validate) {
+    return [{
+      line: 1,
+      column: 0,
+      message: 'Failed to load validation schema',
+      severity: 'error'
+    }];
+  }
+
+  // Run schema validation
+  const valid = validate(data);
+
+  if (!valid && validate.errors) {
+    for (const error of validate.errors) {
+      errors.push(mapAjvError(error, content));
+    }
+  }
+
+  // Config-aware validation (warnings, not errors)
+  // Only validate if field exists and passes schema validation
+  const statusValue = data.status as string | undefined;
+  if (statusValue && !errors.some(e => e.field === 'status')) {
+    if (!config.statuses.includes(statusValue)) {
+      const line = findFieldLine(content, 'status');
+      const lineContent = content.split('\n')[line - 1] || '';
+      const { start, end } = findValueColumn(lineContent, 'status');
+
+      errors.push({
+        line,
+        column: start,
+        endColumn: end,
+        message: `Status '${statusValue}' is not defined in config. Available: ${config.statuses.join(', ')}`,
+        severity: 'warning',
+        field: 'status'
+      });
+    }
+  }
+
+  // Size validation against config (stories only)
+  const sizeValue = data.size as string | undefined;
+  if (fileType === 'story' && sizeValue && !errors.some(e => e.field === 'size')) {
+    if (!config.sizes.includes(sizeValue)) {
+      const line = findFieldLine(content, 'size');
+      const lineContent = content.split('\n')[line - 1] || '';
+      const { start, end } = findValueColumn(lineContent, 'size');
+
+      errors.push({
+        line,
+        column: start,
+        endColumn: end,
+        message: `Size '${sizeValue}' is not defined in config. Available: ${config.sizes.join(', ')}`,
+        severity: 'warning',
+        field: 'size'
+      });
+    }
+  }
+
+  return errors;
+}
+
+/**
+ * Determine file type from path
+ */
+export function getFileTypeFromPath(filePath: string): FileType | null {
+  if (filePath.includes('/stories/') || filePath.includes('\\stories\\')) {
+    return 'story';
+  }
+  if (filePath.includes('/epics/') || filePath.includes('\\epics\\')) {
+    return 'epic';
+  }
+  return null;
+}
+
+/**
+ * Check if a file path is within .devstories folder
+ */
+export function isDevStoriesFile(filePath: string): boolean {
+  return filePath.includes('.devstories/') || filePath.includes('.devstories\\');
+}
+
+/**
+ * Reset cached Ajv instance (for testing)
+ */
+export function resetAjvCache(): void {
+  ajvInstance = null;
+  storyValidate = null;
+  epicValidate = null;
+}

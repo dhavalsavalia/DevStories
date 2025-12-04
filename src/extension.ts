@@ -18,6 +18,7 @@ import { Watcher } from './core/watcher';
 import { updateWelcomeContext } from './core/welcomeContext';
 import { StoryHoverProvider } from './providers/storyHoverProvider';
 import { StoryLinkProvider } from './providers/storyLinkProvider';
+import { FrontmatterDiagnosticsProvider } from './validation/frontmatterDiagnostics';
 import { StatusBarController } from './view/statusBar';
 import { StoriesProvider } from './view/storiesProvider';
 import { getTreeViewTitle } from './view/storiesProviderUtils';
@@ -70,6 +71,10 @@ export async function activate(context: vscode.ExtensionContext) {
 		{ language: 'markdown', scheme: 'file' },
 		storyHoverProvider
 	);
+
+	// Register Frontmatter Diagnostics Provider (DS-121)
+	const diagnosticsProvider = new FrontmatterDiagnosticsProvider(configService, context.extensionPath);
+	const diagnosticsDisposables = diagnosticsProvider.register();
 
 	// Load initial data and wait for completion
 	await store.load();
@@ -170,6 +175,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		treeView,
 		linkProviderDisposable,
 		hoverProviderDisposable,
+		diagnosticsProvider,
+		...diagnosticsDisposables,
 		initCommand,
 		createEpicCommand,
 		createStoryCommand,

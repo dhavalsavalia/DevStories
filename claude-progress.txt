@@ -248,3 +248,24 @@ Files changed (4):
 - .devstories/stories/DS-124.md (status: done)
 
 Tests: 536 unit + 134 integration (all passing)
+
+=== Session: 2025-12-04 17:00 ===
+Story: DS-125 (Hover documentation for frontmatter)
+Status: done
+
+Changes:
+- Added `findFieldNameAtPosition()` to detect cursor on YAML field names
+- Added `getFieldDescription()` with static schema descriptions (story/epic)
+- Extended `StoryHoverProvider.provideHover()` to show field descriptions
+- Hover shows: **fieldName** followed by description from schema
+- File type (story/epic) determined from path
+
+Note: Acceptance criteria 2-5 were already implemented. Only field name hover (criterion 1) needed new code.
+
+Files changed (4):
+- src/providers/storyHoverProviderUtils.ts (new functions)
+- src/providers/storyHoverProvider.ts (field hover logic)
+- src/test/unit/storyHoverProvider.test.ts (26 new tests)
+- src/test/suite/storyHoverProvider.test.ts (5 new tests)
+
+Tests: 562 unit + 139 integration (all passing)

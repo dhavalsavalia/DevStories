@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { Store } from '../core/store';
-import { findLinkAtPosition, findBareIdAtPosition, isInFrontmatter, formatHoverCard, EpicProgress, HoverLinkMatch } from './storyHoverProviderUtils';
+import { findLinkAtPosition, findBareIdAtPosition, isInFrontmatter, formatHoverCard, EpicProgress, HoverLinkMatch, findFieldNameAtPosition, getFieldDescription } from './storyHoverProviderUtils';
 
 /**
  * Provides hover previews for [[ID]] links in markdown files
@@ -27,6 +27,31 @@ export class StoryHoverProvider implements vscode.HoverProvider {
     // Check if we're in frontmatter - if so, look for bare IDs
     const allLines = document.getText().split('\n');
     const inFrontmatter = isInFrontmatter(allLines, position.line);
+
+    // In frontmatter, check for field name hover first
+    if (inFrontmatter) {
+      const fieldMatch = findFieldNameAtPosition(lineText, charOffset);
+      if (fieldMatch) {
+        // Determine file type from path
+        const fsPath = document.uri.fsPath;
+        const fileType = fsPath.includes('/stories/') ? 'story' : 'epic';
+
+        const description = getFieldDescription(fieldMatch.fieldName, fileType);
+        if (description) {
+          const md = new vscode.MarkdownString();
+          md.appendMarkdown(`**${fieldMatch.fieldName}**\n\n${description}`);
+
+          const range = new vscode.Range(
+            position.line,
+            fieldMatch.start,
+            position.line,
+            fieldMatch.end
+          );
+
+          return new vscode.Hover(md, range);
+        }
+      }
+    }
 
     let match: HoverLinkMatch | null = null;
 

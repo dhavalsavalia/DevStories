@@ -5,7 +5,7 @@
 
 import { Epic } from '../types/epic';
 import { Story } from '../types/story';
-import { getSprintIndex } from '../core/configServiceUtils';
+import { getSprintIndex, StatusDef } from '../core/configServiceUtils';
 
 /**
  * Get the tree view title based on sprint filter.
@@ -89,4 +89,38 @@ export function sortEpicsBySprintOrder(
     // Fall back to epic created date
     return a.created.getTime() - b.created.getTime();
   });
+}
+
+/**
+ * Progress indicator circles from empty to full.
+ * Used to visually represent workflow progress based on status position.
+ */
+const PROGRESS_CIRCLES = ['○', '◔', '◐', '◕', '●'];
+
+/**
+ * Get a visual indicator for a status based on its position in the workflow.
+ * Position 0 (first) = empty circle, position N-1 (last) = filled circle.
+ * Middle positions show gradual fill based on progress.
+ *
+ * @param status - The status ID to get indicator for
+ * @param statuses - The ordered array of configured statuses
+ * @returns Unicode circle character representing progress
+ */
+export function getStatusIndicator(status: string, statuses: StatusDef[]): string {
+  if (statuses.length === 0) {
+    return '○';
+  }
+
+  const index = statuses.findIndex(s => s.id === status);
+  if (index === -1) {
+    return '○'; // Unknown status defaults to not started
+  }
+
+  if (statuses.length === 1) {
+    return '●'; // Single status = complete
+  }
+
+  // Map position to 0-4 range for PROGRESS_CIRCLES
+  const progressIndex = Math.round((index / (statuses.length - 1)) * 4);
+  return PROGRESS_CIRCLES[progressIndex];
 }

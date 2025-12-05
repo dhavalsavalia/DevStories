@@ -5,15 +5,7 @@ import { SprintFilterService } from '../core/sprintFilterService';
 import { Store } from '../core/store';
 import { Epic } from '../types/epic';
 import { Story, StoryType } from '../types/story';
-import { sortStoriesForTreeView, sortEpicsBySprintOrder } from './storiesProviderUtils';
-
-// Default status indicators using unicode symbols for clarity
-const DEFAULT_STATUS_INDICATORS: Record<string, string> = {
-  todo: '○',        // Empty circle - not started
-  in_progress: '◐', // Half circle - in progress
-  review: '◑',      // Other half - in review
-  done: '●',        // Filled circle - complete
-};
+import { sortStoriesForTreeView, sortEpicsBySprintOrder, getStatusIndicator } from './storiesProviderUtils';
 
 export class StoriesProvider implements vscode.TreeDataProvider<Epic | Story> {
   private _onDidChangeTreeData: vscode.EventEmitter<Epic | Story | undefined | null | void> = new vscode.EventEmitter<Epic | Story | undefined | null | void>();
@@ -124,7 +116,8 @@ export class StoriesProvider implements vscode.TreeDataProvider<Epic | Story> {
   }
 
   private getStatusIndicator(status: string): string {
-    return DEFAULT_STATUS_INDICATORS[status] || '○';
+    const statuses = this.configService?.config?.statuses ?? [];
+    return getStatusIndicator(status, statuses);
   }
 
   private createTreeItem(element: Epic | Story): vscode.TreeItem {

@@ -4,9 +4,11 @@ import {
   getEarliestStorySprintIndex,
   sortEpicsBySprintOrder,
   getTreeViewTitle,
+  getStatusIndicator,
 } from '../../view/storiesProviderUtils';
 import { Story, StoryType, StorySize } from '../../types/story';
 import { Epic } from '../../types/epic';
+import { StatusDef } from '../../core/configServiceUtils';
 
 // Helper to create mock stories
 function createMockStory(overrides: Partial<Story> = {}): Story {
@@ -298,6 +300,66 @@ describe('Tree View Sorting Utils', () => {
 
     it('should return "Stories (Backlog)" when backlog filter is active', () => {
       expect(getTreeViewTitle('backlog')).toBe('Stories (Backlog)');
+    });
+  });
+
+  describe('getStatusIndicator', () => {
+    // Helper to create status array
+    const makeStatuses = (...ids: string[]): StatusDef[] =>
+      ids.map(id => ({ id, label: id }));
+
+    it('should return ○ for first status (not started)', () => {
+      const statuses = makeStatuses('todo', 'in_progress', 'review', 'done');
+      expect(getStatusIndicator('todo', statuses)).toBe('○');
+    });
+
+    it('should return ● for last status (complete)', () => {
+      const statuses = makeStatuses('todo', 'in_progress', 'review', 'done');
+      expect(getStatusIndicator('done', statuses)).toBe('●');
+    });
+
+    it('should handle 2 statuses: ○ ●', () => {
+      const statuses = makeStatuses('open', 'closed');
+      expect(getStatusIndicator('open', statuses)).toBe('○');
+      expect(getStatusIndicator('closed', statuses)).toBe('●');
+    });
+
+    it('should handle 3 statuses: ○ ◐ ●', () => {
+      const statuses = makeStatuses('todo', 'doing', 'done');
+      expect(getStatusIndicator('todo', statuses)).toBe('○');
+      expect(getStatusIndicator('doing', statuses)).toBe('◐');
+      expect(getStatusIndicator('done', statuses)).toBe('●');
+    });
+
+    it('should handle 4 statuses: ○ ◔ ◕ ●', () => {
+      const statuses = makeStatuses('todo', 'in_progress', 'review', 'done');
+      expect(getStatusIndicator('todo', statuses)).toBe('○');
+      expect(getStatusIndicator('in_progress', statuses)).toBe('◔');
+      expect(getStatusIndicator('review', statuses)).toBe('◕');
+      expect(getStatusIndicator('done', statuses)).toBe('●');
+    });
+
+    it('should handle 5 statuses: ○ ◔ ◐ ◕ ●', () => {
+      const statuses = makeStatuses('backlog', 'wip', 'review', 'qa', 'deployed');
+      expect(getStatusIndicator('backlog', statuses)).toBe('○');
+      expect(getStatusIndicator('wip', statuses)).toBe('◔');
+      expect(getStatusIndicator('review', statuses)).toBe('◐');
+      expect(getStatusIndicator('qa', statuses)).toBe('◕');
+      expect(getStatusIndicator('deployed', statuses)).toBe('●');
+    });
+
+    it('should return ○ for unknown status', () => {
+      const statuses = makeStatuses('todo', 'done');
+      expect(getStatusIndicator('unknown', statuses)).toBe('○');
+    });
+
+    it('should return ○ for empty statuses array', () => {
+      expect(getStatusIndicator('todo', [])).toBe('○');
+    });
+
+    it('should return ● for single status (always complete)', () => {
+      const statuses = makeStatuses('only');
+      expect(getStatusIndicator('only', statuses)).toBe('●');
     });
   });
 });

@@ -58,7 +58,8 @@ export class StatusBarController implements vscode.Disposable {
    */
   getStats(sprint?: string): StatusBarStats {
     const sprintFilter = sprint !== undefined ? sprint : this.getCurrentSprintFilter();
-    return getStatsFromStories(this.store.getStories(), sprintFilter);
+    const statuses = this.configService?.config.statuses ?? [];
+    return getStatsFromStories(this.store.getStories(), sprintFilter, statuses);
   }
 
   /**
@@ -75,7 +76,8 @@ export class StatusBarController implements vscode.Disposable {
     const sprintFilter = sprint !== undefined
       ? (sprint || null)
       : this.getCurrentSprintFilter();
-    const stats = getStatsFromStories(this.store.getStories(), sprintFilter);
+    const statuses = this.configService?.config.statuses ?? [];
+    const stats = getStatsFromStories(this.store.getStories(), sprintFilter, statuses);
     return getFormattedStatusBarText(stats.done, stats.total, sprintFilter);
   }
 
@@ -101,7 +103,8 @@ export class StatusBarController implements vscode.Disposable {
    */
   private getTooltip(): vscode.MarkdownString {
     const sprint = this.getCurrentSprintFilter();
-    const stats = getStatsFromStories(this.store.getStories(), sprint);
+    const statuses = this.configService?.config.statuses ?? [];
+    const stats = getStatsFromStories(this.store.getStories(), sprint, statuses);
     const lines = formatTooltipLines(stats.done, stats.total, sprint);
     const md = new vscode.MarkdownString(lines.join('\n'));
     md.isTrusted = true;

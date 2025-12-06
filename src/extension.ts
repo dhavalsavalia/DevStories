@@ -67,7 +67,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	);
 
 	// Register Hover Provider for [[ID]] preview
-	const storyHoverProvider = new StoryHoverProvider(store);
+	const storyHoverProvider = new StoryHoverProvider(store, configService);
 	const hoverProviderDisposable = vscode.languages.registerHoverProvider(
 		{ language: 'markdown', scheme: 'file' },
 		storyHoverProvider

@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import { ConfigService } from '../core/configService';
+import { isCompletedStatus } from '../core/configServiceUtils';
 import { Store } from '../core/store';
 import { findLinkAtPosition, findBareIdAtPosition, isInFrontmatter, formatHoverCard, EpicProgress, HoverLinkMatch, findFieldNameAtPosition, getFieldDescription } from './storyHoverProviderUtils';
 
@@ -7,7 +9,7 @@ import { findLinkAtPosition, findBareIdAtPosition, isInFrontmatter, formatHoverC
  * Shows story/epic details in a formatted markdown card
  */
 export class StoryHoverProvider implements vscode.HoverProvider {
-  constructor(private store: Store) {}
+  constructor(private store: Store, private configService?: ConfigService) {}
 
   provideHover(
     document: vscode.TextDocument,
@@ -89,7 +91,8 @@ export class StoryHoverProvider implements vscode.HoverProvider {
     let progress: EpicProgress | undefined;
     if (epic) {
       const stories = this.store.getStoriesByEpic(epic.id);
-      const done = stories.filter(s => s.status === 'done').length;
+      const statuses = this.configService?.config.statuses ?? [];
+      const done = stories.filter(s => isCompletedStatus(s.status, statuses)).length;
       progress = { done, total: stories.length };
     }
 

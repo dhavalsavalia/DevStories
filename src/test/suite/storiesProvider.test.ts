@@ -241,6 +241,24 @@ created: 2025-01-01
     }
   });
 
+  // DS-181: Epic tooltip parity
+  test('should show tooltip with epic details', async () => {
+    const epics = await provider.getChildren();
+    const epic = epics.find(c => c.id === 'EPIC-VIEW');
+
+    if (epic) {
+      const treeItem = provider.getTreeItem(epic);
+      assert.ok(treeItem.tooltip, 'Epic should have tooltip');
+
+      const tooltipValue = (treeItem.tooltip as vscode.MarkdownString).value;
+      assert.ok(tooltipValue.includes('EPIC-VIEW'), 'Tooltip should include epic ID');
+      assert.ok(tooltipValue.includes('View Epic'), 'Tooltip should include title');
+      assert.ok(tooltipValue.includes('todo'), 'Tooltip should include status');
+      assert.ok(tooltipValue.includes('2025-01-01'), 'Tooltip should include created date');
+      assert.ok(tooltipValue.includes('Stories:'), 'Tooltip should include story count');
+    }
+  });
+
   // DS-139: Tree view title tests
   test('getTreeViewTitle should return "Stories" when no filter', () => {
     assert.strictEqual(getTreeViewTitle(null), 'Stories');

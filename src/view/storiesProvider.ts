@@ -131,7 +131,14 @@ export class StoriesProvider implements vscode.TreeDataProvider<Epic | Story> {
       item.id = element.id;
       item.iconPath = this.getIconPath('epic');
       item.description = `${this.getStatusIndicator(element.status)} ${element.status}`;
-      item.tooltip = new vscode.MarkdownString(`**${element.id}**: ${element.title}\n\nStatus: ${element.status}`);
+      const storyCount = this.store.getStoriesByEpic(element.id).length;
+      const createdDate = element.created.toISOString().split('T')[0];
+      item.tooltip = new vscode.MarkdownString(
+        `**${element.id}**: ${element.title}\n\n` +
+        `Status: ${element.status}\n` +
+        `Created: ${createdDate}\n` +
+        `Stories: ${storyCount}`
+      );
 
       // Set resourceUri for file-related operations (enables proper theming and file associations)
       if (element.filePath) {

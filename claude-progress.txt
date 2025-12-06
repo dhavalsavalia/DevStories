@@ -269,3 +269,19 @@ Files changed (4):
 - src/test/suite/storyHoverProvider.test.ts (5 new tests)
 
 Tests: 562 unit + 139 integration (all passing)
+
+=== Session: 2025-12-05 19:05 ===
+Story: DS-181 (Epic tooltip parity)
+Status: done
+
+Changes:
+- Updated epic tooltip in storiesProvider.ts:134-141
+- Now shows: ID, title, status, created date, story count
+- Added integration test for epic tooltip
+
+Files changed (2):
+- src/view/storiesProvider.ts (epic tooltip)
+- src/test/suite/storiesProvider.test.ts (new test)
+- .devstories/stories/DS-181.md (status: done)
+
+Tests: 571 unit + 139 integration (new test passes, pre-existing failure unrelated)

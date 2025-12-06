@@ -141,21 +141,28 @@ export function findNextStoryId(existingIds: string[], prefix: string): number {
 }
 
 /**
- * Get suggested size based on story type
- * Bugs tend to be smaller, features tend to be larger
+ * Get suggested size based on story type using index-based selection
+ * Bug/Chore → first size, Feature → middle size, Task → second size
  */
-export function getSuggestedSize(type: StoryType): StorySize {
+export function getSuggestedSize(type: StoryType, sizes: StorySize[]): StorySize {
+  if (sizes.length === 0) {
+    return 'M' as StorySize; // Fallback for edge case (shouldn't happen with valid config)
+  }
+
+  const middleIndex = Math.floor(sizes.length / 2);
+  const secondIndex = Math.min(1, sizes.length - 1);
+
   switch (type) {
     case 'bug':
-      return 'S';
+      return sizes[0];
     case 'feature':
-      return 'M';
+      return sizes[middleIndex];
     case 'task':
-      return 'M';
+      return sizes[secondIndex];
     case 'chore':
-      return 'S';
+      return sizes[0];
     default:
-      return 'M';
+      return sizes[middleIndex];
   }
 }
 

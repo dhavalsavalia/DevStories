@@ -266,7 +266,7 @@ export async function executeCreateStory(store: Store): Promise<boolean> {
   }
 
   // Size picker with suggestion
-  const suggestedSize = getSuggestedSize(selectedType.value);
+  const suggestedSize = getSuggestedSize(selectedType.value, config.sizes);
   const sizeOptions: SizeQuickPickItem[] = config.sizes.map(s => ({
     label: s,
     description: s === suggestedSize ? '(suggested)' : undefined,

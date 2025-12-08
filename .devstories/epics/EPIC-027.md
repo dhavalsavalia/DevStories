@@ -23,7 +23,7 @@ Fix hardcoded values and inconsistencies that break UX with custom configuration
 - [[DS-177]] - Fix hardcoded size suggestions
 - [[DS-178]] - Parse error user notifications
 - [[DS-179]] - Config fallback notifications
-- [[DS-180]] - Empty state tree guidance
+- ~~[[DS-180]] - Empty state tree guidance~~ (duplicate of [[DS-138]])
 - [[DS-181]] - Epic tooltip parity
 - [[DS-182]] - Epic title 200 char limit
 - [[DS-183]] - Epic cross-validation

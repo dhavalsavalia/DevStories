@@ -122,7 +122,9 @@
       "Bash(then grep -E \"^(id|title|status):\" $f)",
       "Bash(sort:*)",
       "Bash(grep:*)",
-      "Bash(git -C /Users/dhavalsavalia/projects/devstories_worktrees/track-c log:*)"
+      "Bash(WORKTREES=/Users/dhavalsavalia/projects/devstories_worktrees)",
+      "Bash(git worktree add:*)",
+      "Bash(git worktree:*)"
     ],
     "deny": [],
     "ask": [],

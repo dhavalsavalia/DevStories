@@ -88,11 +88,12 @@ suite('CreateStory Command Integration Test', () => {
 
 	test('getSuggestedSize should return correct suggestions', async () => {
 		const { getSuggestedSize } = await import('../../commands/createStoryUtils');
+		const defaultSizes = ['XS', 'S', 'M', 'L', 'XL'];
 
-		assert.strictEqual(getSuggestedSize('bug'), 'S');
-		assert.strictEqual(getSuggestedSize('feature'), 'M');
-		assert.strictEqual(getSuggestedSize('task'), 'M');
-		assert.strictEqual(getSuggestedSize('chore'), 'S');
+		assert.strictEqual(getSuggestedSize('bug', defaultSizes), 'XS');
+		assert.strictEqual(getSuggestedSize('feature', defaultSizes), 'M');
+		assert.strictEqual(getSuggestedSize('task', defaultSizes), 'S');
+		assert.strictEqual(getSuggestedSize('chore', defaultSizes), 'XS');
 	});
 
 	test('appendStoryToEpic should add link to Stories section', async () => {

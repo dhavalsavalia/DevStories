@@ -105,20 +105,44 @@ describe('createStory Utils', () => {
   });
 
   describe('getSuggestedSize', () => {
-    it('should suggest S for bugs', () => {
-      expect(getSuggestedSize('bug')).toBe('S');
+    const defaultSizes = ['XS', 'S', 'M', 'L', 'XL'];
+
+    it('should suggest first size for bugs', () => {
+      expect(getSuggestedSize('bug', defaultSizes)).toBe('XS');
     });
 
-    it('should suggest M for features', () => {
-      expect(getSuggestedSize('feature')).toBe('M');
+    it('should suggest middle size for features', () => {
+      expect(getSuggestedSize('feature', defaultSizes)).toBe('M');
     });
 
-    it('should suggest M for tasks', () => {
-      expect(getSuggestedSize('task')).toBe('M');
+    it('should suggest second size for tasks', () => {
+      expect(getSuggestedSize('task', defaultSizes)).toBe('S');
     });
 
-    it('should suggest S for chores', () => {
-      expect(getSuggestedSize('chore')).toBe('S');
+    it('should suggest first size for chores', () => {
+      expect(getSuggestedSize('chore', defaultSizes)).toBe('XS');
+    });
+
+    it('should work with custom size arrays', () => {
+      const customSizes = ['Tiny', 'Small', 'Large'];
+      expect(getSuggestedSize('bug', customSizes)).toBe('Tiny');
+      expect(getSuggestedSize('feature', customSizes)).toBe('Small'); // middle of 3
+      expect(getSuggestedSize('task', customSizes)).toBe('Small');
+      expect(getSuggestedSize('chore', customSizes)).toBe('Tiny');
+    });
+
+    it('should handle single-element array', () => {
+      const singleSize = ['OneSize'];
+      expect(getSuggestedSize('bug', singleSize)).toBe('OneSize');
+      expect(getSuggestedSize('feature', singleSize)).toBe('OneSize');
+      expect(getSuggestedSize('task', singleSize)).toBe('OneSize');
+    });
+
+    it('should handle two-element array', () => {
+      const twoSizes = ['Small', 'Large'];
+      expect(getSuggestedSize('bug', twoSizes)).toBe('Small'); // first
+      expect(getSuggestedSize('feature', twoSizes)).toBe('Large'); // middle (index 1)
+      expect(getSuggestedSize('task', twoSizes)).toBe('Large'); // second (clamped to index 1)
     });
   });
 

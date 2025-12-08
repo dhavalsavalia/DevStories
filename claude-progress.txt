@@ -293,3 +293,25 @@ Files changed (6):
 - src/test/unit/statusBar.test.ts (2 new tests)
 
 Tests: 579 unit (all pass) + 138/139 integration (1 pre-existing failure)
+
+=== Session: 2025-12-05 19:01 ===
+Story: DS-177 (Fix hardcoded size suggestions)
+Status: done
+
+Changes:
+- Updated `getSuggestedSize()` signature to accept `sizes: StorySize[]`
+- Bug/Chore → first size (index 0), Feature → middle, Task → second
+- Quick capture now uses `config.sizes[Math.floor(config.sizes.length / 2)]`
+- Changed `StorySize` type from literal union to `string` for custom sizes
+
+Files changed (6):
+- src/types/story.ts (StorySize now string)
+- src/commands/createStoryUtils.ts (getSuggestedSize signature)
+- src/commands/createStory.ts (pass config.sizes)
+- src/commands/quickCapture.ts (use middleSize)
+- src/test/unit/createStory.test.ts (updated tests)
+- src/test/suite/createStory.test.ts (updated integration test)
+- .devstories/stories/DS-177.md (status: done)
+
+Tests: 574 unit + 138 integration (all related tests passing)
+Note: Pre-existing failing test in storiesProvider.test.ts (unrelated)

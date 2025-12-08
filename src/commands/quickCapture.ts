@@ -188,7 +188,8 @@ export async function executeQuickCapture(store: Store): Promise<boolean> {
     template = `## Notes\n${parsed.notes}\n\n${template}`;
   }
 
-  // Generate markdown
+  // Generate markdown - use middle size for quick capture
+  const middleSize = config.sizes[Math.floor(config.sizes.length / 2)];
   const markdown = generateStoryMarkdown(
     {
       id: storyId,
@@ -196,7 +197,7 @@ export async function executeQuickCapture(store: Store): Promise<boolean> {
       type: parsed.type,
       epic: inboxEpicId,
       sprint,
-      size: 'M', // Default size for quick capture
+      size: middleSize,
     },
     template
   );

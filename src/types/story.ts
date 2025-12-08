@@ -1,6 +1,6 @@
 export type StoryType = 'feature' | 'bug' | 'task' | 'chore';
-export type StoryStatus = string; // Defined in config, but string for now
-export type StorySize = 'XS' | 'S' | 'M' | 'L' | 'XL';
+export type StoryStatus = string; // Defined in config
+export type StorySize = string; // Defined in config (default: XS, S, M, L, XL)
 
 export interface Story {
   id: string;

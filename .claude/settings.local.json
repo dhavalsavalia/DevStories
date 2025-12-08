@@ -121,7 +121,8 @@
       "Bash(do if grep -q '^epic: EPIC-026' $f)",
       "Bash(then grep -E \"^(id|title|status):\" $f)",
       "Bash(sort:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(git -C /Users/dhavalsavalia/projects/devstories_worktrees/track-c log:*)"
     ],
     "deny": [],
     "ask": [],

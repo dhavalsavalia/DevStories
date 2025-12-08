@@ -224,6 +224,18 @@ export function sortSprintsBySequence(sprints: string[], sprintSequence: string[
 }
 
 /**
+ * Check if a status is the completion status (last in workflow).
+ * Used for progress calculations instead of hardcoded 'done'.
+ * Falls back to literal 'done' check if statuses array is empty.
+ */
+export function isCompletedStatus(status: string, statuses: StatusDef[]): boolean {
+  if (statuses.length === 0) {
+    return status === 'done';
+  }
+  return status === statuses[statuses.length - 1].id;
+}
+
+/**
  * Generic debounce function
  */
 export function debounce<T extends (...args: unknown[]) => void>(

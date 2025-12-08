@@ -3,7 +3,7 @@
  * These can be unit tested with Vitest
  */
 
-import { sortSprintsBySequence } from '../core/configServiceUtils';
+import { sortSprintsBySequence, isCompletedStatus, StatusDef } from '../core/configServiceUtils';
 import { Story } from '../types/story';
 
 export interface StatusBarStats {
@@ -15,8 +15,9 @@ export interface StatusBarStats {
  * Get stats from stories array, optionally filtered by sprint
  * @param stories - All stories
  * @param sprint - Sprint to filter by (null = all sprints, 'backlog' = empty/undefined/backlog)
+ * @param statuses - Status workflow from config (completion = last status)
  */
-export function getStatsFromStories(stories: Story[], sprint: string | null): StatusBarStats {
+export function getStatsFromStories(stories: Story[], sprint: string | null, statuses: StatusDef[] = []): StatusBarStats {
   let filtered = stories;
 
   if (sprint !== null) {
@@ -29,7 +30,7 @@ export function getStatsFromStories(stories: Story[], sprint: string | null): St
   }
 
   const total = filtered.length;
-  const done = filtered.filter(s => s.status === 'done').length;
+  const done = filtered.filter(s => isCompletedStatus(s.status, statuses)).length;
 
   return { total, done };
 }

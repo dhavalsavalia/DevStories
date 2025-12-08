@@ -269,3 +269,27 @@ Files changed (4):
 - src/test/suite/storyHoverProvider.test.ts (5 new tests)
 
 Tests: 562 unit + 139 integration (all passing)
+
+=== Session: 2025-12-05 18:52 ===
+Story: DS-175 (Fix hardcoded 'done' status checks)
+Status: done
+
+Changes:
+- Added `isCompletedStatus(status, statuses)` utility to configServiceUtils.ts
+- Updated statusBarUtils.ts `getStatsFromStories()` to accept statuses param
+- Updated statusBar.ts to pass config statuses to stats calculations
+- Updated storyHoverProvider.ts to accept ConfigService for epic progress
+- Updated extension.ts to pass configService to StoryHoverProvider
+
+Key fix: Progress counts now check if status is LAST in workflow, not literal 'done'
+
+Files changed (6):
+- src/core/configServiceUtils.ts (new isCompletedStatus function)
+- src/view/statusBarUtils.ts (statuses param)
+- src/view/statusBar.ts (pass statuses)
+- src/providers/storyHoverProvider.ts (ConfigService injection)
+- src/extension.ts (pass configService)
+- src/test/unit/configService.test.ts (6 new tests)
+- src/test/unit/statusBar.test.ts (2 new tests)
+
+Tests: 579 unit (all pass) + 138/139 integration (1 pre-existing failure)

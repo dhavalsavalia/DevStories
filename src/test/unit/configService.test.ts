@@ -9,6 +9,8 @@ import {
   DEFAULT_CONFIG,
   debounce,
   getSprintIndex,
+  isCompletedStatus,
+  StatusDef,
 } from '../../core/configServiceUtils';
 
 describe('ConfigService Utils', () => {
@@ -366,6 +368,51 @@ Some content`;
 
     it('should handle empty string sprint', () => {
       expect(getSprintIndex('', sequence)).toBe(Infinity);
+    });
+  });
+
+  describe('isCompletedStatus', () => {
+    const defaultStatuses: StatusDef[] = [
+      { id: 'todo', label: 'To Do' },
+      { id: 'in_progress', label: 'In Progress' },
+      { id: 'review', label: 'Review' },
+      { id: 'done', label: 'Done' },
+    ];
+
+    const customStatuses: StatusDef[] = [
+      { id: 'todo', label: 'To Do' },
+      { id: 'in_progress', label: 'In Progress' },
+      { id: 'done', label: 'Done' },
+      { id: 'deployed', label: 'Deployed' },
+    ];
+
+    it('should return true for last status in default workflow', () => {
+      expect(isCompletedStatus('done', defaultStatuses)).toBe(true);
+    });
+
+    it('should return false for non-last status in default workflow', () => {
+      expect(isCompletedStatus('todo', defaultStatuses)).toBe(false);
+      expect(isCompletedStatus('in_progress', defaultStatuses)).toBe(false);
+      expect(isCompletedStatus('review', defaultStatuses)).toBe(false);
+    });
+
+    it('should return true for last status in custom workflow', () => {
+      expect(isCompletedStatus('deployed', customStatuses)).toBe(true);
+    });
+
+    it('should return false for done when custom workflow ends with deployed', () => {
+      expect(isCompletedStatus('done', customStatuses)).toBe(false);
+    });
+
+    it('should fall back to literal done check for empty statuses array', () => {
+      expect(isCompletedStatus('done', [])).toBe(true);
+      expect(isCompletedStatus('deployed', [])).toBe(false);
+    });
+
+    it('should handle single-status workflow', () => {
+      const singleStatus: StatusDef[] = [{ id: 'complete', label: 'Complete' }];
+      expect(isCompletedStatus('complete', singleStatus)).toBe(true);
+      expect(isCompletedStatus('done', singleStatus)).toBe(false);
     });
   });
 });

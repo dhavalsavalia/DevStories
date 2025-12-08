@@ -12,6 +12,7 @@ import {
   formatTooltipLines,
 } from '../../view/statusBarUtils';
 import { Story } from '../../types/story';
+import { StatusDef } from '../../core/configServiceUtils';
 
 // Helper to create test stories
 function createStory(overrides: Partial<Story> = {}): Story {
@@ -75,6 +76,36 @@ describe('statusBarUtils', () => {
       const stats = getStatsFromStories([], null);
       expect(stats.total).toBe(0);
       expect(stats.done).toBe(0);
+    });
+
+    it('should use custom completion status when provided', () => {
+      const customStatuses: StatusDef[] = [
+        { id: 'todo', label: 'To Do' },
+        { id: 'done', label: 'Done' },
+        { id: 'deployed', label: 'Deployed' },
+      ];
+      const stories: Story[] = [
+        createStory({ id: 'S-1', status: 'done', sprint: 'sprint-1' }),
+        createStory({ id: 'S-2', status: 'deployed', sprint: 'sprint-1' }),
+        createStory({ id: 'S-3', status: 'todo', sprint: 'sprint-1' }),
+      ];
+
+      // With custom statuses: only 'deployed' counts as complete
+      const stats = getStatsFromStories(stories, null, customStatuses);
+      expect(stats.total).toBe(3);
+      expect(stats.done).toBe(1); // Only the deployed story
+    });
+
+    it('should fall back to literal done when statuses empty', () => {
+      const stories: Story[] = [
+        createStory({ id: 'S-1', status: 'done', sprint: 'sprint-1' }),
+        createStory({ id: 'S-2', status: 'deployed', sprint: 'sprint-1' }),
+      ];
+
+      // With empty statuses array: falls back to literal 'done' check
+      const stats = getStatsFromStories(stories, null, []);
+      expect(stats.total).toBe(2);
+      expect(stats.done).toBe(1); // Only the 'done' story
     });
   });
 
